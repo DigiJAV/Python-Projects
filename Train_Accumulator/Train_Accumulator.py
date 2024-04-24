@@ -129,7 +129,7 @@ def generate_obstacles(obstacle_list: list[Object], node_list: list[Object], tra
             coord = generate_random_coord(TEXT_SPACE)
             col = coord[0]
             row = coord[1]
-            if pygame.Rect(col, row, CELL_SIZE, CELL_SIZE).collidelist([node.object_box for node in node_list] ) == -1 and pygame.Rect(col, row, CELL_SIZE, CELL_SIZE).collidelist([obstacle.object_box for obstacle in obstacle_list]) == -1 and pygame.Rect(col, row, CELL_SIZE, CELL_SIZE).colliderect(train_list[0].train_box) != True:
+            if pygame.Rect(col, row, CELL_SIZE, CELL_SIZE).collidelist([node.object_box for node in node_list] ) == -1 and pygame.Rect(col, row, CELL_SIZE, CELL_SIZE).collidelist([obstacle.object_box for obstacle in obstacle_list]) == -1 and pygame.Rect(col, row, CELL_SIZE, CELL_SIZE).collidelist([train.train_box for train in train_list]) == -1:
                 obstacle_box = pygame.Rect(col, row, CELL_SIZE, CELL_SIZE)
                 image_id = generate_random_int(0,2)
                 obstacle_list.append(Object(obstacle_box, image_id))
@@ -249,7 +249,7 @@ SCREEN_LENGTH = 800 + TEXT_SPACE
 SCREEN_WIDTH = 1000
 SURFACE_LENGTH = SCREEN_LENGTH - TEXT_SPACE
 SURFACE_WIDTH = SCREEN_WIDTH
-CELL_SIZE = 25
+CELL_SIZE = 20
 POPUP_LENGTH = 70
 POPUP_WIDTH = 200
 POPUP_COLOR = (253, 240, 0)
@@ -259,7 +259,7 @@ DIRECTION_VALUES = ['Up','Down','Left','Right']
 NODE_COLOR = (154, 151, 5)
 OBSTACLE_COLOR = (40, 43, 40)
 TRAIN_COLOR = (128, 67, 8)
-FPS = 4                         #Frames per second
+FPS = 3                        #Frames per second
 
 #pygame setup
 running = True
@@ -271,21 +271,21 @@ script_dir = os.path.dirname(os.path.abspath(__file__))   # Get the directory wh
 os.chdir(script_dir)                                                    # Set this directory as the current working directory
                                                     
 #Loading of Images
-surface = pygame.image.load(r"Train Accumulator Images\background\train_accumulator_Background0.jpg")
-surface_copy = pygame.image.load(r"Train Accumulator Images\background\train_accumulator_Background0.jpg")    #For updating image surface per frame
-train0_image_up = pygame.image.load(r"Train Accumulator Images\train0\train0_up.png")
-train0_image_down = pygame.image.load(r"Train Accumulator Images\train0\train0_down.png")
-train0_image_right = pygame.image.load(r"Train Accumulator Images\train0\train0_right.png")
-train0_image_left = pygame.image.load(r"Train Accumulator Images\train0\train0_left.png")
-train_image_up = pygame.image.load(r"Train Accumulator Images\carts\Cart low\cart_up.png")
-train_image_down = pygame.image.load(r"Train Accumulator Images\carts\Cart low\cart_down.png")
-train_image_right = pygame.image.load(r"Train Accumulator Images\carts\Cart low\cart_right.png")
-train_image_left = pygame.image.load(r"Train Accumulator Images\carts\Cart low\cart_left.png")
-node_image = pygame.image.load(r"Train Accumulator Images\Nodes\coin_topdown1.png")
-obstacle1_image = pygame.image.load(r"Train Accumulator Images\Obstacles\obstacle1.png")
-obstacle2_image = pygame.image.load(r"Train Accumulator Images\Obstacles\obstacle2.png")
-obstacle3_image = pygame.image.load(r"Train Accumulator Images\Obstacles\obstacle3.png")
-obstacle4_image = pygame.image.load(r"Train Accumulator Images\Obstacles\obstacle4.png")
+surface = pygame.image.load(r"Images\background\train_accumulator_Background0.jpg")
+surface_copy = pygame.image.load(r"Images\background\train_accumulator_Background0.jpg")    #For updating image surface per frame
+train0_image_up = pygame.image.load(r"Images\train0\train0_up.png")
+train0_image_down = pygame.image.load(r"Images\train0\train0_down.png")
+train0_image_right = pygame.image.load(r"Images\train0\train0_right.png")
+train0_image_left = pygame.image.load(r"Images\train0\train0_left.png")
+train_image_up = pygame.image.load(r"Images\carts\Cart low\cart_up.png")
+train_image_down = pygame.image.load(r"Images\carts\Cart low\cart_down.png")
+train_image_right = pygame.image.load(r"Images\carts\Cart low\cart_right.png")
+train_image_left = pygame.image.load(r"Images\carts\Cart low\cart_left.png")
+node_image = pygame.image.load(r"Images\Nodes\coin_topdown1.png")
+obstacle1_image = pygame.image.load(r"Images\Obstacles\obstacle1.png")
+obstacle2_image = pygame.image.load(r"Images\Obstacles\obstacle2.png")
+obstacle3_image = pygame.image.load(r"Images\Obstacles\obstacle3.png")
+obstacle4_image = pygame.image.load(r"Images\Obstacles\obstacle4.png")
 
 #Scaling of Images
 train0_image_up_c = pygame.transform.scale(train0_image_up, (CELL_SIZE, CELL_SIZE))
