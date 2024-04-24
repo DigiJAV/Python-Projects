@@ -259,7 +259,7 @@ DIRECTION_VALUES = ['Up','Down','Left','Right']
 NODE_COLOR = (154, 151, 5)
 OBSTACLE_COLOR = (40, 43, 40)
 TRAIN_COLOR = (128, 67, 8)
-FPS = 3                        #Frames per second
+FPS = 3.5                        #Frames per second
 
 #pygame setup
 running = True
