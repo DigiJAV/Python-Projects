@@ -65,7 +65,6 @@ def list_sort():
 
 def list_filter():
 	"""Receives input from UI and list. UI interaction determines list and filter option."""
-0
 
 def save_data():
 	"""Saves data in files."""
@@ -78,28 +77,44 @@ def create_main_window():
 	window0 = tk.Tk()
 	window0.geometry(f"{SCREEN_WIDTH}x{SCREEN_LENGTH}")
 	window0.title("Getting Things Done")
-	window0.grid()
 	return window0
 
 def create_sub_window(window0: tk.Tk):
 	"""Creates an empty sub_screen."""
-	window1 = tk.Toplevel(window0,borderwidth=2, background='blue')
-
-	sub_window_border = tk.Frame(window0, width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGT, background='black', borderwidth=3)
-	sub_window = tk.Frame(sub_window_border, width = SUB_WINDOW_WIDTH-6, height = SUB_WINDOW_HEIGT-6, background='blue')
-	title_frame = tk.Frame(sub_window)
-	title = tk.Label(title_frame, text="Next Actions", fg='white', bg='black', font=16)
-
-	sub_window_border.grid_propagate(0)
-	sub_window.grid_propagate(0)
-	sub_window_border.grid(row=0, column=0)
-	sub_window.grid(column=0, row=0)
-	title_frame.grid(column=0, row=0)
-	title.grid(column=0,row=0)
-
-	title_frame.bind("<Button-1><Motion>", drag_window)
+	#Generate sub-window and  component widgets
+	canvas = tk.Canvas(window0)
+	sub_window= tk.Frame(width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGT, background='blue', borderwidth=5, relief='groove')
+	window1_ID_int = canvas.create_window((0,0), window = sub_window)
+	top_frame = tk.Frame(sub_window, width=SUB_WINDOW_WIDTH-10, height=20, bg='black')
+	title = tk.Label(top_frame, text="Next Actions", fg='white', bg='black')
+	window_options_frame = tk.Frame(top_frame, bg='black')
+	minimize_button = tk.Button(window_options_frame, fg='white', bg='black', text ='\u2013')
+	maximize_button = tk.Button(window_options_frame, fg='white', bg='black', text='\u29E0')
+	close_button = tk.Button(window_options_frame, fg='white', bg='black', text='X')
 	
+	#Force sub_window and top_frame to be of determined size, and not the size of the component widgets. 
+	sub_window.grid_propagate(0)
+	top_frame.grid_propagate(0)
+	
+	#Place widgets 
+	canvas.grid(column=0, row=0)
+	sub_window.grid(column=0, row=0)
+	top_frame.grid(column=0, row=0)
+	window_options_frame.grid(column=1, row=0, sticky='e')
+	close_button.grid(column=3, row=0)
+	minimize_button.grid(column=1, row=0)
+	maximize_button.grid(column=2, row=0)
+	title.grid(column=0, row=0, sticky='w')
 
+	#Event handling
+	drag_status = False
+
+	#Widget event binds  
+	top_frame.bind("<Button-1>", drag_activate)
+	top_frame.bind("<ButtonRelease>", drag_deactivate)
+	top_frame.bind("<Motion>", execute_drag)
+	print(drag_status)
+	
 def ui_manager():
 	"Manages UI. "
 	window0 = create_main_window()
@@ -133,11 +148,36 @@ def add_checkboxes():
 	""""""
 
 #Event Handlers
-def drag_window(event):
-	"""Event_handler for click and drag on title frame of a sub-window, leading to repositioning of sub-window according to position of mouse pointer."""
+def drag_activate(mouse_button1_press: tk.Event)->bool:
+	""""Returns True when mouse button 1 is pressed in binded widget. """
+	print("Button1 Pressed")
+	global drag_status 
+	drag_status = True
 
+def drag_deactivate(mouse_butto1_release: tk.Event)->bool:
+	"""Returns False when mouse button 1 is released over the binded widget. """
+	print("Button1 Released")
+	global drag_status
+	drag_status = False
 
-
+def execute_drag(mouse_motion: tk.Event):
+	"""Called when motion detected in binded frame, and drag_status == True.
+	"""
+	global drag_status
+	if drag_status:
+		print("Dragging")
+		top_frame = mouse_motion.widget
+		# X and y coords relative top_frame widget where mouse button press event occurred.
+		x_widget = mouse_motion.x
+		y_widget = mouse_motion.y
+		#print("x_widget, y_widget: (",x_widget,y_widget,")")
+		# X and Y coords relative root window of the position of the mouse pointer 
+		x_root,y_root = mouse_motion.x_root, mouse_motion.y_root
+		print("Mouse (x_root,y_root): (",x_root,y_root,")")
+		# Update position of sub_window in root screen given using coords above, if mouse motion occurs 
+		window = top_frame.master.master
+		window.grid(column = x_root, row = y_root)
+		print("Window (col,row): (", window.winfo_x(), window.winfo_y(),")")
 #Global Constants:
 SCREEN_WIDTH = 1800
 SCREEN_LENGTH = 800
