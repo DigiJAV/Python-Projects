@@ -77,14 +77,15 @@ def create_main_window():
 	window0 = tk.Tk()
 	window0.geometry(f"{SCREEN_WIDTH}x{SCREEN_LENGTH}")
 	window0.title("Getting Things Done")
+
 	return window0
 
 def create_sub_window(window0: tk.Tk):
 	"""Creates an empty sub_screen."""
 	#Generate sub-window and  component widgets
-	canvas = tk.Canvas(window0)
-	sub_window= tk.Frame(width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGT, background='blue', borderwidth=5, relief='groove')
-	window1_ID_int = canvas.create_window((0,0), window = sub_window)
+	canvas0= tk.Canvas(window0, width=SCREEN_WIDTH, height=SCREEN_LENGTH, bg='black')
+	
+	sub_window= tk.Frame(width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGHT, background='blue', borderwidth=5, relief='groove')
 	top_frame = tk.Frame(sub_window, width=SUB_WINDOW_WIDTH-10, height=20, bg='black')
 	title = tk.Label(top_frame, text="Next Actions", fg='white', bg='black')
 	window_options_frame = tk.Frame(top_frame, bg='black')
@@ -92,13 +93,19 @@ def create_sub_window(window0: tk.Tk):
 	maximize_button = tk.Button(window_options_frame, fg='white', bg='black', text='\u29E0')
 	close_button = tk.Button(window_options_frame, fg='white', bg='black', text='X')
 	
+	canvas_window0_ID = canvas0.create_window(100,100, anchor=tk.NW, width=SUB_WINDOW_WIDTH, height=SUB_WINDOW_HEIGHT, window=sub_window)
+	
+	
+	
 	#Force sub_window and top_frame to be of determined size, and not the size of the component widgets. 
-	sub_window.grid_propagate(0)
 	top_frame.grid_propagate(0)
 	
+	#Configure columns of top_frame widget
+	top_frame.columnconfigure(0, weight=1)
+	top_frame.columnconfigure(1, weight=1)
+
 	#Place widgets 
-	canvas.grid(column=0, row=0)
-	sub_window.grid(column=0, row=0)
+	canvas0.grid(column=0, row=0)
 	top_frame.grid(column=0, row=0)
 	window_options_frame.grid(column=1, row=0, sticky='e')
 	close_button.grid(column=3, row=0)
@@ -115,9 +122,11 @@ def create_sub_window(window0: tk.Tk):
 	top_frame.bind("<Motion>", execute_drag)
 	print(drag_status)
 	
+	return canvas0
+
 def ui_manager():
 	"Manages UI. "
-	window0 = create_main_window()
+	window0= create_main_window()
 	window1 = create_sub_window(window0)
 	window0.mainloop()
 
@@ -174,15 +183,19 @@ def execute_drag(mouse_motion: tk.Event):
 		# X and Y coords relative root window of the position of the mouse pointer 
 		x_root,y_root = mouse_motion.x_root, mouse_motion.y_root
 		print("Mouse (x_root,y_root): (",x_root,y_root,")")
-		# Update position of sub_window in root screen given using coords above, if mouse motion occurs 
-		window = top_frame.master.master
-		window.grid(column = x_root, row = y_root)
-		print("Window (col,row): (", window.winfo_x(), window.winfo_y(),")")
+		# Update position of the window object in the canvas using x and y position of mouse pointer relative to root screen. 
+		window_object = top_frame.master.master
+		canvas = window_object.master
+		print("Window object: ",window_object)
+		print("Canvas0: ",canvas)
+		canvas.coords(window_object.winfo_id(), xn=x_root, yn=y_root)
+		print("Window (col,row): (", window_object.canvasx, window_object.canvasy,")")
+
 #Global Constants:
 SCREEN_WIDTH = 1800
 SCREEN_LENGTH = 800
 SUB_WINDOW_WIDTH = 300
-SUB_WINDOW_HEIGT = 300
+SUB_WINDOW_HEIGHT = 300
 #Lists 
 inbox_list = []
 next_actions_list = []
