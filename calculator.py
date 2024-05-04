@@ -1,3 +1,11 @@
+"""
+Tests:
+((7.2^3 + 9.81/2.5) * (4.6^2 - 3.14)) / (((5.7^2 * 1.618) - (2.718^1.5)) + ((6.28/3.14) * 1.414)) - (((9.8 * 6.67) ^ 0.333) / (2.0 ^ (4.0/3.0))) + (((3.3 * 2.4) ^ 1.2) * (1.5 / 0.75) * (1.0 - (1.0/3.0)))  
+
+3/2*0       Result: 0
+
+"""
+
 import sys
 import operator
 opr = {'+':operator.add, '-':operator.sub, '/':operator.truediv, '*':operator.mul, '^':operator.pow}
@@ -46,20 +54,23 @@ def check_prime_operator(full_expression: str):
     """Checks string expression for presence of operator. Returns the prime operator."""
     if '^' in full_expression:
             return '^'
-    if '*' in full_expression:   
-        return '*'
     if '/' in full_expression:
         return '/'
+    if '*' in full_expression:   
+        return '*'
     if '+' in full_expression: 
         return '+'
     if '-' in full_expression:
         if full_expression[0] == '(':
             if full_expression.find('-') == 1 and full_expression.count('-') == 1:
-                return True
+                return True     #Example expression for when this applies: (-12). Return True will result, further in the program, in the expression having its parentheses removed , since there are no more operations to be made. This will enable to it to be converted to a float and printed for user. 
             else:
                 return '-'
-        elif full_expression.find('-') == 0 and full_expression.count('-') == 1:
-                return False
+        elif full_expression.find('-') == 0 and full_expression.count('-') == 1:        ##
+            if any(element in full_expression for element in ('(',')')):                ##
+                return True                                                             ##
+            else:                                                                       ##
+                return False            
         else:  
             return '-'
     elif any(operator in full_expression for operator in ('(',')')):
@@ -196,6 +207,7 @@ def calculate(full_expression: str):
     return float(full_expression)
 
 def remove_spaces(full_expression: str)-> str:
+    """Removes spaces from string math expression given by user."""
     expression_list = full_expression.split()
     expression_nospace = ''
     for element in expression_list:
@@ -227,10 +239,10 @@ def check_numbers_operators(expression: str)->bool:
     n = 0
     for element in expression:
         if element.isdigit() == False:
-            if any(item in element for item in ('+','-','*','^','/','(',')')) != True:
+            if any(item in element for item in ('+','-','*','^','/','(',')','.')) != True:
                 print("Expressions should contain only numbers and operators")
                 return False
-            else:
+            elif element != '.':
                 n += 1  #Number of operators in expression
     if n == len(expression):
         print("Expression contains no numbers")
@@ -249,7 +261,7 @@ def invalid_operators(expression: str)->bool:
     elif any(item in expression[len(expression)-1] for item in ('+','-','*','^','/','(')):  #Checks if expression ends with invalid operator
         print("Syntax error")
         return True
-    elif any(item in expression for item in ('^^','//','+*','*+','^+','+^','^*','*^','^/','/^','/*','*/','+/','/+','-/','-^')):
+    elif any(item in expression for item in ('^^','//','+*','*+','^+','+^','^*','*^','^/','/^','/*','*/','+/','/+','-/','-^')):  #Checks for invalid operation combinations
         print("Syntax error")
         return True
     else:
@@ -260,32 +272,53 @@ def guard_division_zero(expression: str):
     search_start = 0
     SEARCH_END = len(expression)-1
     
-    while expression.find('/',search_start, SEARCH_END) != -1:
-        number = ''
-        n = 1
-        while expression[expression.find('/', search_start, SEARCH_END) + n].isdigit() or any(operator in expression[expression.find('/', search_start, SEARCH_END) + n] for operator in('.','(','-')):
-            if expression[expression.find('/', search_start, SEARCH_END) + n] == '(':
-                n += 1
-                while expression[expression.find('/', search_start, SEARCH_END) + n].isdigit() or any(operator in expression[expression.find('/', search_start, SEARCH_END) + n] for operator in('.','(','-','+','*','^',')')):
-                    if expression[expression.find('/', search_start, SEARCH_END) + n] == ')':
-                        if calculate(take_operation(expression,expression.find('/', search_start, SEARCH_END) + 1, expression.find('/', search_start, SEARCH_END) + n )) == 0:
-                            print("ERROR: Division by zero")
+    
+    parentheses_index = expression.find('/', search_start, SEARCH_END)  #Index of parentheses under which is the denominator to be checked
+                                      
+
+    while parentheses_index != -1:  #While there exists a parenthesis operator within the check interval. 
+        n = 1   #Index iterator
+        check_index = parentheses_index + n     #Index of value in the denominator being checked
+        number = '' 
+        stop_check = False          #Boolean used to skip checking of number string, string which contains digits composing the denominator. Becomes true when it is known that the string has a nonzero value. Used when there are no operations under the denominator.                                 
+        #If the checked value is any of the following, continue loop: a digit, a period, an opening parenthesis, or a minus operator. If there is no expression or operation (contained by parenthesis) that falls under the division operator, and  
+        while expression[check_index].isdigit() or any(operator in expression[check_index] for operator in('.','(','-')):   
+            if n > 1 and expression[check_index] == '-': #if expression at any n > 1 is '-', stop loop
+                break
+            if n > 2 and expression[check_index] == '(': #If expression at any n > 2 is '(', stop loop 
+                break
+            #If the checked value is an opening parenthesis, begin checking all the values in the expression contained in the parentheses. 
+            if expression[check_index] == '(':   #If checked value is an opening parenthesis, branch off to check expression contained in the parentheses. 
+                n += 1  # Move on to next value.  
+                check_index = parentheses_index + n #update check index
+                #If checked value is a digit, any operator, a period, or a parenthesis, continue loop. 
+                while expression[check_index].isdigit() or any(operator in expression[check_index] for operator in('.','(','-','+','*','^',')')):
+                    if expression[check_index] == ')':  
+                        #If end of expression reached, signified by closing parenthesis, take the expression in the parenthesis using take_operation function using n to detemrine end index, and calculate the expression using calculate function.
+                        if calculate(take_operation(expression, parentheses_index + 1, check_index )) == 0:
+                            print("ERROR: Division by zero")        #If result of expression is zero, print division by zero error. 
                             return True
                         else:
                             return False 
-                    if n + expression.find('/', search_start, SEARCH_END) == SEARCH_END:
-                        break
-                    n += 1
-            if expression[expression.find('/', search_start, SEARCH_END) + n].isdigit():
-                number += expression[expression.find('/', search_start, SEARCH_END) + n]
-            n += 1
-            if n + expression.find('/', search_start, SEARCH_END) == len(expression):
-                break
-                                            
-        if all(char == '0' for char in number):
-            print("ERROR: Division by zero")
-            return True
+                    #if n + expression.find('/', search_start, SEARCH_END) == SEARCH_END:
+                        #break
+                    n += 1 #Move on to next value
+                    check_index = parentheses_index + n #update check index
+            if expression[check_index].isdigit():    #If there is no opening parenthesis, this means there is no expression or operation after the selected division operator. 
+                if expression[check_index] != '0':
+                    stop_check = True
+                    break                            #Break at the first encounter with a non-zero digit, since this means the denominator is nonzero. 
+                number += expression[check_index]    #Concatenate the digit to number string variable.  
+            n += 1  
+            check_index = parentheses_index + n     #update check index
+            if check_index == len(expression):
+                break       
+        if stop_check == False:
+            if all(char == '0' for char in number):
+                print("ERROR: Division by zero")
+                return True
         search_start = expression.find('/', search_start, SEARCH_END)+1
+        parentheses_index = expression.find('/', search_start, SEARCH_END)
     return False
 
 def check_parentheses(expression: str):
