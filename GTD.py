@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from tkinter import ttk
 import tkinter as tk
-
+import math
 
 @dataclass
 class Inbox:
@@ -85,7 +85,7 @@ def create_sub_window(window0: tk.Tk):
 	#Generate sub-window and  component widgets
 	canvas0= tk.Canvas(window0, width=SCREEN_WIDTH, height=SCREEN_LENGTH, bg='black')
 	
-	sub_window= tk.Frame(width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGHT, background='blue', borderwidth=5, relief='groove')
+	sub_window= tk.Frame(master=canvas0, width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGHT, background='blue', borderwidth=5, relief='groove')
 	top_frame = tk.Frame(sub_window, width=SUB_WINDOW_WIDTH-10, height=20, bg='black')
 	title = tk.Label(top_frame, text="Next Actions", fg='white', bg='black')
 	window_options_frame = tk.Frame(top_frame, bg='black')
@@ -176,20 +176,22 @@ def execute_drag(mouse_motion: tk.Event):
 	if drag_status:
 		print("Dragging")
 		top_frame = mouse_motion.widget
-		# X and y coords relative top_frame widget where mouse button press event occurred.
-		x_widget = mouse_motion.x
-		y_widget = mouse_motion.y
-		#print("x_widget, y_widget: (",x_widget,y_widget,")")
-		# X and Y coords relative root window of the position of the mouse pointer 
-		x_root,y_root = mouse_motion.x_root, mouse_motion.y_root
-		print("Mouse (x_root,y_root): (",x_root,y_root,")")
+		# X and Y coords of the mouse motion event relative to the frame widget 
+		x_frame = mouse_motion.x
+		y_frame = mouse_motion.y
+		# X and Y coords of the mouse motin event relative the canvas root window
+		x_root = mouse_motion.x_root 
+		y_root = mouse_motion.y_root
+		
 		# Update position of the window object in the canvas using x and y position of mouse pointer relative to root screen. 
-		window_object = top_frame.master.master
-		canvas = window_object.master
-		print("Window object: ",window_object)
-		print("Canvas0: ",canvas)
-		canvas.coords(window_object.winfo_id(), xn=x_root, yn=y_root)
-		print("Window (col,row): (", window_object.canvasx, window_object.canvasy,")")
+		sub_window_frame = top_frame.master
+		canvas = sub_window_frame.master
+		canvas_window_object_ID = canvas.find_closest(x_root,y_root)[0]
+		x, y = canvas.coords(canvas_window_object_ID)
+		print("Mouse (x_root,y_root): (",x_root,y_root,")")
+		print("Canvas window old coords: ",x,",",y)
+		canvas.move(canvas_window_object_ID, x_frame-x_frame*(8/10) , y_frame-y_frame*(8/10))
+		print("Canvas window new coords: ",x,",",y)
 
 #Global Constants:
 SCREEN_WIDTH = 1800
