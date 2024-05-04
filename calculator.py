@@ -1,41 +1,3 @@
-"""
-Order Operators are Evaluated
-    1Parenthesis
-    2Exponents
-    3Multiplication, modulo, Division
-    4Addition, subtraction 
- 
-
-    (7 + 3) * (12 - 4) / (2 ^ 3)                output: 10                      P
-    15 - (9 * 4) + (6 ^ 2) / 3                  out:    -9                      P
-    (8 + 2) * (5 - 1) ^ 2 / (4 + 2)             out:    26.6666666666666666     PASS
-    20 - (3 * 4) + (7 ^ 2) - (10 / 2)           out:    52                      PASS
-    (11 + 4) * (6 - 2) / (3 ^ 2) + 5            out:    11.6666666666           PASS
-    18 - (5 * 3) + (9 ^ 2) / (8 / 2)            out:    23.25                   PASS
-    (13 + 2) * (8 - 4) ^ 2 / (6 + 1)            out:    34.2857142857           PASS
-    25 - (7 * 2) + (4 ^ 3) - (12 / 3)           out:    71                      PASS
-    (17 + 3) * (10 - 3) / (5 ^ 2) + 2                   7.6                     PASS
-    22 - (6 * 4) + (11 ^ 2) / (9 / 3)                   38.333333333333         PASS
-    (7 +^ 3) * (12 -/ 4) / (2 ^+ 3)                     error                   PASS  
-              
-    (7 + 3) * (12 - 4) / (0)                            error                   P
-    -(2 + 3)                                            -5                      P
-    5 + 3 )                                             error                   P
-    ( 4 - 2                                             error                   P
-    5 + * 3                                             error                   P
-    5 / 0 + 2                                           error                   P
-    
-    + 2 * 3                                             error                   P
-    5 + 3 *                                             error                   P
-    / 4 - 2                                             error                   P
-    8 ^ 2 +                                             error                   P
-    
-    5 ++ 3                                              error                   P
-    8 // 2                                              error                   P
-    4 ** 2                                              error                   P
-    1 +-+ 2                                             -1                      P
-
-"""
 import sys
 import operator
 opr = {'+':operator.add, '-':operator.sub, '/':operator.truediv, '*':operator.mul, '^':operator.pow}
@@ -366,15 +328,3 @@ while expression:
 
 
 
-
-
-
-
-
-"""
-import operator
-
-['__abs__', '__add__', '__all__', '__and__', '__builtins__', '__cached__', '__call__', '__concat__', '__contains__', '__delitem__', '__doc__', '__eq__', '__file__', '__floordiv__', '__ge__', '__getitem__', '__gt__', '__iadd__', '__iand__', '__iconcat__', '__ifloordiv__', '__ilshift__', '__imatmul__', '__imod__', '__imul__', '__index__', '__inv__', '__invert__', '__ior__', '__ipow__', '__irshift__', '__isub__', '__itruediv__', '__ixor__', '__le__', '__loader__', '__lshift__', '__lt__', '__matmul__', '__mod__', '__mul__', '__name__', '__ne__', '__neg__', '__not__', '__or__', 
-'__package__', '__pos__', '__pow__', '__rshift__', '__setitem__', '__spec__', '__sub__', '__truediv__', '__xor__', '_abs', 'abs', 'add', 'and_', 
-'attrgetter', 'call', 'concat', 'contains', 'countOf', 'delitem', 'eq', 'floordiv', 'ge', 'getitem', 'gt', 'iadd', 'iand', 'iconcat', 'ifloordiv', 'ilshift', 'imatmul', 'imod', 'imul', 'index', 'indexOf', 'inv', 'invert', 'ior', 'ipow', 'irshift', 'is_', 'is_not', 'isub', 'itemgetter', 'itruediv', 'ixor', 'le', 'length_hint', 'lshift', 'lt', 'matmul', 'methodcaller', 'mod', 'mul', 'ne', 'neg', 'not_', 'or_', 'pos', 'pow', 'rshift', 'setitem', 'sub', 'truediv', 'truth', 'xor']
-    """
