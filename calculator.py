@@ -295,6 +295,7 @@ def guard_division_zero(expression: str):
             ##BRANCH OFF, LOOP THROUGH EXPRESSION 
             #If checked value is an opening parenthesis, branch off to check expression contained in the parentheses.    
             if value == '(': 
+                stop_check = True
                 #Initialize  open and close parentheses counters
                 open_parenthesis_counter = 1     
                 close_parenthesis_counter = 0   
@@ -316,12 +317,16 @@ def guard_division_zero(expression: str):
                         if denominator_expression.find('/', parentheses_index + 1, check_index) != -1:
                             if guard_division_zero(denominator_expression):
                                 return True
-                        #Else if there are no other division operators in the expression, calculate the result. If zero, return error.
-                        elif calculate(take_operation(expression, parentheses_index + 1, check_index )) == 0:
-                            print("ERROR: Division by zero")        #If result of expression is zero, print division by zero error. 
+                        #If there are no division operators in the expression, or division operators do not trigger error, calculate the result. If zero, return error.
+                        if calculate(take_operation(expression, parentheses_index + 1, check_index )) == 0:
+                            #If result of expression is zero, print division by zero error.
+                            print("ERROR: Division by zero")         
                             return True
+                        #If denominator expression result is not zero, break and continue search at final check_index value. 
                         else:
-                            return False 
+                            break 
+                        
+
                     #if n + expression.find('/', search_start, SEARCH_END) == SEARCH_END:
                         #break
                     #Move to next element in expression
