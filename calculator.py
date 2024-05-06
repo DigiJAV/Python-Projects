@@ -1,9 +1,12 @@
 """
 Tests:
 ((7.2^3 + 9.81/2.5) * (4.6^2 - 3.14)) / (((5.7^2 * 1.618) - (2.718^1.5)) + ((6.28/3.14) * 1.414)) - (((9.8 * 6.67) ^ 0.333) / (2.0 ^ (4.0/3.0))) + (((3.3 * 2.4) ^ 1.2) * (1.5 / 0.75) * (1.0 - (1.0/3.0)))  
+    result: 147.86518934854774
 
 3/2*0       Result: 0
 
+((3.1416 ^ 2.7183) * ((22.0 / 7.0) ^ 1.618)) + (((0.5772 * 2.7183) ^ 3.1416) - (1.6180 ^ (9.8696 / 3.1416))) / ((6.6743 ^ (1.0 / 3.0)) * (1.4142 * (8.0 ^ (1.0 / 3.0)))) - (((2.7183 ^ (6.6743 / 6.0285)) * (3.1416 ^ 2.7183)) / ((6.0285 ^ 1.6180) * (1.6180 ^ 6.6743))) + (((4.6692 * 1.6180) ^ 2.7183) - ((0.5772 ^ 3.1416) * (6.6743 / 1.4142)))
+    result: 386.1080049426594
 """
 
 import sys
@@ -285,7 +288,9 @@ def guard_division_zero(expression: str):
         #String which contains digits composing the denominator. Used when there are no operations under the denominator.
         number = '' 
         #Boolean used to skip checking of number string. Becomes true when it is known that the string has a nonzero value. 
-        stop_check = False                                           
+        stop_check = False 
+        #Boolean used to break from secondary while loop to the primary; applies when a denominator containing operation(s) does not trigger division by zero error. 
+        denominator_break = False                                          
         #If the checked value is any of the following, continue loop: a digit, a period, an opening parenthesis, or a minus operator. If there is no expression or operation (contained by parenthesis) that falls under the division operator, and  
         while value.isdigit() or any(operator in value for operator in('.','(','-')):   
             if n > 1 and value == '-': #if expression at any n > 1 is '-', stop loop
@@ -324,28 +329,30 @@ def guard_division_zero(expression: str):
                             return True
                         #If denominator expression result is not zero, break and continue search at final check_index value. 
                         else:
+                            denominator_break = True
                             break 
-                        
-
-                    #if n + expression.find('/', search_start, SEARCH_END) == SEARCH_END:
-                        #break
                     #Move to next element in expression
                     n += 1 
                     check_index = parentheses_index + n 
                     value = expression[check_index]
+
+            #True when result of operation containing denominator is not zero. Breaks to main loop, to start search for next division operator.
+            if denominator_break:
+                break
             ##If there is no opening parenthesis, this means there is no expression or operation after the selected division operator.
             #Break as soon as a non zero digit encnountered, since denominator is not zero.        
-            if value.isdigit():     
-                if value != '0':
-                    stop_check = True
-                    break                            #Break at the first encounter with a non-zero digit, since this means the denominator is nonzero. 
-                number += value    #Concatenate the digit to number string variable.  
-            #Move to next element in expression
-            n += 1  
-            check_index = parentheses_index + n     
-            value = expression[check_index]
-            if check_index == len(expression):
-                break       
+            else:
+                if value.isdigit():     
+                    if value != '0':
+                        stop_check = True
+                        break                            #Break at the first encounter with a non-zero digit, since this means the denominator is nonzero. 
+                    number += value    #Concatenate the digit to number string variable.  
+                #Move to next element in expression
+                n += 1  
+                check_index = parentheses_index + n     
+                value = expression[check_index]
+                if check_index == len(expression):
+                    break       
         if stop_check == False:
             if all(char == '0' for char in number):
                 print("ERROR: Division by zero")
@@ -362,7 +369,6 @@ def check_parentheses(expression: str):
             return True
     else:
         return False
-
 
 expression = True
 print("Calculator ON")
