@@ -85,14 +85,93 @@ def find_prime_operator(full_expression: str, prime_operator: str):
     """Finds prime_operator in full_expression, returns it's index."""
     return full_expression.find(prime_operator), prime_operator
  
-def find_operation_index(full_expression: str, operator_index: int)->int:
+def find_operation_index(expression: str, operator_index: int)->int:
     """Finds index of last digit before and after operator, ie start and end index of operation.
     Returns the start and end indexes."""
     start_index = 0
     end_index = 0
+    operand_index = operator_index + n
+    value = expression[operand_index]
+    iterator_sign: int 
+    n: int
+    check_side = 'left'
+    early_break = False
+
+    if operator_index != 0:
+        while check_side:
+            if check_side == 'left':
+                iterator_sign = -1
+                n = iterator_sign
+            elif check_side == 'right':
+                iterator_sign = 1
+                n = iterator_sign
+            while value.isdigit() or value is any(element in value for element in ('.','-','+','e')):
+                if value == '+' and expression[operand_index-1] != 'e':
+                    if check_side == 'left':
+                        n += 1
+                        start_index = operand_index
+                        check_side = 'right'
+                        early_break = True
+                        break
+                    elif check_side == 'right':
+                        n -= 1
+                        end_index = operand_index
+                        check_side == 0
+                        early_break = True
+                        break 
+                if value == '-' and expression[operand_index-1] != 'e':
+                    if check_side == 'left':
+                        start_index = operand_index
+                        check_side = 'right'
+                        early_break = True
+                        break
+                    elif check_side == 'right':
+                        n -= 1
+                        end_index = operand_index
+                        check_side == 0
+                        early_break = True
+                        break 
+                if operand_index == 0:
+                    start_index = operand_index
+                    check_side = 'right'
+                    early_break = True
+                    break
+                elif operand_index == len(expression) - 1:
+                    end_index = operand_index
+                    check_side == 0
+                    early_break = True
+                    break 
+                n += iterator_sign
+            if early_break != True:
+                if check_side == 'left':
+                    n += 1
+                    start_index = operand_index
+                    check_side = 'right'
+                elif check_side == 'right':
+                    n -= 1
+                    end_index = operand_index
+                    check_side = 0
+                    
+    elif operator_index == 0:
+        start_index = operand_index 
+        check_side = 'right'
+        n = 1
+        while value.isdigit() or any(element in value for element in ('.','-')) or operand_index < len(expression)-1:
+            if expression.count('-', operator_index, operand_index) == 3:
+                n -= 1
+                break
+            n += 1 
+        end_index = operand_index
+
+    return start_index, end_index    
+
+                        
+    """ Old code 
+    #If the operator is not at index 0 of the expression, check values before it. The only operator that can validly be at this index is the subtraction operator.
     if operator_index != 0:
         n = -1
-        while operator_index+n >= 0 and full_expression[operator_index+n].isdigit() or operator_index+n >= 0 and full_expression[operator_index+n] == '.' or operator_index+n >= 0 and full_expression[operator_index+n] == '-':  
+        while operator_index+n >= 0 and full_expression[operator_index+n].isdigit() or operator_index+n >= 0 and any(element in full_expression[operator_index+n] for element in ('.','-','+')):  
+            ########################
             n -= 1
             if full_expression[operator_index+n+1] == '-':
                 break 
@@ -109,7 +188,7 @@ def find_operation_index(full_expression: str, operator_index: int)->int:
             n += 1
         end_index = operator_index+n-1
     return start_index, end_index
-
+    """
 def take_operation(full_expression: str, start_index: int, end_index: int)-> str:
     """Takes string expression from a larger expression given the index values of what to take. 
     Creates a new string composed of the string expression taken.  
@@ -397,7 +476,7 @@ while expression:
 #Check if expression is mathematically correct, or makes sense, or syntactically correct... 
 
 #Print Result 
-    print(calculate(expression)) 
+    print("Result: ", calculate(expression)) 
 
 
 
