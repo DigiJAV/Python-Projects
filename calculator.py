@@ -7,6 +7,11 @@ Tests:
 
 ((3.1416 ^ 2.7183) * ((22.0 / 7.0) ^ 1.618)) + (((0.5772 * 2.7183) ^ 3.1416) - (1.6180 ^ (9.8696 / 3.1416))) / ((6.6743 ^ (1.0 / 3.0)) * (1.4142 * (8.0 ^ (1.0 / 3.0)))) - (((2.7183 ^ (6.6743 / 6.0285)) * (3.1416 ^ 2.7183)) / ((6.0285 ^ 1.6180) * (1.6180 ^ 6.6743))) + (((4.6692 * 1.6180) ^ 2.7183) - ((0.5772 ^ 3.1416) * (6.6743 / 1.4142)))
     result: 386.1080049426594
+
+(((6.67 * 10^(-11)) ^ (9.81 / 6.28)) * (((3.14 * 2.718) ^ 1.618) - ((6.67 * 10^(-27)) / (6.02 * 10^23)))) + ((((2.99 * 10^8) ^ 0.5) * ((1.38 * 10^(-23)) ^ (6.63 * 10^(-34)))) / ((1.67 * 10^(-27)) ^ ((8.62 * 10^(-5)) / (6.63 * 10^34)))) - ((((4.81 * 10^(-10)) ^ 2.718) * (((1.05 * 10^(-34)) / (1.99 * 10^30)) ^ 1.618)) / (((6.67 * 10^(-11)) ^ 3.14) * ((1.38 * 10^(-23)) ^ (6.02 * 10^23)))) + ((((2.99 * 10^8) ^ (1.67 * 10^(-27))) * ((1.38 * 10^(-23)) ^ (6.63 * 10^34))) - (((6.02 * 10^23) ^ (6.67 * 10^(-27))) * ((1.99 * 10^30) ^ (1.05 * 10^(-34)))))
+    result: 
+
+-3(6)
 """
 
 import sys
@@ -90,77 +95,82 @@ def find_operation_index(expression: str, operator_index: int)->int:
     Returns the start and end indexes."""
     start_index = 0
     end_index = 0
-    operand_index = operator_index + n
-    value = expression[operand_index]
-    iterator_sign: int 
-    n: int
     check_side = 'left'
     early_break = False
-
     if operator_index != 0:
         while check_side:
             if check_side == 'left':
                 iterator_sign = -1
-                n = iterator_sign
             elif check_side == 'right':
                 iterator_sign = 1
-                n = iterator_sign
-            while value.isdigit() or value is any(element in value for element in ('.','-','+','e')):
-                if value == '+' and expression[operand_index-1] != 'e':
-                    if check_side == 'left':
+            n = iterator_sign
+            operand_index = operator_index + n
+            value = expression[operand_index]
+            while value.isdigit() or any(element in value for element in ('.','-','+','e')):
+                if check_side == 'left':
+                    if value == '+' and expression[operand_index-1] != 'e':
                         n += 1
+                        operand_index = operator_index + n
                         start_index = operand_index
                         check_side = 'right'
                         early_break = True
                         break
-                    elif check_side == 'right':
-                        n -= 1
-                        end_index = operand_index
-                        check_side == 0
-                        early_break = True
-                        break 
-                if value == '-' and expression[operand_index-1] != 'e':
-                    if check_side == 'left':
+                    elif value == '-' and expression[operand_index-1] != 'e':
                         start_index = operand_index
                         check_side = 'right'
                         early_break = True
                         break
-                    elif check_side == 'right':
+                    elif operand_index == 0:                  
+                        start_index = operand_index
+                        check_side = 'right'
+                        early_break = True
+                        break
+                if check_side == 'right':
+                    if value == '+' and expression[operand_index-1] != 'e':
                         n -= 1
+                        operand_index = operator_index + n
+                        end_index = operand_index
+                        check_side = 0
+                        early_break = True
+                        break
+                    elif value == '-' and expression[operand_index-1] != 'e':
+                        n -= 1
+                        operand_index = operator_index + n
+                        end_index = operand_index
+                        check_side = 0
+                        early_break = True
+                        break
+                    elif operand_index == len(expression) - 1:  
                         end_index = operand_index
                         check_side == 0
                         early_break = True
                         break 
-                if operand_index == 0:
-                    start_index = operand_index
-                    check_side = 'right'
-                    early_break = True
-                    break
-                elif operand_index == len(expression) - 1:
-                    end_index = operand_index
-                    check_side == 0
-                    early_break = True
-                    break 
                 n += iterator_sign
+                operand_index = operator_index + n
+                value = expression[operand_index]
             if early_break != True:
                 if check_side == 'left':
                     n += 1
+                    operand_index = operator_index + n
                     start_index = operand_index
                     check_side = 'right'
                 elif check_side == 'right':
                     n -= 1
+                    operand_index = operator_index + n
                     end_index = operand_index
-                    check_side = 0
-                    
+                    check_side = 0 
     elif operator_index == 0:
-        start_index = operand_index 
+        start_index = operator_index
         check_side = 'right'
         n = 1
+        operand_index = operator_index + n
+        value = expression[operand_index]
         while value.isdigit() or any(element in value for element in ('.','-')) or operand_index < len(expression)-1:
             if expression.count('-', operator_index, operand_index) == 3:
                 n -= 1
                 break
             n += 1 
+        operand_index = operator_index + n
         end_index = operand_index
 
     return start_index, end_index    
@@ -235,7 +245,6 @@ def update_expression(full_expression: str, start_index: int, end_index:int, ope
         If the str_expression taken did not contain parentheses, if any n of n group adjacent to digit, replace
         that n with '+'.
         """
-
     #Replace taken operation with n
     full_expression_n = operation_to_n(full_expression, start_index, end_index)
     # Check if element before and after n group is a number. If number, replace adjacent n with multiplication operator.
@@ -402,7 +411,7 @@ def guard_division_zero(expression: str):
                             if guard_division_zero(denominator_expression):
                                 return True
                         #If there are no division operators in the expression, or division operators do not trigger error, calculate the result. If zero, return error.
-                        if calculate(take_operation(expression, parentheses_index + 1, check_index )) == 0:
+                        if calculate(denominator_expression) == 0:
                             #If result of expression is zero, print division by zero error.
                             print("ERROR: Division by zero")         
                             return True
@@ -441,6 +450,16 @@ def guard_division_zero(expression: str):
         parentheses_index = expression.find('/', search_start, SEARCH_END)
     return False
 
+def guard_scientific_notation(expression: str, operator: str):
+    """To be called by check_prime_operator and find_prime_operator functions to prevent these from returning based on an invalid '+' 
+    or '-' operator, where invalid means that these operators are being used in the context of scientific notation.
+    Args:
+    expression: the math expression being checked for invalid '+' or '-' operators.
+    operator: Operator being checked for; either '-' or '+'.
+    """
+    search_start = expression.find(operator)
+    search_end = len(expression)-1
+    expression.find(operator, search_start, search_end)
 def check_parentheses(expression: str):
     if '(' in expression or ')' in expression:
         if expression.count('(') != expression.count(')'):
