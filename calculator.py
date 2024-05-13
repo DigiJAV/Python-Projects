@@ -8,10 +8,13 @@ Tests:
 ((3.1416 ^ 2.7183) * ((22.0 / 7.0) ^ 1.618)) + (((0.5772 * 2.7183) ^ 3.1416) - (1.6180 ^ (9.8696 / 3.1416))) / ((6.6743 ^ (1.0 / 3.0)) * (1.4142 * (8.0 ^ (1.0 / 3.0)))) - (((2.7183 ^ (6.6743 / 6.0285)) * (3.1416 ^ 2.7183)) / ((6.0285 ^ 1.6180) * (1.6180 ^ 6.6743))) + (((4.6692 * 1.6180) ^ 2.7183) - ((0.5772 ^ 3.1416) * (6.6743 / 1.4142)))
     result: 386.1080049426594
 
-(((6.67 * 10^(-11)) ^ (9.81 / 6.28)) * (((3.14 * 2.718) ^ 1.618) - ((6.67 * 10^(-27)) / (6.02 * 10^23)))) + ((((2.99 * 10^8) ^ 0.5) * ((1.38 * 10^(-23)) ^ (6.63 * 10^(-34)))) / ((1.67 * 10^(-27)) ^ ((8.62 * 10^(-5)) / (6.63 * 10^34)))) - ((((4.81 * 10^(-10)) ^ 2.718) * (((1.05 * 10^(-34)) / (1.99 * 10^30)) ^ 1.618)) / (((6.67 * 10^(-11)) ^ 3.14) * ((1.38 * 10^(-23)) ^ (6.02 * 10^23)))) + ((((2.99 * 10^8) ^ (1.67 * 10^(-27))) * ((1.38 * 10^(-23)) ^ (6.63 * 10^34))) - (((6.02 * 10^23) ^ (6.67 * 10^(-27))) * ((1.99 * 10^30) ^ (1.05 * 10^(-34)))))
-    result: 
+((5^(2/3) + (17 * 2^4)/9) * (1/2 - 1/6))/(3^(1/2) - (29/15 * 7^(1/3)))
+    result: -5.619103510175150293702364854203035757016702056384609271626682005
 
 -3(6)
+
+(1/2-1/6)
+    result: 0.3333333333
 """
 
 import sys
@@ -88,7 +91,7 @@ def check_prime_operator(full_expression: str):
     
 def find_prime_operator(full_expression: str, prime_operator: str):
     """Finds prime_operator in full_expression, returns it's index."""
-    return full_expression.find(prime_operator), prime_operator
+    return full_expression.find(prime_operator)
  
 def find_operation_index(expression: str, operator_index: int)->int:
     """Finds index of last digit before and after operator, ie start and end index of operation.
@@ -96,9 +99,9 @@ def find_operation_index(expression: str, operator_index: int)->int:
     start_index = 0
     end_index = 0
     check_side = 'left'
-    early_break = False
     if operator_index != 0:
         while check_side:
+            early_break = False
             if check_side == 'left':
                 iterator_sign = -1
             elif check_side == 'right':
@@ -108,14 +111,14 @@ def find_operation_index(expression: str, operator_index: int)->int:
             value = expression[operand_index]
             while value.isdigit() or any(element in value for element in ('.','-','+','e')):
                 if check_side == 'left':
-                    if value == '+' and expression[operand_index-1] != 'e':
+                    if value == '+':
                         n += 1
                         operand_index = operator_index + n
                         start_index = operand_index
                         check_side = 'right'
                         early_break = True
                         break
-                    elif value == '-' and expression[operand_index-1] != 'e':
+                    elif value == '-':
                         start_index = operand_index
                         check_side = 'right'
                         early_break = True
@@ -126,14 +129,14 @@ def find_operation_index(expression: str, operator_index: int)->int:
                         early_break = True
                         break
                 if check_side == 'right':
-                    if value == '+' and expression[operand_index-1] != 'e':
+                    if value == '+':
                         n -= 1
                         operand_index = operator_index + n
                         end_index = operand_index
                         check_side = 0
                         early_break = True
                         break
-                    elif value == '-' and expression[operand_index-1] != 'e':
+                    elif value == '-' and operand_index != operator_index+1 :
                         n -= 1
                         operand_index = operator_index + n
                         end_index = operand_index
@@ -142,7 +145,7 @@ def find_operation_index(expression: str, operator_index: int)->int:
                         break
                     elif operand_index == len(expression) - 1:  
                         end_index = operand_index
-                        check_side == 0
+                        check_side = 0
                         early_break = True
                         break 
                 n += iterator_sign
@@ -287,10 +290,12 @@ def calculate(full_expression: str):
                 operation_result = str_expression.strip('()')  
         else: 
             while check_prime_operator(str_expression):
-                prime_operator = find_prime_operator(str_expression, check_prime_operator(str_expression))
-                operation_index = find_operation_index(str_expression, prime_operator[0])
+                prime_operator = check_prime_operator(str_expression)
+                prime_operator_index = find_prime_operator(str_expression, prime_operator)
+                operation_index = find_operation_index(str_expression, prime_operator_index)
                 str_operation = take_operation(str_expression, operation_index[0], operation_index[1])
-                operation_result = calculate_str_operation(str_operation, prime_operator[1])
+                operation_result = calculate_str_operation(str_operation, prime_operator)
+                operation_result = scientific_notation_to_float(operation_result)
                 str_expression = update_expression(str_expression, operation_index[0], operation_index[1], operation_result)
                 if check_prime_operator(str_expression) == True:
                     break
@@ -450,16 +455,12 @@ def guard_division_zero(expression: str):
         parentheses_index = expression.find('/', search_start, SEARCH_END)
     return False
 
-def guard_scientific_notation(expression: str, operator: str):
-    """To be called by check_prime_operator and find_prime_operator functions to prevent these from returning based on an invalid '+' 
-    or '-' operator, where invalid means that these operators are being used in the context of scientific notation.
-    Args:
-    expression: the math expression being checked for invalid '+' or '-' operators.
-    operator: Operator being checked for; either '-' or '+'.
-    """
-    search_start = expression.find(operator)
-    search_end = len(expression)-1
-    expression.find(operator, search_start, search_end)
+def scientific_notation_to_float(operation_result):
+    """Checks if operation result is in scientific notation. Converts it to a float. Returns the float."""
+    if 'e' in str(operation_result):
+        operation_result = format(float(operation_result), '.16f')
+    return operation_result
+
 def check_parentheses(expression: str):
     if '(' in expression or ')' in expression:
         if expression.count('(') != expression.count(')'):
