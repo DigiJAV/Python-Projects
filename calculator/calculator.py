@@ -1,24 +1,70 @@
 """
 Tests:
+p = test passed
+f = test failed
+
 ((7.2^3 + 9.81/2.5) * (4.6^2 - 3.14)) / (((5.7^2 * 1.618) - (2.718^1.5)) + ((6.28/3.14) * 1.414)) - (((9.8 * 6.67) ^ 0.333) / (2.0 ^ (4.0/3.0))) + (((3.3 * 2.4) ^ 1.2) * (1.5 / 0.75) * (1.0 - (1.0/3.0)))  
     result: 147.86518934854774
+    p
 
 3/2*0       Result: 0
+    p   
 
 ((3.1416 ^ 2.7183) * ((22.0 / 7.0) ^ 1.618)) + (((0.5772 * 2.7183) ^ 3.1416) - (1.6180 ^ (9.8696 / 3.1416))) / ((6.6743 ^ (1.0 / 3.0)) * (1.4142 * (8.0 ^ (1.0 / 3.0)))) - (((2.7183 ^ (6.6743 / 6.0285)) * (3.1416 ^ 2.7183)) / ((6.0285 ^ 1.6180) * (1.6180 ^ 6.6743))) + (((4.6692 * 1.6180) ^ 2.7183) - ((0.5772 ^ 3.1416) * (6.6743 / 1.4142)))
     result: 386.1080049426594
+    p
 
 ((5^(2/3) + (17 * 2^4)/9) * (1/2 - 1/6))/(3^(1/2) - (29/15 * 7^(1/3)))
     result: -5.619103510175150293702364854203035757016702056384609271626682005
+    p
 
 -3(6)
-
+    result: -18
+    p
 (1/2-1/6)
     result: 0.3333333333
+    p
+
+(((3^5)^(1/4) * (7/12)) / ((23/8) - (1/11))) + ((5^3)^(1/2) * (2/3))
+    result: 8.2808064474265799634
+    p
+
+((((9^2)^(1/3) - (5/17)) * (3/8))^2 + (7^(1/2) * (1/5))) / ((41/16)^(1/4) - (11/6 * (2/3)^5))
+    result: 2.7505653165650875333
+    p
+
+((((15^3)^(1/4) + (1/9)^4) * ((5/2)^2 - 4/19)) / (((17/7)^3 - (1/13)^6)^(1/2))) + (((3^5)^(1/3) * (11/20)) / (7^(1/2) - (23/14)))
+    result: 15.5854913462201659229261
+    p
+
+(((((7^4)^(1/5) * (3/8)) - ((29/11)^2 + (1/7)^7)) * (((2/3)^5 + (5/2)^3)^(1/4))) / ((((19/6)^4 - (1/15)^8)^(1/3)) + ((11^2)^(1/2) * (7/12))))
+    result: -0.9310531023184527
+    p
+
+((((((5^6)^(1/6) + (1/11)^9) * ((17/4)^3 - (3/16)^11)) - (((7^5)^(1/5) * (13/18)) + ((31/8)^2 + (1/9)^12))) * ((((3/2)^7 + (11/3)^4)^(1/5)) - ((23^2)^(1/3) * (5/14)))) / (((((17/6)^5 - (1/17)^13)^(1/4)) + ((19^3)^(1/4) * (7/10))) - ((((3^7)^(1/6) * (11/16)) - ((29/5)^2 + (1/11)^14)) * (((5/3)^8 + (13/2)^5)^(1/6)))))
+    result: -0.021313312662757024
+    p
+
+(((((((9^7)^(1/7) + (1/13)^15) * ((23/5)^4 - (5/22)^17)) - ((((11^6)^(1/6) * (17/21)) + ((37/9)^3 + (1/11)^18))* (((7/3)^9 + (15/2)^6)^(1/7)))) * (((((5/2)^11 + (19/4)^7)^(1/8)) - ((31^3)^(1/4) * (9/20))))) / ((((((23/7 )^6 - (1/19)^19)^(1/5)) + ((27^4)^(1/5) * (11/14))) - (((((7^8)^(1/7) * (15/22)) - ((41/7)^3 + (1/13) ^20)) * (((9/4)^12 + (17/3)^7)^(1/8)))))) + (((((13^5)^(1/6) * (3/10)) / ((5^4)^(1 /5) - (47/13))) + ((((2/3)^13 + (19/5)^8)^(1/9)) * (7^3)^(1/6))) * ((23^2)^(1/4) * (11/18)))))
+    result: 893.7768766741522
+    p
+
+((((((((15^8)^(1/8) + (1/15)^21) * ((29/6)^5 - (7/28)^23)) - (((((17^7)^(1/7) * (21/25)) + ((49/11)^4 + (1/13)^24)) * (((11/4)^13 + (21/3)^8)^(1/9))))) * ((((((9/3)^15 + (23/5)^9)^(1/10)) - ((39^4)^(1/5) * (13/24)))))) / (((((((31/8)^7 - (1/21)^25)^(1/6)) + ((35^5)^(1/6) * (15/18))) - ((((((11^9)^(1/8) * (19/26)) - ((53/9)^4 + (1/15)^26)) * (((13/5)^16 + (25/4)^9)^(1/10)))))))+ ((((((17^6)^(1/7) * (5/12)) / ((7^5)^(1/6) - (59/15))) + (((((4/5)^17 + (27/6)^10)^(1/11)) * (11^4)^(1/7))))) * ((31^3)^(1/5) * (15/22))))))
+    result: ?
+    output: ERROR: Unclosed parentheses
+        number of opening parenthesis != closing parenthesis
+    p
+
+(((((((((23^9)^(1/9) + (1/17)^27) * ((37/7)^6 - (9/34)^29)) - ((((((23^8)^(1/8) * (27/29)) + ((61/13)^5 + (1/15)^30)) * (((15/5)^17 + (29/4)^10)^(1/11)))))) * (((((((13/4)^19 + (31/6)^11)^(1/12)) - ((47^5)^(1/6) * (17/28)))))))/ ((((((((39/9)^8 - (1/23)^31)^(1/7)) + ((43^6)^(1/7) * (19/22))) - (((((((15^10)^(1/9) * (23/30)) - ((67/11)^5 + (1/17)^32)) * (((17/6)^20 + (33/5)^11)^(1/12))))))))+ (((((((21^7)^(1/8) * (7/14)) / ((9^6)^(1/7) - (71/17))) + ((((((6/7)^21 + (35/7)^12)^(1/13)) * (15^5)^(1/8)))))) * ((39^4)^(1/6) * (19/26)))))))) + ((((5^11)^(1/10) * (3/8)) + (((((2/3)^22 + (11/2)^13)^(1/14)) * (7^6)^(1/9))) * ((3^7)^(1/8) * (23/30))))            
+    result: ?
+    output: ERROR: Unclosed parentheses
+        # opening parenthesis != closing parenthesis
+    p
 """
 
 import sys
 import operator
+import os
 opr = {'+':operator.add, '-':operator.sub, '/':operator.truediv, '*':operator.mul, '^':operator.pow}
 
 def find_innermost_parentheses(full_expression: str):
@@ -91,8 +137,8 @@ def check_prime_operator(full_expression: str):
     
 def find_prime_operator(full_expression: str, prime_operator: str):
     """Finds prime_operator in full_expression, returns it's index."""
-    return full_expression.find(prime_operator)
- 
+    return full_expression.rfind(prime_operator) if prime_operator == '^' else full_expression.find(prime_operator)
+  
 def find_operation_index(expression: str, operator_index: int)->int:
     """Finds index of last digit before and after operator, ie start and end index of operation.
     Returns the start and end indexes."""
@@ -178,30 +224,6 @@ def find_operation_index(expression: str, operator_index: int)->int:
 
     return start_index, end_index    
 
-                        
-    """ Old code 
-    #If the operator is not at index 0 of the expression, check values before it. The only operator that can validly be at this index is the subtraction operator.
-    if operator_index != 0:
-        n = -1
-        while operator_index+n >= 0 and full_expression[operator_index+n].isdigit() or operator_index+n >= 0 and any(element in full_expression[operator_index+n] for element in ('.','-','+')):  
-            ########################
-            n -= 1
-            if full_expression[operator_index+n+1] == '-':
-                break 
-        start_index = operator_index+n+1
-        n = 1
-        while operator_index+n < len(full_expression) and full_expression[operator_index+n].isdigit() or operator_index+n < len(full_expression) and full_expression[operator_index+n] == '.' or operator_index+n < len(full_expression) and full_expression[operator_index+n] == '-' and n == 1:
-            n += 1
-        end_index = operator_index+n-1
-        
-    elif operator_index == 0 and full_expression[operator_index] == '-':
-        start_index == operator_index
-        n = 1
-        while operator_index+n < len(full_expression) and full_expression[operator_index+n].isdigit() or operator_index+n < len(full_expression) and full_expression[operator_index+n] == '.' or operator_index+n < len(full_expression) and full_expression[operator_index+n] == '-' and n == 2:
-            n += 1
-        end_index = operator_index+n-1
-    return start_index, end_index
-    """
 def take_operation(full_expression: str, start_index: int, end_index: int)-> str:
     """Takes string expression from a larger expression given the index values of what to take. 
     Creates a new string composed of the string expression taken.  
@@ -253,10 +275,10 @@ def update_expression(full_expression: str, start_index: int, end_index:int, ope
     # Check if element before and after n group is a number. If number, replace adjacent n with multiplication operator.
     if full_expression[start_index] == ('('):
         if full_expression_n.index('n') != 0:
-            if full_expression_n[full_expression_n.index('n')-1].isdigit():
+            if full_expression_n[full_expression_n.index('n')-1].isdigit() or full_expression_n[full_expression_n.index('n')-1] == ')':
                 full_expression_n[full_expression_n.index('n')] = '*'
         if full_expression_n.index('n')+full_expression_n.count('n') < len(full_expression_n):
-            if full_expression_n[full_expression_n.index('n')+full_expression_n.count('n')].isdigit():
+            if full_expression_n[full_expression_n.index('n')+full_expression_n.count('n')].isdigit() or full_expression_n[full_expression_n.index('n')+full_expression_n.count('n')] == '(':
                 full_expression_n[full_expression_n.index('n')+full_expression_n.count('n')-1] = '*' 
     elif full_expression[start_index] != ('('):
         if full_expression_n.index('n') != 0:
@@ -300,6 +322,7 @@ def calculate(full_expression: str):
                 if check_prime_operator(str_expression) == True:
                     break
         full_expression = update_expression(full_expression, expression_index[0], expression_index[1], operation_result)
+        full_expression = consolidate_signs(full_expression)
     return float(full_expression)
 
 def remove_spaces(full_expression: str)-> str:
@@ -365,17 +388,17 @@ def invalid_operators(expression: str)->bool:
     
 def guard_division_zero(expression: str):
     "Checks if division by zero is present in expression. If present, returns error."
-    #First search for division operator covers whole expression. 
+    #The first search for a division operator covers whole expression. 
     search_start = 0
     SEARCH_END = len(expression)-1
     #Index of parentheses under which is the denominator to be checked
-    parentheses_index = expression.find('/', search_start, SEARCH_END)                                
-    #While there exists a parenthesis operator within the check interval.
-    while parentheses_index != -1:   
+    division_operator_index = expression.find('/', search_start, SEARCH_END)                                
+    #While there exists a division operator within the check interval, loop continues. 
+    while division_operator_index != -1:   
         #Index iterator
         n = 1   
         #Index of value in the denominator being checked
-        check_index = parentheses_index + n    
+        check_index = division_operator_index + n    
         #Element in expression at check index
         value = expression[check_index] 
         #String which contains digits composing the denominator. Used when there are no operations under the denominator.
@@ -399,7 +422,7 @@ def guard_division_zero(expression: str):
                 close_parenthesis_counter = 0   
                 # Move on to next element in the expression by adding 1 to check index value
                 n += 1  
-                check_index = parentheses_index + n 
+                check_index = division_operator_index + n 
                 value = expression[check_index]
                 #If checked value is a digit, any operator, a period, or a parenthesis, continue loop. 
                 while value.isdigit() or any(operator in value for operator in('.','(','-','+','*','^','/',')')):
@@ -410,9 +433,9 @@ def guard_division_zero(expression: str):
                     #If end of expresion reached, signified by equal amount of close and open parenthesis.
                     if open_parenthesis_counter == close_parenthesis_counter:
                         #Take the expression corresponding to the outermost parentheses. This is the denominator of the selected division operator.  
-                        denominator_expression = take_operation(expression, parentheses_index + 1, check_index)
+                        denominator_expression = take_operation(expression, division_operator_index + 1, check_index)
                         #If there is another division operator in the denominator expression, run guard_division_zero on that expression
-                        if denominator_expression.find('/', parentheses_index + 1, check_index) != -1:
+                        if denominator_expression.find('/', division_operator_index + 1, check_index) != -1:
                             if guard_division_zero(denominator_expression):
                                 return True
                         #If there are no division operators in the expression, or division operators do not trigger error, calculate the result. If zero, return error.
@@ -426,7 +449,7 @@ def guard_division_zero(expression: str):
                             break 
                     #Move to next element in expression
                     n += 1 
-                    check_index = parentheses_index + n 
+                    check_index = division_operator_index + n 
                     value = expression[check_index]
 
             #True when result of operation containing denominator is not zero. Breaks to main loop, to start search for next division operator.
@@ -441,18 +464,19 @@ def guard_division_zero(expression: str):
                         break                            #Break at the first encounter with a non-zero digit, since this means the denominator is nonzero. 
                     number += value    #Concatenate the digit to number string variable.  
                 #Move to next element in expression
+                if check_index == len(expression)-1:
+                    break   
                 n += 1  
-                check_index = parentheses_index + n     
+                check_index = division_operator_index + n     
                 value = expression[check_index]
-                if check_index == len(expression):
-                    break       
+                    
         if stop_check == False:
             if all(char == '0' for char in number):
                 print("ERROR: Division by zero")
                 return True
         #Start next search at check index. If the denominator was an expression with operator, this will necessarily be at the last element in the expression. If it did not contain other operations, check_will be where first non-zero digit encountered. 
         search_start = check_index
-        parentheses_index = expression.find('/', search_start, SEARCH_END)
+        division_operator_index = expression.find('/', search_start, SEARCH_END)
     return False
 
 def scientific_notation_to_float(operation_result):
@@ -469,14 +493,26 @@ def check_parentheses(expression: str):
     else:
         return False
 
+def clear_terminal():
+    """When called, executes clear terminal command. Determines the operating system to issue the right command."""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 expression = True
 print("Calculator ON")
-print("Type STOP to end")
+print("Type 'STOP' to end program")
+print("Type 'clear' to clear terminal")
 print("Supports summation, subtracion, multiplication, divison, and exponentiation")
 while expression:
     expression = input()    
     if expression == 'STOP':
         sys.exit()
+    elif expression == 'clear':
+        clear_terminal()
+        print("Calculator ON")
+        print("Type 'STOP' to end program")
+        print("Type 'clear' to clear terminal")
+        print("Supports summation, subtracion, multiplication, divison, and exponentiation")
+        continue
     else:
 #Check if expression has spaces. Remove them with remove_spaces function.
         if ' ' in expression:
@@ -485,16 +521,22 @@ while expression:
         expression = fix_operators(expression)
         expression = consolidate_signs(expression)
 #Check if expression contains only numbers and operators, and any syntax errors
-        while invalid_operators(expression) or check_numbers_operators(expression) is False or guard_division_zero(expression) or check_parentheses(expression):
+        while invalid_operators(expression) or check_numbers_operators(expression) is False or check_parentheses(expression) or guard_division_zero(expression):
             expression = input() 
             if expression == 'STOP':
-                sys.exit()      
+                sys.exit()  
+            elif expression == 'clear':
+                clear_terminal()
+                print("Calculator ON")
+                print("Type 'STOP' to end program")
+                print("Type 'clear' to clear terminal")
+                print("Supports summation, subtracion, multiplication, divison, and exponentiation")
+                expression = input()
+                continue 
             if ' ' in expression:
                 expression = remove_spaces(expression)
             expression = fix_operators(expression)
-            expression = consolidate_signs(expression)
-#Check if expression is mathematically correct, or makes sense, or syntactically correct... 
-
+            expression = consolidate_signs(expression) 
 #Print Result 
     print("Result: ", calculate(expression)) 
 
