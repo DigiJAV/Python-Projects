@@ -137,8 +137,8 @@ def check_prime_operator(full_expression: str):
     
 def find_prime_operator(full_expression: str, prime_operator: str):
     """Finds prime_operator in full_expression, returns it's index."""
-    return full_expression.find(prime_operator)
- 
+    return full_expression.rfind(prime_operator) if prime_operator == '^' else full_expression.find(prime_operator)
+  
 def find_operation_index(expression: str, operator_index: int)->int:
     """Finds index of last digit before and after operator, ie start and end index of operation.
     Returns the start and end indexes."""
@@ -275,10 +275,10 @@ def update_expression(full_expression: str, start_index: int, end_index:int, ope
     # Check if element before and after n group is a number. If number, replace adjacent n with multiplication operator.
     if full_expression[start_index] == ('('):
         if full_expression_n.index('n') != 0:
-            if full_expression_n[full_expression_n.index('n')-1].isdigit():
+            if full_expression_n[full_expression_n.index('n')-1].isdigit() or full_expression_n[full_expression_n.index('n')-1] == ')':
                 full_expression_n[full_expression_n.index('n')] = '*'
         if full_expression_n.index('n')+full_expression_n.count('n') < len(full_expression_n):
-            if full_expression_n[full_expression_n.index('n')+full_expression_n.count('n')].isdigit():
+            if full_expression_n[full_expression_n.index('n')+full_expression_n.count('n')].isdigit() or full_expression_n[full_expression_n.index('n')+full_expression_n.count('n')] == '(':
                 full_expression_n[full_expression_n.index('n')+full_expression_n.count('n')-1] = '*' 
     elif full_expression[start_index] != ('('):
         if full_expression_n.index('n') != 0:
@@ -323,7 +323,6 @@ def calculate(full_expression: str):
                     break
         full_expression = update_expression(full_expression, expression_index[0], expression_index[1], operation_result)
         full_expression = consolidate_signs(full_expression)
-        print(full_expression)
     return float(full_expression)
 
 def remove_spaces(full_expression: str)-> str:
@@ -465,11 +464,12 @@ def guard_division_zero(expression: str):
                         break                            #Break at the first encounter with a non-zero digit, since this means the denominator is nonzero. 
                     number += value    #Concatenate the digit to number string variable.  
                 #Move to next element in expression
+                if check_index == len(expression)-1:
+                    break   
                 n += 1  
                 check_index = division_operator_index + n     
                 value = expression[check_index]
-                if check_index == len(expression):
-                    break       
+                    
         if stop_check == False:
             if all(char == '0' for char in number):
                 print("ERROR: Division by zero")
@@ -524,13 +524,19 @@ while expression:
         while invalid_operators(expression) or check_numbers_operators(expression) is False or check_parentheses(expression) or guard_division_zero(expression):
             expression = input() 
             if expression == 'STOP':
-                sys.exit()      
+                sys.exit()  
+            elif expression == 'clear':
+                clear_terminal()
+                print("Calculator ON")
+                print("Type 'STOP' to end program")
+                print("Type 'clear' to clear terminal")
+                print("Supports summation, subtracion, multiplication, divison, and exponentiation")
+                expression = input()
+                continue 
             if ' ' in expression:
                 expression = remove_spaces(expression)
             expression = fix_operators(expression)
-            expression = consolidate_signs(expression)
-#Check if expression is mathematically correct, or makes sense, or syntactically correct... 
-
+            expression = consolidate_signs(expression) 
 #Print Result 
     print("Result: ", calculate(expression)) 
 
