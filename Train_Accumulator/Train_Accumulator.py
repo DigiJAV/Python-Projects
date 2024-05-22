@@ -83,15 +83,6 @@ def add_train(train_list: list[Train]):
     train_surface = pygame.Surface((CELL_SIZE, CELL_SIZE))
     train_list.append(Train("None", train_box, train_surface))
 
-"""def add_train_connection(train_number: int, train_list:list[pygame.Rect], train_connection_list: list[Train_Connection]):
-
-    "Creates train_connection instance using train1 and train2 inputs. Names the train_connection with number ID using train_number input.
-    Appends created train_connection to train_connection_list"
-    train_connection = f"train_connection{train_number}"
-    exec(f"{train_connection} = {Train_Connection(train_list[train_number-1], train_list[train_number])}")
-    train_connection_list.append(train_connection)
-"""
-
 def update_train_values(train_list: list[Train]):
     """Updates position values of each train based on position of train after it. Updates position and direction of train0."""
     if len(train_list) > 1:
@@ -200,14 +191,14 @@ def remove_all_nodes(node_list: list[pygame.Rect]):
     for node in node_list:
             node_list.remove(node)
 
-def update_objects(train_list: list[Train], node_list: list[pygame.Rect], obstacle_list: list[pygame.Rect], train0_image_list: list[pygame.Surface], train_image_list: list[pygame.Surface], obstacle_image_list: list[pygame.Surface], node_image_list: list[pygame.Surface], sounds: list[pygame.mixer.Sound]):
+def update_objects(train_list: list[Train], node_list: list[pygame.Rect], obstacle_list: list[pygame.Rect], train0_image_list: list[pygame.Surface], train_image_list: list[pygame.Surface], obstacle_image_list: list[pygame.Surface], node_image_list: list[pygame.Surface], sounds: list[pygame.mixer.Sound], font: pygame.font):
     """Calls functions that update position and direction values of trains, and generate instances of nodes and obstacles to desired amount."""
     update_train_values(train_list)  #Update position and direction values of all trains, from back to front. Front train is updated via user input.
     check = check_position(train_list, node_list, obstacle_list)
     if check:
         if check == 1:
-            """Code that shows user that train has crashed. Saves score. Start game over"""
-            generate_score(train_list, screen) 
+            """Show user that train has crashed. Saves score. Start game over"""
+            generate_score(train_list, screen, font) 
             place_objects(surface, train_list, obstacle_list, node_list, train0_image_list, train_image_list, obstacle_image_list, node_image_list)
             crash_Popup()
             screen.blit(surface,(0, TEXT_SPACE))
@@ -238,10 +229,40 @@ def crash_Popup():
     popup.blit(crash_text, (POPUP_WIDTH/2 - text_width/2, POPUP_LENGTH/2 - text_length/2 ))
     surface.blit(popup, (SCREEN_WIDTH/2 - POPUP_WIDTH/2, SCREEN_LENGTH/2 - POPUP_LENGTH/2))
     
-def generate_score(train_list: list[Train], screen: pygame.display):
+def generate_score(train_list: list[Train], screen: pygame.display, font: pygame.font):
     score = (len(train_list) - 1)*5
-    text = score_font.render(f"Score: {score}", True, (237, 237, 201))
+    text = font.render(f"Score: {score}", True, (237, 237, 201))
     screen.blit(text, (0, 0))
+
+def pause_game(key: pygame.event, font: pygame.font):
+    """Pauses game when user presses spacebar. Unpauses when user presses it again. Pause means screen frame rate is zero."""
+    if key == pygame.K_SPACE:
+        game_paused = True
+        train_sound.stop()
+        pause_indicator(font)
+        generate_score(train_list, screen, screen_font)
+        place_objects(surface, train_list, obstacle_list, node_list, train0_images, train_images, obstacle_images, node_images)
+        surface.blit(node1_image_c,(20,0))
+        screen.blit(surface,(0, TEXT_SPACE))
+        score_coin_surface.blit(node1_image_c, (0,0))
+        screen.blit(score_coin_surface,(120,0))
+        pygame.display.flip()
+        clock.tick(0)
+        while game_paused:
+            for event in pygame.event.get():     
+                if event.type == pygame.KEYDOWN:
+                    clock.tick(FPS)
+                    game_paused = False
+                    break
+                elif event.type == pygame.QUIT:
+                    return event.type 
+        screen.fill("black")
+        surface.blit(surface_copy,(0, 0))
+
+def pause_indicator(font: pygame.font):
+    """When game is paused, shows message 'PAUSED' in upper right corner of the screen."""
+    text = font.render("Paused", True, (237, 237, 201))
+    screen.blit(text,(900,0))   
 
 #Matrix parameters
 TEXT_SPACE = 30
@@ -259,7 +280,7 @@ DIRECTION_VALUES = ['Up','Down','Left','Right']
 NODE_COLOR = (154, 151, 5)
 OBSTACLE_COLOR = (40, 43, 40)
 TRAIN_COLOR = (128, 67, 8)
-FPS = 3.5                        #Frames per second
+FPS = 3                        #Frames per second
 
 #pygame setup
 running = True
@@ -317,12 +338,11 @@ train_sound = pygame.mixer.Sound(r"Sounds\orecart_move_1.wav")
 obstacle_sound = pygame.mixer.Sound(r"Sounds\train_crash2.wav")
 node_sound = pygame.mixer.Sound(r"Sounds\picked-coin-echo.wav")
 sounds = [train_sound, obstacle_sound, node_sound]
-print("train_sound length: ",pygame.mixer.Sound.get_length(train_sound))
 
 popup = pygame.Surface((POPUP_WIDTH, POPUP_LENGTH))
 popup.fill(POPUP_COLOR)
 
-score_font = pygame.font.Font(None, 30)
+screen_font = pygame.font.Font(None, 30)
 popup_font = pygame.font.Font(None, 36)
 pygame.display.set_caption("Train Accumulator")
 
@@ -339,7 +359,6 @@ while (running):
 
     while (running):    #Secondary loop
         screen.fill("black")
-        #surface.fill("white")
         surface.blit(surface_copy,(0, 0))
         
         # poll for events
@@ -349,16 +368,19 @@ while (running):
                 running = False
             if event.type == pygame.KEYDOWN:  
                 update_direction(train_list, event.key)
+                if pause_game(event.key, screen_font) == pygame.QUIT:
+                    running = False
             if event.type == custom_event_type:
                 train_sound.play()
 
-        if update_objects(train_list, node_list, obstacle_list, train0_images, train_images, obstacle_images, node_images, sounds) == 1:         # update_objects returns 1 if train crashes.
+        if update_objects(train_list, node_list, obstacle_list, train0_images, train_images, obstacle_images, node_images, sounds, screen_font) == 1:         # update_objects returns 1 if train crashes.
             break
         if train_list[0].direction != "None":
             if pygame.mixer.get_busy() == False:
                 train_sound.play()
                 pygame.time.set_timer(custom_event_type, 3700)
-        generate_score(train_list, screen)
+
+        generate_score(train_list, screen, screen_font)
         place_objects(surface, train_list, obstacle_list, node_list, train0_images, train_images, obstacle_images, node_images)
         surface.blit(node1_image_c,(20,0))
         screen.blit(surface,(0, TEXT_SPACE))
