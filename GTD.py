@@ -41,6 +41,11 @@ class Project:
 	date_of_creation: Date
 	completed: bool
 
+@dataclass
+class Sub_Window:
+	list: list
+	title: str
+
 #Data functions
 def add_input():
 	"""Receives input from UI. Creates instance of Inbox. Appends istance to inbox_list."""
@@ -83,7 +88,16 @@ def create_main_window():
 
 def create_sub_window(window0: tk.Tk):
 	"""Creates an empty sub_screen."""
-	#Generate sub-window and  component widgets
+
+def ui_manager():
+	"Manages UI. "
+	window0= create_main_window()
+	window1 = create_sub_window(window0)
+	window0.mainloop()
+
+def create_next_actions_window(window0: tk.Tk, next_actions_list: list[Actionable])->tk.Frame:
+	"""Creates Next acions window"""
+	#Generate widgets and objects
 	screen_width = window0.winfo_screenwidth()
 	screen_height = window0.winfo_screenheight()
 	canvas0= tk.Canvas(window0, width=screen_width, height=screen_height, bg='black')
@@ -94,16 +108,12 @@ def create_sub_window(window0: tk.Tk):
 	minimize_button = tk.Button(window_options_frame, fg='white', bg='black', text ='\u2013')
 	maximize_button = tk.Button(window_options_frame, fg='white', bg='black', text='\u29E0')
 	close_button = tk.Button(window_options_frame, fg='white', bg='black', text='X')
-	
 	canvas_window0_ID = canvas0.create_window(100,100, anchor=tk.NW, width=SUB_WINDOW_WIDTH, height=SUB_WINDOW_HEIGHT, window=sub_window)
-	
 	#Force sub_window and top_frame to be of desired size, and not the size of the component widgets. 
 	top_frame.grid_propagate(0)
-	
 	#Configure columns of top_frame widget
 	top_frame.columnconfigure(0, weight=1)
 	top_frame.columnconfigure(1, weight=1)
-
 	#Place widgets 
 	canvas0.grid(column=0, row=0)
 	top_frame.grid(column=0, row=0)
@@ -112,31 +122,16 @@ def create_sub_window(window0: tk.Tk):
 	minimize_button.grid(column=1, row=0)
 	maximize_button.grid(column=2, row=0)
 	title.grid(column=0, row=0, sticky='w')
-
 #Event handling
 	drag_activated = False
-	button1_location = (0,0)
+	button1_press_coords = (0, 0)
 	#Widget-event-handler binds  
 	top_frame.bind("<Button-1>", drag_activate)
 	top_frame.bind("<ButtonRelease>", drag_deactivate)
 	top_frame.bind("<Motion>", execute_drag)
-	
-
-def ui_manager():
-	"Manages UI. "
-	window0= create_main_window()
-	window1 = create_sub_window(window0)
-	window0.mainloop()
-
-
-
-def create_next_actions_window(window0: tk.Tk, next_actions_list: list[Actionable])->tk.Frame:
-	"""Creates Next acions window"""
-	window = create_sub_window(window0)						#Create Next Actions parent window
-	widget = tk.Listbox(master = window, cnf={} )			#Create the list widget in parent window
-	for next_action in next_actions_list:					#Populate the list widget with next actions 
-		widget.insert(0, next_action.next_action)
-	return window
+	title.bind("<Button-1>", drag_activate)
+	title.bind("<ButtonRelease>", drag_deactivate)
+	title.bind("<Motion>", execute_drag)
 
 def add_address_bar():
 	"""Creates address bar."""
@@ -159,9 +154,9 @@ def drag_activate(button1_press: tk.Event):
 	""""Returns True when mouse button 1 is pressed in binded widget. """
 	print("Button1 Pressed")
 	global drag_activated
-	global button1_location
+	global button1_press_coords
 	drag_activated = True
-	button1_location = (button1_press.x, button1_press.y)
+	button1_press_coords = button1_press.x, button1_press.y
 
 def drag_deactivate(button1_release: tk.Event):
 	"""Returns False when mouse button 1 is released over the binded widget. """
@@ -171,26 +166,40 @@ def drag_deactivate(button1_release: tk.Event):
 
 def execute_drag(mouse_motion: tk.Event):
 	"""Called when motion detected in binded frame, and drag_status == True."""
-	global drag_activated
-	global button1_location
-	if drag_activated:
-		print("Dragging")
-		event_frame = mouse_motion.widget
-		# X and Y coords of the mouse motion event relative the canvas root window
-		x_root = mouse_motion.x_root 
+	def get_canvas_window_obj_ID():
+		"""Gets the canvas window obj ID by using event.widget attribute, and the widget.master attribute, to refer to the canvas. 
+		Determines whether the widget is the label widget (containing the title) or the top frame widget. If the former, the .master
+		attribute is called one more time than for the latter. Returns the canvas widget and the canvas window object ID."""
+		x_root = mouse_motion.x_root
 		y_root = mouse_motion.y_root
-		# Update position of the window object in the canvas using x and y position of mouse pointer relative to the root screen. 
-		sub_window_frame = event_frame.master
-		canvas = sub_window_frame.master
-		canvas_window_object= canvas.find_closest(x_root,y_root)[0]
-		sub_window_coords = canvas.coords(canvas_window_object)
-		new_coords = (x_root-button1_location[0], y_root-button1_location[1])
-		canvas.move(canvas_window_object, new_coords[0] , new_coords[1])
-		print("Mouse button press location in widget: ",button1_location)
-		print("Mouse pointer position in screen: ", x_root, y_root)
-		print("Sub window coords: ",sub_window_coords)
-		print("New sub window coords: ", new_coords)
-		print("Correct new sub window coords: " )
+		event_frame = mouse_motion.widget
+		if event_frame.winfo_class() == 'Frame':
+			sub_window_frame = event_frame.master
+			canvas = sub_window_frame.master
+			return canvas, canvas.find_closest(x_root,y_root)[0]
+		elif event_frame.winfo_class() == 'Label':
+			top_frame = event_frame.master
+			sub_window_frame = top_frame.master
+			canvas = sub_window_frame.master
+			return canvas, canvas.find_closest(x_root,y_root)[0]
+
+	global drag_activated
+	global button1_press_coords
+	#Initial position values of mouse pointer (relative widget (upper left coner of the widget))
+	x1, y1 = button1_press_coords[0], button1_press_coords[1]
+	if drag_activated:
+		# Final position values of the mouse pointer (relative widget (upper left corner of the widget))
+		x2 = mouse_motion.x
+		y2 = mouse_motion.y
+		# Calculates change in x and change in y from difference between initial and final position of mouse pointer. Initial position: (x1,y1), final position (x2, y2).
+		delta_x = x2 - x1
+		delta_y = y2 - y1
+		x1 = x2
+		y1 = y2
+		#Update the position of the canvas window object using change in x and change in y of mouse pointer. 
+		canvas, canvas_window_object_ID = get_canvas_window_obj_ID()
+		canvas.move(canvas_window_object_ID, delta_x, delta_y)
+
 		
 
 #Global Constants:
