@@ -88,6 +88,7 @@ def create_main_window():
 
 def create_sub_window(window0: tk.Tk):
 	"""Creates an empty sub_screen."""
+	create_next_actions_window(window0, next_actions_list)
 
 def ui_manager():
 	"Manages UI. "
@@ -97,26 +98,30 @@ def ui_manager():
 
 def create_next_actions_window(window0: tk.Tk, next_actions_list: list[Actionable])->tk.Frame:
 	"""Creates Next acions window"""
-	#Generate widgets and objects
 	screen_width = window0.winfo_screenwidth()
 	screen_height = window0.winfo_screenheight()
+	#Generate widgets and objects
 	canvas0= tk.Canvas(window0, width=screen_width, height=screen_height, bg='black')
-	sub_window= tk.Frame(master=canvas0, width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGHT, background='blue', borderwidth=5, relief='groove')
-	top_frame = tk.Frame(sub_window, width=SUB_WINDOW_WIDTH-10, height=20, bg='black')
+	sub_window_border = tk.Frame(master=canvas0, width=SUB_WINDOW_WIDTH+10, height=SUB_WINDOW_HEIGHT+10, background='black', borderwidth=5, relief='groove')
+	sub_window= tk.Frame(master=sub_window_border, width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGHT, background='blue' )
+	top_frame = tk.Frame(sub_window, width=SUB_WINDOW_WIDTH, height=20, bg='black')
 	title = tk.Label(top_frame, text="Next Actions", fg='white', bg='black')
 	window_options_frame = tk.Frame(top_frame, bg='black')
 	minimize_button = tk.Button(window_options_frame, fg='white', bg='black', text ='\u2013')
 	maximize_button = tk.Button(window_options_frame, fg='white', bg='black', text='\u29E0')
 	close_button = tk.Button(window_options_frame, fg='white', bg='black', text='X')
-	canvas_window0_ID = canvas0.create_window(100,100, anchor=tk.NW, width=SUB_WINDOW_WIDTH, height=SUB_WINDOW_HEIGHT, window=sub_window)
+	canvas_window0_ID = canvas0.create_window(100,100, anchor=tk.NW, width=SUB_WINDOW_WIDTH+10, height=SUB_WINDOW_HEIGHT+10, window=sub_window_border)
 	#Force sub_window and top_frame to be of desired size, and not the size of the component widgets. 
+	sub_window_border.grid_propagate(0)
+	sub_window.grid_propagate(0)
 	top_frame.grid_propagate(0)
 	#Configure columns of top_frame widget
 	top_frame.columnconfigure(0, weight=1)
 	top_frame.columnconfigure(1, weight=1)
 	#Place widgets 
 	canvas0.grid(column=0, row=0)
-	top_frame.grid(column=0, row=0)
+	sub_window.grid(column=0, row=0)
+	top_frame.grid(column=0, row=0, sticky=tk.E + tk.W)
 	window_options_frame.grid(column=1, row=0, sticky='e')
 	close_button.grid(column=3, row=0)
 	minimize_button.grid(column=1, row=0)
@@ -133,6 +138,22 @@ def create_next_actions_window(window0: tk.Tk, next_actions_list: list[Actionabl
 	title.bind("<ButtonRelease>", drag_deactivate)
 	title.bind("<Motion>", execute_drag)
 
+def resize_sub_window():
+	""""""
+	def sub_window_resize_event_handling():
+		"""Binds relevant widgets to relevant functions"""
+	def horizontal_resize():
+		"""Used in event handler"""
+	def vertical_resize():
+		"""Used in event handler"""
+	def corner_resize ():
+		"""Used in event handler"""
+
+def update_mouse_pointer_graphic():
+		"""Updates the mouse pointer graphic when the pointer hovers over certain widgets."""
+		def resize_graphic():
+			"""Changes mouse pointer graphic to resize graphic. The specific resize graphic depends on the possible direction of resize. """
+			
 def add_address_bar():
 	"""Creates address bar."""
 
@@ -174,13 +195,15 @@ def execute_drag(mouse_motion: tk.Event):
 		y_root = mouse_motion.y_root
 		event_frame = mouse_motion.widget
 		if event_frame.winfo_class() == 'Frame':
-			sub_window_frame = event_frame.master
-			canvas = sub_window_frame.master
+			sub_window = event_frame.master
+			sub_window_border = sub_window.master
+			canvas = sub_window_border.master
 			return canvas, canvas.find_closest(x_root,y_root)[0]
 		elif event_frame.winfo_class() == 'Label':
 			top_frame = event_frame.master
-			sub_window_frame = top_frame.master
-			canvas = sub_window_frame.master
+			sub_window = top_frame.master
+			sub_window_border = sub_window.master
+			canvas = sub_window_border.master
 			return canvas, canvas.find_closest(x_root,y_root)[0]
 
 	global drag_activated
