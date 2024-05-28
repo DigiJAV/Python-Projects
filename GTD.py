@@ -102,31 +102,53 @@ def create_next_actions_window(window0: tk.Tk, next_actions_list: list[Actionabl
 	screen_height = window0.winfo_screenheight()
 	#Generate widgets and objects
 	canvas0= tk.Canvas(window0, width=screen_width, height=screen_height, bg='black')
-	sub_window_border = tk.Frame(master=canvas0, width=SUB_WINDOW_WIDTH+10, height=SUB_WINDOW_HEIGHT+10, background='black', borderwidth=5, relief='groove')
-	sub_window= tk.Frame(master=sub_window_border, width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGHT, background='blue' )
+	sub_window= tk.Frame(master=canvas0, width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGHT, background='blue' )
 	top_frame = tk.Frame(sub_window, width=SUB_WINDOW_WIDTH, height=20, bg='black')
 	title = tk.Label(top_frame, text="Next Actions", fg='white', bg='black')
 	window_options_frame = tk.Frame(top_frame, bg='black')
 	minimize_button = tk.Button(window_options_frame, fg='white', bg='black', text ='\u2013')
 	maximize_button = tk.Button(window_options_frame, fg='white', bg='black', text='\u29E0')
 	close_button = tk.Button(window_options_frame, fg='white', bg='black', text='X')
-	canvas_window0_ID = canvas0.create_window(100,100, anchor=tk.NW, width=SUB_WINDOW_WIDTH+10, height=SUB_WINDOW_HEIGHT+10, window=sub_window_border)
+	canvas_window0_ID = canvas0.create_window(100,100, anchor=tk.NW, width=SUB_WINDOW_WIDTH, height=SUB_WINDOW_HEIGHT, window=sub_window)
+	##Generate border frames
+	border_frame_S = tk.Frame(master=sub_window, bg='grey', bd=2, borderwidth=2, class_="Border", height=3, width=SUB_WINDOW_WIDTH-6)
+	border_frame_N = tk.Frame(master=sub_window, bg='grey', bd=2, borderwidth=2, class_="Border", height=3, width=SUB_WINDOW_WIDTH-6)
+	border_frame_W = tk.Frame(master=sub_window, bg='grey', bd=2, borderwidth=2, class_="Border", height=SUB_WINDOW_HEIGHT-6, width=3)
+	border_frame_E = tk.Frame(master=sub_window, bg='grey', bd=2, borderwidth=2, class_="Border", height=SUB_WINDOW_HEIGHT-6, width=3)
+	corner_frame_NW = tk.Frame(master=sub_window, bg='green', bd=1, borderwidth=2, class_="Border", height=3, width=3)
+	corner_frame_SW = tk.Frame(master=sub_window, bg='green', bd=1, borderwidth=2, class_="Border", height=3, width=3)
+	corner_frame_NE = tk.Frame(master=sub_window, bg='green', bd=1, borderwidth=2, class_="Border", height=3, width=3)
+	corner_frame_SE = tk.Frame(master=sub_window, bg='green', bd=1, borderwidth=2, class_="Border", height=3, width=3)
 	#Force sub_window and top_frame to be of desired size, and not the size of the component widgets. 
-	sub_window_border.grid_propagate(0)
 	sub_window.grid_propagate(0)
 	top_frame.grid_propagate(0)
-	#Configure columns of top_frame widget
+	border_frame_S.grid_propagate(0)
+	border_frame_W.grid_propagate(0)
+	border_frame_E.grid_propagate(0)
+	border_frame_N.grid_propagate(0)
+	#Configure columns and rows
+	sub_window.columnconfigure(0, weight=1)
+	sub_window.columnconfigure(1, weight=1)
+	sub_window.columnconfigure(2, weight=1)
+	sub_window.rowconfigure(0, weight=1)
+	sub_window.rowconfigure(1, weight=1)
+	sub_window.rowconfigure(2, weight=1)
+	sub_window.rowconfigure(3, weight=1)
 	top_frame.columnconfigure(0, weight=1)
 	top_frame.columnconfigure(1, weight=1)
 	#Place widgets 
 	canvas0.grid(column=0, row=0)
-	sub_window.grid(column=0, row=0)
-	top_frame.grid(column=0, row=0, sticky=tk.E + tk.W)
+	top_frame.grid(column=1, row=1, sticky=tk.E + tk.W + tk.N )
 	window_options_frame.grid(column=1, row=0, sticky='e')
-	close_button.grid(column=3, row=0)
 	minimize_button.grid(column=1, row=0)
 	maximize_button.grid(column=2, row=0)
+	close_button.grid(column=3, row=0)
 	title.grid(column=0, row=0, sticky='w')
+
+	border_frame_S.grid(column=1, row=3)
+	border_frame_W.grid(column=0, row=1, rowspan=2)
+	border_frame_E.grid(column=2, row=1, rowspan=2)
+	border_frame_N.grid(column=1, row=0)
 #Event handling
 	drag_activated = False
 	button1_press_coords = (0, 0)
@@ -149,10 +171,41 @@ def resize_sub_window():
 	def corner_resize ():
 		"""Used in event handler"""
 
-def update_mouse_pointer_graphic():
+def update_mouse_pointer_graphic(event: tk.Event):
 		"""Updates the mouse pointer graphic when the pointer hovers over certain widgets."""
-		def resize_graphic():
+		def resize_cursor(enter_event: tk.Event):
 			"""Changes mouse pointer graphic to resize graphic. The specific resize graphic depends on the possible direction of resize. """
+			W_frame_start: int
+			W_frame_end: int
+			E_frame_start: int
+			E_frame_end: int
+			N_frame_start: int
+			N_frame_end: int
+			S_frame_start: int
+			S_frame_end: int
+			if enter_event.x > W_frame_start and enter_event.x < W_frame_end:
+				if enter_event.y > N_frame_start and enter_event.y < N_frame_end:
+					"""Change cursor to 'top_left_corner'."""
+				elif enter_event.y > S_frame_start and enter_event.y < S_frame_end:
+					"""Change cursor to 'bottom_left_corner'."""
+				"""Change cursor to 'left_side'."""
+			elif enter_event.x > E_frame_start and enter_event.x < E_frame_end:
+				if enter_event.y > N_frame_start and enter_event.y < N_frame_end:
+					"""Change cursor to 'top_right_corner'."""
+				elif enter_event.y > S_frame_start and enter_event.y < S_frame_end:
+					"""Change cursor to 'bottom_right_corner'."""
+				"""Change cursor to 'right_side'."""
+			elif enter_event.y > N_frame_start and enter_event.y < N_frame_end:
+				"""Change cursor to 'top_side'."""
+			elif enter_event.y > S_frame_start and enter_event.y < S_frame_end:
+				"""Change cursor to 'bottom_side."""
+			enter_event.widget.bind('<Leave>', default_cursor)
+			
+
+		def default_cursor (leave_event: tk.Event):
+			"""Change cursor graphic to the default graphic."""
+			
+
 			
 def add_address_bar():
 	"""Creates address bar."""
@@ -196,14 +249,12 @@ def execute_drag(mouse_motion: tk.Event):
 		event_frame = mouse_motion.widget
 		if event_frame.winfo_class() == 'Frame':
 			sub_window = event_frame.master
-			sub_window_border = sub_window.master
-			canvas = sub_window_border.master
+			canvas = sub_window.master
 			return canvas, canvas.find_closest(x_root,y_root)[0]
 		elif event_frame.winfo_class() == 'Label':
 			top_frame = event_frame.master
 			sub_window = top_frame.master
-			sub_window_border = sub_window.master
-			canvas = sub_window_border.master
+			canvas = sub_window.master
 			return canvas, canvas.find_closest(x_root,y_root)[0]
 
 	global drag_activated
