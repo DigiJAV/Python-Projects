@@ -88,6 +88,7 @@ def create_main_window():
 
 def create_sub_window(window0: tk.Tk):
 	"""Creates an empty sub_screen."""
+	create_next_actions_window(window0, next_actions_list)
 
 def ui_manager():
 	"Manages UI. "
@@ -97,42 +98,70 @@ def ui_manager():
 
 def create_next_actions_window(window0: tk.Tk, next_actions_list: list[Actionable])->tk.Frame:
 	"""Creates Next acions window"""
-	#Generate widgets and objects
 	screen_width = window0.winfo_screenwidth()
 	screen_height = window0.winfo_screenheight()
+	#Generate widgets and objects
 	canvas0= tk.Canvas(window0, width=screen_width, height=screen_height, bg='black')
-	sub_window= tk.Frame(master=canvas0, width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGHT, background='blue', borderwidth=5, relief='groove')
-	top_frame = tk.Frame(sub_window, width=SUB_WINDOW_WIDTH-10, height=20, bg='black')
+	sub_window= tk.Frame(master=canvas0, width = SUB_WINDOW_WIDTH, height = SUB_WINDOW_HEIGHT, background='blue' )
+	top_frame = tk.Frame(sub_window, width=SUB_WINDOW_WIDTH, height=20, bg='black', relief='raised', bd=2)
 	title = tk.Label(top_frame, text="Next Actions", fg='white', bg='black')
 	window_options_frame = tk.Frame(top_frame, bg='black')
 	minimize_button = tk.Button(window_options_frame, fg='white', bg='black', text ='\u2013')
 	maximize_button = tk.Button(window_options_frame, fg='white', bg='black', text='\u29E0')
 	close_button = tk.Button(window_options_frame, fg='white', bg='black', text='X')
-	canvas_window0_ID = canvas0.create_window(100,100, anchor=tk.NW, width=SUB_WINDOW_WIDTH, height=SUB_WINDOW_HEIGHT, window=sub_window)
-	#Force sub_window and top_frame to be of desired size, and not the size of the component widgets. 
-	top_frame.grid_propagate(0)
-	#Configure columns of top_frame widget
+	canvas_window0_ID = canvas0.create_window(100,100, anchor=tk.NW, window=sub_window)
+	##Generate border frames
+	border_frame_S = tk.Frame(master=sub_window, bg='grey', height=2, width=SUB_WINDOW_WIDTH-4, cursor='bottom_side', relief='raised')
+	border_frame_N = tk.Frame(master=sub_window, bg='grey', height=2, width=SUB_WINDOW_WIDTH-4, cursor='top_side', relief='raised')
+	border_frame_W = tk.Frame(master=sub_window, bg='grey', height=SUB_WINDOW_HEIGHT-4, width=2, cursor='left_side', relief='raised')
+	border_frame_E = tk.Frame(master=sub_window, bg='grey', height=SUB_WINDOW_HEIGHT-4, width=2, cursor='right_side', relief='raised')
+	corner_frame_NW = tk.Frame(master=sub_window, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='top_left_corner', relief='raised')
+	corner_frame_SW = tk.Frame(master=sub_window, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='bottom_left_corner', relief='raised')
+	corner_frame_NE = tk.Frame(master=sub_window, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='top_right_corner', relief='raised')
+	corner_frame_SE = tk.Frame(master=sub_window, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='bottom_right_corner', relief='raised')
+	#Force sub_window to be of desired size, and not the size of the component widgets. 
+	sub_window.grid_propagate(0)
+	#Configure columns and rows
+	sub_window.columnconfigure(0, weight=1)
+	sub_window.columnconfigure(1, weight=1)
+	sub_window.columnconfigure(2, weight=1)
+	sub_window.rowconfigure(0, weight=1)
+	sub_window.rowconfigure(1, weight=1)
+	sub_window.rowconfigure(2, weight=1)
+	sub_window.rowconfigure(3, weight=1)
 	top_frame.columnconfigure(0, weight=1)
 	top_frame.columnconfigure(1, weight=1)
 	#Place widgets 
 	canvas0.grid(column=0, row=0)
-	top_frame.grid(column=0, row=0)
+	top_frame.grid(column=1, row=1, sticky='new')
 	window_options_frame.grid(column=1, row=0, sticky='e')
-	close_button.grid(column=3, row=0)
 	minimize_button.grid(column=1, row=0)
 	maximize_button.grid(column=2, row=0)
+	close_button.grid(column=3, row=0)
 	title.grid(column=0, row=0, sticky='w')
-#Event handling
-	drag_activated = False
+	#Place border frames
+	border_frame_S.grid(column=1, row=3, sticky='wes')
+	border_frame_W.grid(column=0, row=1, rowspan=2, sticky='ns')
+	border_frame_E.grid(column=2, row=1, rowspan=2, sticky='nse')
+	border_frame_N.grid(column=1, row=0, sticky='we')
+	corner_frame_NE.grid(column=2, row=0)
+	corner_frame_NW.grid(column=0, row=0)
+	corner_frame_SW.grid(column=0, row=3)
+	corner_frame_SE.grid(column=2, row=3)
+#Event handling state variables
+	drag_enabled = False 
 	button1_press_coords = (0, 0)
 	#Widget-event-handler binds  
-	top_frame.bind("<Button-1>", drag_activate)
-	top_frame.bind("<ButtonRelease>", drag_deactivate)
+	top_frame.bind("<Button-1>", enable_drag)
+	top_frame.bind("<ButtonRelease>", disable_drag)
 	top_frame.bind("<Motion>", execute_drag)
-	title.bind("<Button-1>", drag_activate)
-	title.bind("<ButtonRelease>", drag_deactivate)
+	title.bind("<Button-1>", enable_drag)
+	title.bind("<ButtonRelease>", disable_drag)
 	title.bind("<Motion>", execute_drag)
-
+	border_frame_E.bind("<Button-1>", enable_drag)
+	border_frame_E.bind("<Motion>", execute_resize)
+	border_frame_E.bind("<ButtonRelease>", disable_drag)
+	
 def add_address_bar():
 	"""Creates address bar."""
 
@@ -150,19 +179,19 @@ def add_checkboxes():
 	""""""
 
 #Event Handlers
-def drag_activate(button1_press: tk.Event):
+def enable_drag(button1_press: tk.Event):
 	""""Returns True when mouse button 1 is pressed in binded widget. """
 	print("Button1 Pressed")
-	global drag_activated
+	global drag_enabled
 	global button1_press_coords
-	drag_activated = True
+	drag_enabled = True
 	button1_press_coords = button1_press.x, button1_press.y
 
-def drag_deactivate(button1_release: tk.Event):
+def disable_drag(button1_release: tk.Event):
 	"""Returns False when mouse button 1 is released over the binded widget. """
 	print("Button1 Released")
-	global drag_activated
-	drag_activated = False
+	global drag_enabled
+	drag_enabled = False
 
 def execute_drag(mouse_motion: tk.Event):
 	"""Called when motion detected in binded frame, and drag_status == True."""
@@ -174,20 +203,20 @@ def execute_drag(mouse_motion: tk.Event):
 		y_root = mouse_motion.y_root
 		event_frame = mouse_motion.widget
 		if event_frame.winfo_class() == 'Frame':
-			sub_window_frame = event_frame.master
-			canvas = sub_window_frame.master
+			sub_window = event_frame.master
+			canvas = sub_window.master
 			return canvas, canvas.find_closest(x_root,y_root)[0]
 		elif event_frame.winfo_class() == 'Label':
 			top_frame = event_frame.master
-			sub_window_frame = top_frame.master
-			canvas = sub_window_frame.master
+			sub_window = top_frame.master
+			canvas = sub_window.master
 			return canvas, canvas.find_closest(x_root,y_root)[0]
 
-	global drag_activated
+	global drag_enabled
 	global button1_press_coords
 	#Initial position values of mouse pointer (relative widget (upper left coner of the widget))
 	x1, y1 = button1_press_coords[0], button1_press_coords[1]
-	if drag_activated:
+	if drag_enabled:
 		# Final position values of the mouse pointer (relative widget (upper left corner of the widget))
 		x2 = mouse_motion.x
 		y2 = mouse_motion.y
@@ -200,7 +229,60 @@ def execute_drag(mouse_motion: tk.Event):
 		canvas, canvas_window_object_ID = get_canvas_window_obj_ID()
 		canvas.move(canvas_window_object_ID, delta_x, delta_y)
 
-		
+def execute_resize(motion: tk.Event):
+	"""If resize_enabled is True, the function will resize the sub_window widget based on the motion of the mouse and the border frame
+	in which motion event is occurring. How to know in which border frame the event is occurring? I could assign the frame a class_
+	which identifies it. """
+	def resize_right():
+		"""Changes the width of the sub_window based on the change in position of the mouse cursor. Assuming the width will increase both to 
+		the left and to the right, the sub-window position will change in response to the change in
+		position of the mouse cursor, so as to make it seem that only the right side of the window is being resized."""
+
+	def resize_left():
+		"""Changes the width of the sub_window based on the change in position of the mouse cursor. Assuming the width will increase 
+		both to the left and to the right, the sub-window position will change in response to the change in
+		position of the mouse cursor, so as to make it seem that only the left side of the window is being resized.
+		"""
+		global button1_press_coords
+		x1 = button1_press_coords[0]
+		if drag_enabled:
+			x2 = motion.x
+			delta = x2 - x1
+			x1 = x2
+			border_frame.configure(height = border_frame.winfo_width() + delta)
+
+	def resize_bottom():
+		"""Changes the height of the sub-window based on the change in position of the mouse cursor. Assuming both the top and the 
+		bottom of the sub-window will adjust for the change in height, the position of the sub-window will adjust also, in order to 
+		make it seem that only the buttom of the sub-screen is changing to adjust for the change in height."""
+	def resize_top():
+		"""Changes the height of the sub-window based on the change in position of the mouse cursor. Assuming both the top and the 
+		bottom of the sub-window will adjust for the change in height, the position of the sub-window will adjust also, in order to 
+		make it seem that only the top of the sub-screen is changing to adjust for the change in height."""	
+	def resize_corner():
+		"""Changes both the height and the width of the subwindow at the same time. Uses two side resize functions for each corner. 
+		If event widget is corner_frame_NW, resize_top & resize_left
+		If NE, resize_top & resize_right
+		If SE, resize_bottom & resize_right
+		If SW, resize_bottom & resize_left
+		"""
+	global drag_enabled
+	border_frame = motion.widget
+	cursor = border_frame.cget('cursor')
+	if drag_enabled:
+		if cursor == 'right_side':
+			resize_right()
+		elif cursor == 'left_side':
+			resize_left()
+		elif cursor == 'top_side':
+			resize_top()
+		elif cursor == 'bottom_side':
+			resize_bottom()
+		elif any(cursor_type in cursor for cursor_type in ('top_left_corner', 'bottom_left_corner', 'top_right_corner', 'bottom_right_corner')):
+			resize_corner()
+	
+
+
 
 #Global Constants:
 SUB_WINDOW_WIDTH = 300
