@@ -71,9 +71,9 @@ def check_position(train_list: list[Train], node_list: list[Object], obstacle_li
         If it == to node position, return 2. 
         If neither, return 0."""  
     if train_list[0].train_box.collidelist([obstacle.object_box for obstacle in obstacle_list]) != -1 or train_list[0].train_box.collidelist([train.train_box for train in train_list[1:]]) != -1 or  train_list[0].train_box.x == -CELL_SIZE or train_list[0].train_box.x == SURFACE_WIDTH or train_list[0].train_box.y == -CELL_SIZE or train_list[0].train_box.y == SURFACE_LENGTH:
-            return 1
+        return 1
     if train_list[0].train_box.collidelist([node.object_box for node in node_list]) != -1:
-            return 2
+        return 2
     else:
         return 0 
 
@@ -191,7 +191,15 @@ def remove_all_nodes(node_list: list[pygame.Rect]):
     for node in node_list:
             node_list.remove(node)
 
-def update_objects(train_list: list[Train], node_list: list[pygame.Rect], obstacle_list: list[pygame.Rect], train0_image_list: list[pygame.Surface], train_image_list: list[pygame.Surface], obstacle_image_list: list[pygame.Surface], node_image_list: list[pygame.Surface], sounds: list[pygame.mixer.Sound], font: pygame.font):
+def update_objects(train_list: list[Train], 
+                   node_list: list[pygame.Rect], 
+                   obstacle_list: list[pygame.Rect], 
+                   train0_image_list: list[pygame.Surface], 
+                   train_image_list: list[pygame.Surface], 
+                   obstacle_image_list: list[pygame.Surface], 
+                   node_image_list: list[pygame.Surface], 
+                   sounds: list[pygame.mixer.Sound], 
+                   font: pygame.font):
     """Calls functions that update position and direction values of trains, and generate instances of nodes and obstacles to desired amount."""
     update_train_values(train_list)  #Update position and direction values of all trains, from back to front. Front train is updated via user input.
     check = check_position(train_list, node_list, obstacle_list)
@@ -251,9 +259,10 @@ def pause_game(key: pygame.event, font: pygame.font):
         while game_paused:
             for event in pygame.event.get():     
                 if event.type == pygame.KEYDOWN:
-                    clock.tick(FPS)
-                    game_paused = False
-                    break
+                    if event.key == pygame.K_SPACE:
+                        clock.tick(FPS)
+                        game_paused = False
+                        break
                 elif event.type == pygame.QUIT:
                     return event.type 
         screen.fill("black")
@@ -290,23 +299,23 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_LENGTH))
 
 script_dir = os.path.dirname(os.path.abspath(__file__))   # Get the directory where the script is located
 os.chdir(script_dir)                                                    # Set this directory as the current working directory
-                                                    
-#Loading of Images
-surface = pygame.image.load(r"Images\background\train_accumulator_Background0.jpg")
-surface_copy = pygame.image.load(r"Images\background\train_accumulator_Background0.jpg")    #For updating image surface per frame
-train0_image_up = pygame.image.load(r"Images\train0\train0_up.png")
-train0_image_down = pygame.image.load(r"Images\train0\train0_down.png")
-train0_image_right = pygame.image.load(r"Images\train0\train0_right.png")
-train0_image_left = pygame.image.load(r"Images\train0\train0_left.png")
-train_image_up = pygame.image.load(r"Images\carts\Cart low\cart_up.png")
-train_image_down = pygame.image.load(r"Images\carts\Cart low\cart_down.png")
-train_image_right = pygame.image.load(r"Images\carts\Cart low\cart_right.png")
-train_image_left = pygame.image.load(r"Images\carts\Cart low\cart_left.png")
-node_image = pygame.image.load(r"Images\Nodes\coin_topdown1.png")
-obstacle1_image = pygame.image.load(r"Images\Obstacles\obstacle1.png")
-obstacle2_image = pygame.image.load(r"Images\Obstacles\obstacle2.png")
-obstacle3_image = pygame.image.load(r"Images\Obstacles\obstacle3.png")
-obstacle4_image = pygame.image.load(r"Images\Obstacles\obstacle4.png")
+                                       
+#Loading of Images 
+surface = pygame.image.load(os.path.join('Images', 'background', 'train_accumulator_Background0.jpg'))
+surface_copy = surface    #For updating image surface per frame
+train0_image_up = pygame.image.load(os.path.join('Images', 'train0', 'train0_up.png'))
+train0_image_down = pygame.image.load(os.path.join('Images', 'train0', 'train0_down.png'))
+train0_image_right = pygame.image.load(os.path.join('Images', 'train0', 'train0_right.png'))
+train0_image_left = pygame.image.load(os.path.join('Images', 'train0', 'train0_left.png'))
+train_image_up = pygame.image.load(os.path.join('Images', 'carts', 'cart_up.png'))
+train_image_down = pygame.image.load(os.path.join('Images', 'carts', 'cart_down.png'))
+train_image_right = pygame.image.load(os.path.join('Images', 'carts', 'cart_right.png'))
+train_image_left = pygame.image.load(os.path.join('Images', 'carts', 'cart_left.png'))
+node_image = pygame.image.load(os.path.join('Images', 'Nodes', 'coin_topdown1.png'))
+obstacle1_image = pygame.image.load(os.path.join('Images', 'Obstacles', 'obstacle1.png'))
+obstacle2_image = pygame.image.load(os.path.join('Images', 'Obstacles', 'obstacle2.png'))
+obstacle3_image = pygame.image.load(os.path.join('Images', 'Obstacles', 'obstacle3.png'))
+obstacle4_image = pygame.image.load(os.path.join('Images', 'Obstacles', 'obstacle4.png'))
 
 #Scaling of Images
 train0_image_up_c = pygame.transform.scale(train0_image_up, (CELL_SIZE, CELL_SIZE))
@@ -334,9 +343,9 @@ node_images = [node1_image_c]
 images = [train0_images, train_images, obstacle_images, node_images]
 
 #Load Sounds 
-train_sound = pygame.mixer.Sound(r"Sounds\orecart_move_1.wav")
-obstacle_sound = pygame.mixer.Sound(r"Sounds\train_crash2.wav")
-node_sound = pygame.mixer.Sound(r"Sounds\picked-coin-echo.wav")
+train_sound = pygame.mixer.Sound(os.path.join('Sounds', 'orecart_move_1.wav'))
+obstacle_sound = pygame.mixer.Sound(os.path.join('Sounds', 'train_crash2.wav'))
+node_sound = pygame.mixer.Sound(os.path.join('Sounds', 'picked-coin-echo.wav'))
 sounds = [train_sound, obstacle_sound, node_sound]
 
 popup = pygame.Surface((POPUP_WIDTH, POPUP_LENGTH))
