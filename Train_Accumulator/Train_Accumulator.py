@@ -302,7 +302,7 @@ os.chdir(script_dir)                                                    # Set th
                                        
 #Loading of Images 
 surface = pygame.image.load(os.path.join('Images', 'background', 'train_accumulator_Background0.jpg'))
-surface_copy = surface    #For updating image surface per frame
+surface_copy = pygame.image.load(os.path.join('Images', 'background', 'train_accumulator_Background0.jpg'))    #For updating image surface per frame
 train0_image_up = pygame.image.load(os.path.join('Images', 'train0', 'train0_up.png'))
 train0_image_down = pygame.image.load(os.path.join('Images', 'train0', 'train0_down.png'))
 train0_image_right = pygame.image.load(os.path.join('Images', 'train0', 'train0_right.png'))
