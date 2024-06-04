@@ -43,8 +43,27 @@ class Project:
 
 @dataclass
 class Sub_Window:
-	list: list
-	title: str
+	sub_window: tk.Frame
+	top_frame: tk.Frame
+	title_label: tk.Label
+	window_options_frame: tk.Frame
+	minimize_button: tk.Button
+	full_screen_button: tk.Button
+	close_button: tk.Button
+	border_frame_S: tk.Frame
+	border_frame_N: tk.Frame
+	border_frame_W: tk.Frame
+	border_frame_E: tk.Frame
+	corner_frame_NW: tk.Frame
+	corner_frame_SW: tk.Frame
+	corner_frame_NE: tk.Frame
+	corner_frame_SE: tk.Frame
+	vertical_scroll_bar: tk.Scrollbar
+	horizontal_scroll_bar: tk.Scrollbar
+	sort_options: list
+	filter_options: list
+	checkboxes: bool
+	checkbox_options: list
 
 #Data functions
 def add_input():
@@ -85,17 +104,96 @@ def create_main_window():
 	window0.geometry(f"{screen_width}x{screen_height}")
 	window0.title("Getting Things Done")
 	return window0
-
 def create_sub_windows(window0: tk.Tk):
 	"""Creates an empty sub_screen."""
 	def create_canvas():
 		screen_width = window0.winfo_screenwidth()
 		screen_height = window0.winfo_screenheight()
-		return tk.Canvas(window0, width=screen_width, height=screen_height, bg='black')
+		canvas = tk.Canvas(window0, width=screen_width, height=screen_height, bg='black')
+		canvas.grid(column=0, row=0)
+		return canvas
+	def create_widgets(title: str, canvas: tk.Canvas):
+		"""Generates the basic widgets that make up a sub-window."""
+		window = Sub_Window(
+			sub_window_frame = tk.Frame(master=canvas, width = sub_window_dimensions[0], height = sub_window_dimensions[1], background='blue' ),
+			top_frame = tk.Frame(master=window.sub_window_frame, width=sub_window_dimensions[0]-4, height=30, bg='black', relief='raised', bd=2),
+			title = tk.Label(master=window.top_frame, text=title, fg='white', bg='black'),
+			window_options_frame = tk.Frame(master=window.top_frame, bg='black'),
+			minimize_button = tk.Button(master=window.window_options_frame, fg='white', bg='black', text ='\u2013'),
+			full_screen_button = tk.Button(master=window.window_options_frame, fg='white', bg='black', text='\u29E0'),
+			close_button = tk.Button(master=window.window_options_frame, fg='white', bg='black', text='X'),
+			border_frame_S = tk.Frame(master=window.sub_window_frame, bg='grey', height=2, width=sub_window_dimensions[0]-4, cursor='bottom_side', relief='raised'),
+			border_frame_N = tk.Frame(master=window.sub_window_frame, bg='grey', height=2, width=sub_window_dimensions[0]-4, relief='raised'),
+			border_frame_W = tk.Frame(master=window.sub_window_frame, bg='grey', height=sub_window_dimensions[1]-4, width=2, relief='raised'),
+			border_frame_E = tk.Frame(master=window.sub_window_frame, bg='grey', height=sub_window_dimensions[1]-4, width=2, cursor='right_side', relief='raised'),
+			corner_frame_NW = tk.Frame(master=window.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised'),
+			corner_frame_SW = tk.Frame(master=window.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised'),
+			corner_frame_NE = tk.Frame(master=window.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised'),
+			corner_frame_SE = tk.Frame(master=window.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='bottom_right_corner', relief='raised'))
+		canvas_window0_ID = canvas.create_window(100,100, anchor=tk.NW, window=window.sub_window_frame)
+		return window
+	def place_widgets(window: Sub_Window):
+		""""""
+		window.sub_window_frame.grid_propagate(0)
+		window.top_frame.grid_propagate(0)
+		#Configure columns and rows
+		window.sub_window_frame.columnconfigure(0, weight=1)
+		window.sub_window_frame.columnconfigure(1, weight=1)
+		window.sub_window_frame.columnconfigure(2, weight=1)
+		window.sub_window_frame.rowconfigure(0, weight=1)
+		window.sub_window_frame.rowconfigure(1, weight=1)
+		window.sub_window_frame.rowconfigure(2, weight=1)
+		window.sub_window_frame.rowconfigure(3, weight=1)
+		window.top_frame.columnconfigure(0, weight=1)
+		window.top_frame.columnconfigure(1, weight=1)
+		#Place widgets 
+		window.top_frame.grid(column=1, row=1, sticky='n')
+		window.window_options_frame.grid(column=1, row=0, sticky='e')
+		window.minimize_button.grid(column=1, row=0)
+		window.maximize_button.grid(column=2, row=0)
+		window.close_button.grid(column=3, row=0)
+		window.title.grid(column=0, row=0, sticky='w')
+		#Place border frames
+		window.border_frame_S.grid(column=1, row=3, sticky='wes')
+		window.border_frame_W.grid(column=0, row=1, rowspan=2, sticky='ns')
+		window.border_frame_E.grid(column=2, row=1, rowspan=2, sticky='nse')
+		window.border_frame_N.grid(column=1, row=0, sticky='we')
+		window.corner_frame_NE.grid(column=2, row=0)
+		window.corner_frame_NW.grid(column=0, row=0)
+		window.corner_frame_SW.grid(column=0, row=3)
+		window.corner_frame_SE.grid(column=2, row=3)
+
+	def create_window(window0: tk.Tk, canvas: tk.Canvas)->tk.Frame:
+		"""Creates Next acions window"""
+		window = create_widgets("Next Actions", canvas)
+		place_widgets(window, canvas)
+		return window
 	
-	sub_window_dimensions = [300, 300] 	# Default width & height of sub-windows
 	canvas = create_canvas()
-	create_next_actions_window(window0, next_actions_list, canvas, sub_window_dimensions)
+	sub_window_dimensions = [300, 300] 	# Default width & height of sub-windows
+	next_actions_window = create_window(window0, sub_window_dimensions, canvas)
+	event_handling(next_actions_window)
+
+def event_handling(sub_window: Sub_Window):
+		""""""
+		drag_enabled = False 
+		button1_press_coords = (0, 0)
+		#Widget-event-handler binds  
+		top_frame.bind("<Button-1>", enable_drag)
+		top_frame.bind("<ButtonRelease>", disable_drag)
+		top_frame.bind("<Motion>", execute_drag)
+		title.bind("<Button-1>", enable_drag)
+		title.bind("<ButtonRelease>", disable_drag)
+		title.bind("<Motion>", execute_drag)
+		border_frame_E.bind("<Button-1>", enable_drag)
+		border_frame_E.bind("<ButtonRelease>", disable_drag)
+		border_frame_E.bind("<Motion>", resize_right)
+		border_frame_S.bind("<Button-1>", enable_drag)
+		border_frame_S.bind("<ButtonRelease>", disable_drag)
+		border_frame_S.bind("<Motion>", resize_bottom)
+		corner_frame_SE.bind("<Button-1>", enable_drag)
+		corner_frame_SE.bind("<ButtonRelease>", disable_drag)
+		corner_frame_SE.bind("<Motion>", resize_corner)
 
 def ui_manager():
 	"Manages UI. "
@@ -103,76 +201,6 @@ def ui_manager():
 	sub_windows = create_sub_windows(window0)
 	window0.mainloop()
 
-def create_next_actions_window(window0: tk.Tk, next_actions_list: list[Actionable], canvas: tk.Canvas, sub_window_dimensions: int)->tk.Frame:
-	"""Creates Next acions window"""
-	#Generate widgets and objects
-	sub_window= tk.Frame(master=canvas, width = sub_window_dimensions[0], height = sub_window_dimensions[1], background='blue' )
-	top_frame = tk.Frame(sub_window, width=sub_window_dimensions[0]-4, height=30, bg='black', relief='raised', bd=2)
-	title = tk.Label(top_frame, text="Next Actions", fg='white', bg='black')
-	window_options_frame = tk.Frame(top_frame, bg='black')
-	minimize_button = tk.Button(window_options_frame, fg='white', bg='black', text ='\u2013')
-	maximize_button = tk.Button(window_options_frame, fg='white', bg='black', text='\u29E0')
-	close_button = tk.Button(window_options_frame, fg='white', bg='black', text='X')
-	canvas_window0_ID = canvas.create_window(100,100, anchor=tk.NW, window=sub_window)
-	##Generate border frames
-	print("Sub window dimensions: ", sub_window_dimensions)
-	border_frame_S = tk.Frame(master=sub_window, bg='grey', height=2, width=sub_window_dimensions[0]-4, cursor='bottom_side', relief='raised')
-	border_frame_N = tk.Frame(master=sub_window, bg='grey', height=2, width=sub_window_dimensions[0]-4, relief='raised')
-	border_frame_W = tk.Frame(master=sub_window, bg='grey', height=sub_window_dimensions[1]-4, width=2, relief='raised')
-	border_frame_E = tk.Frame(master=sub_window, bg='grey', height=sub_window_dimensions[1]-4, width=2, cursor='right_side', relief='raised')
-	corner_frame_NW = tk.Frame(master=sub_window, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
-	corner_frame_SW = tk.Frame(master=sub_window, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
-	corner_frame_NE = tk.Frame(master=sub_window, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
-	corner_frame_SE = tk.Frame(master=sub_window, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='bottom_right_corner', relief='raised')
-	#Force sub_window to be of desired size, and not the size of the component widgets. 
-	sub_window.grid_propagate(0)
-	top_frame.grid_propagate(0)
-	#Configure columns and rows
-	sub_window.columnconfigure(0, weight=1)
-	sub_window.columnconfigure(1, weight=1)
-	sub_window.columnconfigure(2, weight=1)
-	sub_window.rowconfigure(0, weight=1)
-	sub_window.rowconfigure(1, weight=1)
-	sub_window.rowconfigure(2, weight=1)
-	sub_window.rowconfigure(3, weight=1)
-	top_frame.columnconfigure(0, weight=1)
-	top_frame.columnconfigure(1, weight=1)
-	#Place widgets 
-	canvas.grid(column=0, row=0)
-	top_frame.grid(column=1, row=1, sticky='n')
-	window_options_frame.grid(column=1, row=0, sticky='e')
-	minimize_button.grid(column=1, row=0)
-	maximize_button.grid(column=2, row=0)
-	close_button.grid(column=3, row=0)
-	title.grid(column=0, row=0, sticky='w')
-	#Place border frames
-	border_frame_S.grid(column=1, row=3, sticky='wes')
-	border_frame_W.grid(column=0, row=1, rowspan=2, sticky='ns')
-	border_frame_E.grid(column=2, row=1, rowspan=2, sticky='nse')
-	border_frame_N.grid(column=1, row=0, sticky='we')
-	corner_frame_NE.grid(column=2, row=0)
-	corner_frame_NW.grid(column=0, row=0)
-	corner_frame_SW.grid(column=0, row=3)
-	corner_frame_SE.grid(column=2, row=3)
-#Event handling state variables
-	drag_enabled = False 
-	button1_press_coords = (0, 0)
-	#Widget-event-handler binds  
-	top_frame.bind("<Button-1>", enable_drag)
-	top_frame.bind("<ButtonRelease>", disable_drag)
-	top_frame.bind("<Motion>", execute_drag)
-	title.bind("<Button-1>", enable_drag)
-	title.bind("<ButtonRelease>", disable_drag)
-	title.bind("<Motion>", execute_drag)
-	border_frame_E.bind("<Button-1>", enable_drag)
-	border_frame_E.bind("<ButtonRelease>", disable_drag)
-	border_frame_E.bind("<Motion>", resize_right)
-	border_frame_S.bind("<Button-1>", enable_drag)
-	border_frame_S.bind("<ButtonRelease>", disable_drag)
-	border_frame_S.bind("<Motion>", resize_bottom)
-	corner_frame_SE.bind("<Button-1>", enable_drag)
-	corner_frame_SE.bind("<ButtonRelease>", disable_drag)
-	corner_frame_SE.bind("<Motion>", resize_corner)
 
 def add_address_bar():
 	"""Creates address bar."""
