@@ -107,7 +107,7 @@ def create_next_actions_window(window0: tk.Tk, next_actions_list: list[Actionabl
 	"""Creates Next acions window"""
 	#Generate widgets and objects
 	sub_window= tk.Frame(master=canvas, width = sub_window_dimensions[0], height = sub_window_dimensions[1], background='blue' )
-	top_frame = tk.Frame(sub_window, width=sub_window_dimensions[0]-4, height=20, bg='black', relief='raised', bd=2)
+	top_frame = tk.Frame(sub_window, width=sub_window_dimensions[0]-4, height=30, bg='black', relief='raised', bd=2)
 	title = tk.Label(top_frame, text="Next Actions", fg='white', bg='black')
 	window_options_frame = tk.Frame(top_frame, bg='black')
 	minimize_button = tk.Button(window_options_frame, fg='white', bg='black', text ='\u2013')
@@ -126,6 +126,7 @@ def create_next_actions_window(window0: tk.Tk, next_actions_list: list[Actionabl
 	corner_frame_SE = tk.Frame(master=sub_window, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='bottom_right_corner', relief='raised')
 	#Force sub_window to be of desired size, and not the size of the component widgets. 
 	sub_window.grid_propagate(0)
+	top_frame.grid_propagate(0)
 	#Configure columns and rows
 	sub_window.columnconfigure(0, weight=1)
 	sub_window.columnconfigure(1, weight=1)
@@ -138,7 +139,7 @@ def create_next_actions_window(window0: tk.Tk, next_actions_list: list[Actionabl
 	top_frame.columnconfigure(1, weight=1)
 	#Place widgets 
 	canvas.grid(column=0, row=0)
-	top_frame.grid(column=1, row=1, sticky='new')
+	top_frame.grid(column=1, row=1, sticky='n')
 	window_options_frame.grid(column=1, row=0, sticky='e')
 	minimize_button.grid(column=1, row=0)
 	maximize_button.grid(column=2, row=0)
@@ -165,7 +166,13 @@ def create_next_actions_window(window0: tk.Tk, next_actions_list: list[Actionabl
 	title.bind("<Motion>", execute_drag)
 	border_frame_E.bind("<Button-1>", enable_drag)
 	border_frame_E.bind("<ButtonRelease>", disable_drag)
-	border_frame_E.bind("<Motion>", lambda event: execute_resize(event, sub_window_dimensions))
+	border_frame_E.bind("<Motion>", resize_right)
+	border_frame_S.bind("<Button-1>", enable_drag)
+	border_frame_S.bind("<ButtonRelease>", disable_drag)
+	border_frame_S.bind("<Motion>", resize_bottom)
+	corner_frame_SE.bind("<Button-1>", enable_drag)
+	corner_frame_SE.bind("<ButtonRelease>", disable_drag)
+	corner_frame_SE.bind("<Motion>", resize_corner)
 
 def add_address_bar():
 	"""Creates address bar."""
@@ -182,12 +189,6 @@ def add_filter_button():
 	""""""
 def add_checkboxes():
 	""""""
-def get_children(widget: tk.Widget)->list[tk.Widget]:
-	"""Gets children of input widget. Stores them in list, prints list elements to terminal. Returns list."""
-	children = widget.winfo_children()
-	for child in children:
-		print(child)
-	return children
 		
 #Event Handlers
 def enable_drag(button1_press: tk.Event):
@@ -241,67 +242,63 @@ def execute_drag(mouse_motion: tk.Event):
 		canvas, canvas_window_object_ID = get_canvas_window_obj_ID()
 		canvas.move(canvas_window_object_ID, delta_x, delta_y)
 
-def execute_resize(motion: tk.Event, sub_window_dimensions: int):
-	"""If resize_enabled is True, the function will resize the sub_window widget based on the motion of the mouse and the border frame
-	in which motion event is occurring. How to know in which border frame the event is occurring? I could assign the frame a class_
-	which identifies it. """
-	def resize_right(sub_window: tk.Frame):
-		"""Changes the width of the sub_window based on the change in position of the mouse cursor. Assuming the width will increase both to 
+
+def resize_right(motion: tk.Event):
+	"""Changes the width of the sub_window based on the change in position of the mouse cursor. Assuming the width will increase both to 
 		the left and to the right, the sub-window position will change in response to the change in
-		position of the mouse cursor, so as to make it seem that only the right side of the window is being resized."""
-		global button1_press_coords
-		x1 = button1_press_coords[0]
-		x2 = motion.x
-		delta = x2 - x1 	#Horizontal change in position of mouse cursor
-		x1 = x2
-		children = get_children(sub_window)
-
-		#This did not update the position of determined widgets in the sub window, including the sub window itself. 
-		#Apparentlye the program does not run the relevant code when draggin is occurring. I do not know in what order the code is run
-		#when dragging is occurring. 
-	def resize_left(sub_window: tk.Frame):
-		"""Changes the width of the sub_window based on the change in position of the mouse cursor. Assuming the width will increase 
-		both to the left and to the right, the sub-window position will change in response to the change in
-		position of the mouse cursor, so as to make it seem that only the left side of the window is being resized."""
-		global button1_press_coords
-		x1 = button1_press_coords[0]
-		x2 = motion.x
-		delta = x2 - x1 	#Horizontal change in position of mouse cursor
-		x1 = x2
-		children = get_children(sub_window)
-
-	def resize_bottom(sub_window: tk.Frame):
-		"""Changes the height of the sub-window based on the change in position of the mouse cursor. Assuming both the top and the 
-		bottom of the sub-window will adjust for the change in height, the position of the sub-window will adjust also, in order to 
-		make it seem that only the buttom of the sub-screen is changing to adjust for the change in height."""
-	def resize_top():
-		"""Changes the height of the sub-window based on the change in position of the mouse cursor. Assuming both the top and the 
-		bottom of the sub-window will adjust for the change in height, the position of the sub-window will adjust also, in order to 
-		make it seem that only the top of the sub-screen is changing to adjust for the change in height."""	
-	def resize_corner(sub_window: tk.Frame):
-		"""Changes both the height and the width of the subwindow at the same time. Uses two side resize functions for each corner. 
-		If event widget is corner_frame_NW, resize_top & resize_left
-		If NE, resize_top & resize_right
-		If SE, resize_bottom & resize_right
-		If SW, resize_bottom & resize_left
-		"""
+	position of the mouse cursor, so as to make it seem that only the right side of the window is being resized."""
+	global button1_press_coords
 	global drag_enabled
-	print("Drag enabled: ", drag_enabled)
+	frame = motion.widget
+	sub_window = frame.master
+	children = sub_window.winfo_children()
+	top_frame = children[0]
+	border_frame_S = children[1]
+	border_frame_N = children[2]
 	if drag_enabled:
-		border_frame = motion.widget
-		sub_window = border_frame.master
-		cursor = border_frame.cget('cursor')
-		print("Cursor: ", cursor)
-		if cursor == 'right_side':
-			resize_right(sub_window)
-		elif cursor == 'left_side':
-			resize_left(sub_window)
-		elif cursor == 'top_side':
-			resize_top(sub_window)
-		elif cursor == 'bottom_side':
-			resize_bottom(sub_window)
-		elif any(cursor_type in cursor for cursor_type in ('top_left_corner', 'bottom_left_corner', 'top_right_corner', 'bottom_right_corner')):
-			resize_corner(sub_window)
+		x1 = button1_press_coords[0]
+		x2 = motion.x
+		delta_cursor = x2 - x1 	#Horizontal change in position of mouse cursor
+		x1 = x2
+		delta_sub_window = sub_window.winfo_width() + delta_cursor
+		delta_top_frame = top_frame.winfo_width() + delta_cursor
+		delta_border_frame_N = border_frame_N.winfo_width() + delta_cursor
+		delta_border_frame_S = border_frame_S.winfo_width() + delta_cursor
+		if delta_sub_window > 130:	
+			sub_window.configure(width = delta_sub_window)
+			top_frame.configure(width = delta_top_frame)
+			border_frame_N.configure(width = delta_border_frame_N-1)
+			border_frame_S.configure(width = delta_border_frame_S-1)
+
+def resize_bottom(motion: tk.Event):
+	"""Changes the height of the sub-window based on the change in position of the mouse cursor. Assuming both the top and the 
+	bottom of the sub-window will adjust for the change in height, the position of the sub-window will adjust also, in order to 
+	make it seem that only the buttom of the sub-screen is changing to adjust for the change in height."""
+	global button1_press_coords
+	global drag_enabled
+	frame = motion.widget
+	sub_window = frame.master
+	children = sub_window.winfo_children()
+	border_frame_W = children[3]
+	border_frame_E = children[4]
+	if drag_enabled:
+		y1 = button1_press_coords[1]
+		y2 = motion.y
+		delta_cursor = y2 - y1 	#Horizontal change in position of mouse cursor
+		y1 = y2
+		delta_sub_window = sub_window.winfo_height() + delta_cursor
+		delta_border_frame_W = border_frame_W.winfo_height() + delta_cursor
+		delta_border_frame_E = border_frame_E.winfo_height() + delta_cursor
+		if delta_sub_window > 31:
+			sub_window.configure(height = delta_sub_window)
+			border_frame_W.configure(height = delta_border_frame_W-1)
+			border_frame_E.configure(height = delta_border_frame_E-1)
+
+def resize_corner(motion: tk.Event):
+	"""Uses functions resize bottom and resize right at the same time when user clicks and drags from SW corner of window"""
+	if drag_enabled:
+		resize_right(motion)
+		resize_bottom(motion)
 
 #Lists 
 inbox_list = []
