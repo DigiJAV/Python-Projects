@@ -14,7 +14,6 @@ class Date:
 	month: int
 	day:	int
 	time: 	int
-
 @dataclass
 class Actionable:
 	date_of_creation: Date 
@@ -24,13 +23,11 @@ class Actionable:
 	next_action: str
 	waiting_for: str
 	context: str 
-
 @dataclass
 class Not_Actionable:
 	date_of_creation: Date
 	inbox_data: Inbox
 	review: Date 
-	
 @dataclass
 class Project: 
 	name: str
@@ -40,30 +37,38 @@ class Project:
 	review: Date
 	date_of_creation: Date
 	completed: bool
-
+@dataclass
+class List_Box:
+	item_list: list[str]
+	list_box_widget: tk.Listbox
+	sort_options: list[str]
+	filter_options: list[str]
+	item_options: list[str]
+###################################################################
 @dataclass
 class Sub_Window:
-	sub_window_frame: tk.Frame
-	top_frame: tk.Frame
-	title_label: tk.Label
-	window_options_frame: tk.Frame
-	minimize_button: tk.Button
-	full_screen_button: tk.Button
-	close_button: tk.Button
-	border_frame_S: tk.Frame
-	border_frame_N: tk.Frame
-	border_frame_W: tk.Frame
-	border_frame_E: tk.Frame
-	corner_frame_NW: tk.Frame
-	corner_frame_SW: tk.Frame
-	corner_frame_NE: tk.Frame
-	corner_frame_SE: tk.Frame
+	title: str
+	canvas0 = None
+	window_dimensions = [300, 300] 	# Default width & height of sub-windows
+	sub_window_frame = tk.Frame(master=canvas0, width = window_dimensions[0], height = window_dimensions[1], background='blue')
+	top_frame = tk.Frame(master=sub_window_frame, width=window_dimensions[0]-4, height=30, bg='black', relief='raised', bd=2)
+	title_label = tk.Label(master=top_frame, text=title, fg='white', bg='black')
+	window_options_frame = tk.Frame(master=top_frame, bg='black')
+	minimize_button = tk.Button(master=window_options_frame, fg='white', bg='black', text ='\u2013')
+	full_screen_button = tk.Button(master=window_options_frame, fg='white', bg='black', text='\u29E0')
+	close_button = tk.Button(master=window_options_frame, fg='white', bg='black', text='X')
+	border_frame_S = tk.Frame(master=sub_window_frame, bg='grey', height=2, width=window_dimensions[0]-4, cursor='bottom_side', relief='raised')
+	border_frame_N = tk.Frame(master=sub_window_frame, bg='grey', height=2, width=window_dimensions[0]-4, relief='raised')
+	border_frame_W = tk.Frame(master=sub_window_frame, bg='grey', height=window_dimensions[1]-4, width=2, relief='raised')
+	border_frame_E = tk.Frame(master=sub_window_frame, bg='grey', height=window_dimensions[1]-4, width=2, cursor='right_side', relief='raised')
+	corner_frame_NW = tk.Frame(master=sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
+	corner_frame_SW = tk.Frame(master=sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
+	corner_frame_NE = tk.Frame(master=sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
+	corner_frame_SE = tk.Frame(master=sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='bottom_right_corner', relief='raised')
 	vertical_scroll_bar: tk.Scrollbar
 	horizontal_scroll_bar: tk.Scrollbar
-	sort_options: list
-	filter_options: list
-	checkboxes: bool
-	checkbox_options: list
+	list_box: List_Box
+#########################################################################
 
 #Data functions
 def add_input():
@@ -116,44 +121,7 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 	"""Creates an empty sub_screen."""
 	def create_basic_widgets(title: str, canvas0: tk.Canvas):
 		"""Generates the basic widgets that make up a sub-window."""
-		window_dimensions = [300, 300] 	# Default width & height of sub-windows
-		sub_window_frame = tk.Frame(master=canvas0, width = window_dimensions[0], height = window_dimensions[1], background='blue')
-		top_frame = tk.Frame(master=sub_window_frame, width=window_dimensions[0]-4, height=30, bg='black', relief='raised', bd=2)
-		title_label = tk.Label(master=top_frame, text=title, fg='white', bg='black')
-		window_options_frame = tk.Frame(master=top_frame, bg='black')
-		minimize_button = tk.Button(master=window_options_frame, fg='white', bg='black', text ='\u2013')
-		full_screen_button = tk.Button(master=window_options_frame, fg='white', bg='black', text='\u29E0')
-		close_button = tk.Button(master=window_options_frame, fg='white', bg='black', text='X')
-		border_frame_S = tk.Frame(master=sub_window_frame, bg='grey', height=2, width=window_dimensions[0]-4, cursor='bottom_side', relief='raised')
-		border_frame_N = tk.Frame(master=sub_window_frame, bg='grey', height=2, width=window_dimensions[0]-4, relief='raised')
-		border_frame_W = tk.Frame(master=sub_window_frame, bg='grey', height=window_dimensions[1]-4, width=2, relief='raised')
-		border_frame_E = tk.Frame(master=sub_window_frame, bg='grey', height=window_dimensions[1]-4, width=2, cursor='right_side', relief='raised')
-		corner_frame_NW = tk.Frame(master=sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
-		corner_frame_SW = tk.Frame(master=sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
-		corner_frame_NE = tk.Frame(master=sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
-		corner_frame_SE = tk.Frame(master=sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='bottom_right_corner', relief='raised')
-		window = Sub_Window(
-			sub_window_frame, 
-			top_frame, 
-			title_label, 
-			window_options_frame,
-			minimize_button, 
-			full_screen_button, 
-			close_button,
-			border_frame_S,
-			border_frame_N,
-			border_frame_W,
-			border_frame_E,
-			corner_frame_NW,
-			corner_frame_SW,
-			corner_frame_NE,
-			corner_frame_SE,
-			vertical_scroll_bar=None,
-			horizontal_scroll_bar=None,
-			sort_options=None,
-			filter_options=None,
-			checkboxes=None,
-			checkbox_options=None)
+		window = Sub_Window(title=title, canvas0=canvas0, vertical_scroll_bar=None, horizontal_scroll_bar=None, list_Box=None)	#########################################################
 		canvas_window0_ID = canvas0.create_window(100,100, anchor=tk.NW, window=window.sub_window_frame)
 		return window
 	def configure_layout(window: Sub_Window):
@@ -218,7 +186,7 @@ def event_handling(window: Sub_Window):
 		window.corner_frame_SE.bind("<Motion>", resize_corner)
 
 def ui_manager():
-	"Manages UI. "
+	"Manages UI."
 	window0= create_root_window()
 	canvas0= create_root_canvas(window0)
 	sub_windows = create_sub_windows(window0, canvas0)
