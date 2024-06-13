@@ -38,15 +38,20 @@ class Project:
 	date_of_creation: Date
 	completed: bool
 @dataclass
-class Sub_Window_Content:
+class List_Control_Options:
+	sort_button: tk.Widget
+	filter_button: tk.Widget
+	options_button: tk.Widget
+	sort_options = ["Alphabetical order", "Attribute", "Deadline"]
+	filter_options = ["Attribute", "Key-word", "Deadline" ]
+	list_options = ["Delete", "Mark as completed"]
+@dataclass
+class Sub_Window_List_Content:
 	item_list: list[str]
-	list_box_widget: tk.Listbox
-	sort_options = ["alphabetical order", "keyword"]
-	filter_options: 
-	item_options: list[str]
-
+	listbox_widget: tk.Listbox
+	list_control_options: List_Control_Options
 class Sub_Window:
-	def __init__(self, title_given: str, canvas0: tk.Canvas, sub_window_content: Sub_Window_Content):
+	def __init__(self, title_given: str, canvas0: tk.Canvas):
 		self.title = title_given
 		self.canvas = canvas0
 		self.window_dimensions = [300, 300] 	# Default width & height of sub-windows
@@ -65,7 +70,6 @@ class Sub_Window:
 		self.corner_frame_SW = tk.Frame(master=self.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
 		self.corner_frame_NE = tk.Frame(master=self.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
 		self.corner_frame_SE = tk.Frame(master=self.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='bottom_right_corner', relief='raised')
-		self.content = sub_window_content
 #Data functions
 def add_input():
 	"""Receives input from UI. Creates instance of Inbox. Appends istance to inbox_list."""
@@ -117,11 +121,15 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 	"""Creates an empty sub_screen."""
 	def create_basic_widgets(title: str, canvas0: tk.Canvas):
 		"""Generates the basic widgets that make up a sub-window."""
-		window = Sub_Window(title, canvas0)	#########################################################
+		window = Sub_Window(title, canvas0)	
 		canvas_window0_ID = canvas0.create_window(100,100, anchor=tk.NW, window=window.sub_window_frame)
 		return window
-	def add_content(item_list: list):
-		
+	def populate_sub_window():
+		"""Fills subwindow with list items, list options, sort and filter options, scroll bars, calendar, image, etc. Content depends on the sub-window type. """
+		def add_list_content():
+			"""Adds next actions list, or other list, depending on the sub-window type, which is determined by the sub-window title. Also adds list options, and 
+			sort and filter options."""
+
 	def configure_layout(window: Sub_Window):
 		window.sub_window_frame.grid_propagate(0)
 		window.top_frame.grid_propagate(0)
