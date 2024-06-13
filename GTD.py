@@ -7,7 +7,6 @@ import math
 class Inbox:
     text_input: str
 	#file_input: ?
-
 @dataclass
 class Date:
 	year: int
@@ -39,12 +38,33 @@ class Project:
 	completed: bool
 @dataclass
 class List_Control_Options:
-	sort_button: tk.Widget
-	filter_button: tk.Widget
-	options_button: tk.Widget
-	sort_options = ["Alphabetical order", "Attribute", "Deadline"]
-	filter_options = ["Attribute", "Key-word", "Deadline" ]
-	list_options = ["Delete", "Mark as completed"]
+	def __init__(self, sub_window_frame: tk.Frame):
+		sort_menubutton = tk.Menubutton(master=sub_window_frame)
+		filter_menubutton = tk.Menubutton(master=sub_window_frame)
+		sort_menu = tk.Menu(master=sort_menubutton)
+		filter_menu = tk.Menu(master=filter_menubutton)
+		sort_options = ["Alphabetical order", "Attribute", "Deadline"]
+		filter_options = ["Key-word", "Attribute", "Deadline" ]
+		#List_options available after selecting and right clicking on selected list items. May select multiple at a time. Right clicking generates at drop down menu at location of right click 
+		list_options = ["Delete", "Mark as completed"]
+		#Populate sort & filter menus
+		for option in sort_options:
+			sort_menu.add_command(option)
+		for option in filter_options:
+			filter_menu.add_command(option)
+
+		def generate_menu():
+			"""Event handler. Generates dropdown menu of list options upon mouse right button click. Either the right click must occur directly on a list item, or one or more list items must be
+			selected, in order for right click to generate a menu. Mouse left button click outside the bounds of the menu will close the menu. Mouse left button click on a menu
+			option will execute the command associated with that option, and it will also close or remove the menu."""
+			#Need to get location of right mouse button click within the sub-window frame. 
+			#Need to generate a menu without it being associated with a menu button. Perhaps the parent of the menu will be the frame. 
+			#Perhaps a separate function should be used to remove the menu. 
+			#Checks if any menu items selected
+			#Checks if right mouse button click occurred on a menu item list. Or right mouse button click selects and opens list menu for selection. 
+			#List menu commands applied only to list items selected. 
+			#Right mouse button click may occur on list widget or on the sub-window frame widget. 
+	
 @dataclass
 class Sub_Window_List_Content:
 	item_list: list[str]
