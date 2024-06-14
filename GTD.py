@@ -39,19 +39,21 @@ class Project:
 @dataclass
 class List_Control_Options:
 	def __init__(self, sub_window_frame: tk.Frame):
-		sort_menubutton = tk.Menubutton(master=sub_window_frame)
-		filter_menubutton = tk.Menubutton(master=sub_window_frame)
-		sort_menu = tk.Menu(master=sort_menubutton)
-		filter_menu = tk.Menu(master=filter_menubutton)
-		sort_options = ["Alphabetical order", "Attribute", "Deadline"]
-		filter_options = ["Key-word", "Attribute", "Deadline" ]
+		self.sort_menubutton = tk.Menubutton(master=sub_window_frame, text='Sort Options')
+		self.filter_menubutton = tk.Menubutton(master=sub_window_frame, text='Filter Options')
+		self.sort_menu = tk.Menu(master=self.sort_menubutton)
+		self.filter_menu = tk.Menu(master=self.filter_menubutton)
+		self.sort_menubutton['menu'] = self.sort_menu
+		self.filter_menubutton['menu'] = self.filter_menu
+		self.sort_options = ["Alphabetical order", "Attribute", "Deadline"]
+		self.filter_options = ["Key-word", "Attribute", "Deadline" ]
 		#List_options available after selecting and right clicking on selected list items. May select multiple at a time. Right clicking generates at drop down menu at location of right click 
-		list_options = ["Delete", "Mark as completed"]
+		self.list_options = ["Delete", "Mark as completed"]
 		#Populate sort & filter menus
 		for option in sort_options:
-			sort_menu.add_command(option)
+			self.sort_menu.add_command(label = option, command = lambda: print(option))
 		for option in filter_options:
-			filter_menu.add_command(option)
+			self.filter_menu.add_command(label = option, command = lambda: print(option))
 
 		def generate_menu():
 			"""Event handler. Generates dropdown menu of list options upon mouse right button click. Either the right click must occur directly on a list item, or one or more list items must be
@@ -66,7 +68,7 @@ class List_Control_Options:
 			#Right mouse button click may occur on list widget or on the sub-window frame widget. 
 	
 @dataclass
-class Sub_Window_List_Content:
+class Sub_Window_Content:
 	item_list: list[str]
 	listbox_widget: tk.Listbox
 	list_control_options: List_Control_Options
@@ -90,6 +92,7 @@ class Sub_Window:
 		self.corner_frame_SW = tk.Frame(master=self.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
 		self.corner_frame_NE = tk.Frame(master=self.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
 		self.corner_frame_SE = tk.Frame(master=self.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='bottom_right_corner', relief='raised')
+		self.content = None
 #Data functions
 def add_input():
 	"""Receives input from UI. Creates instance of Inbox. Appends istance to inbox_list."""
@@ -144,25 +147,34 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 		window = Sub_Window(title, canvas0)	
 		canvas_window0_ID = canvas0.create_window(100,100, anchor=tk.NW, window=window.sub_window_frame)
 		return window
-	def populate_sub_window():
-		"""Fills subwindow with list items, list options, sort and filter options, scroll bars, calendar, image, etc. Content depends on the sub-window type. """
-		def add_list_content():
-			"""Adds next actions list, or other list, depending on the sub-window type, which is determined by the sub-window title. Also adds list options, and 
-			sort and filter options."""
-
+	def create_window_content(window: Sub_Window, list: list):
+		"""Fills subwindow with list items, list options, sort and filter options, scroll bars, calendar, image, etc. Content depends on the sub-windows title.  """
+		list_control_options = List_Control_Options(window.sub_window_frame)
+		listbox = tk.Listbox(master=window.sub_window_frame)
+		content = Sub_Window_Content(list, listbox, list_control_options)
+		window.content = content
+		def add_list(title:str):
+			"""Adds list that corresponds to the sub_window."""
+			#The list already exists.
+			#The list will be dynamically updated. 
+			#This function takes the already existing list, to an element in 
+		def add_options(title: str):
+			"""Adds sub-window content manipulation options that correspond to the sub-window. Determined via if statements, using the title. These may be:
+			 sort options, filter options, list item options, etc. """
+			
+		def add_scrollbars():
+			"""Adds vertical and horizontal scrollbars"""
+		def add_calendar():
+			""""""
+		def add_image():
+			""""""
 	def configure_layout(window: Sub_Window):
 		window.sub_window_frame.grid_propagate(0)
 		window.top_frame.grid_propagate(0)
 		#Configure columns and rows
-		window.sub_window_frame.columnconfigure(0, weight=1)
-		window.sub_window_frame.columnconfigure(1, weight=1)
-		window.sub_window_frame.columnconfigure(2, weight=1)
-		window.sub_window_frame.rowconfigure(0, weight=1)
-		window.sub_window_frame.rowconfigure(1, weight=1)
-		window.sub_window_frame.rowconfigure(2, weight=1)
-		window.sub_window_frame.rowconfigure(3, weight=1)
-		window.top_frame.columnconfigure(0, weight=1)
-		window.top_frame.columnconfigure(1, weight=1)
+		window.sub_window_frame.columnconfigure([0,1,2], weight=1)
+		window.sub_window_frame.rowconfigure([0,1,2,3,4], weight=1)
+		window.top_frame.columnconfigure([0,1], weight=1)
 	def place_widgets(window: Sub_Window):
 		""""""
 		window.top_frame.grid(column=1, row=1, sticky='n')
@@ -171,17 +183,20 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 		window.full_screen_button.grid(column=2, row=0)
 		window.close_button.grid(column=3, row=0)
 		window.title_label.grid(column=0, row=0, sticky='w')
-		window.border_frame_S.grid(column=1, row=3, sticky='wes')
-		window.border_frame_W.grid(column=0, row=1, rowspan=2, sticky='ns')
-		window.border_frame_E.grid(column=2, row=1, rowspan=2, sticky='nse')
+		window.border_frame_S.grid(column=1, row=4, sticky='wes')
+		window.border_frame_W.grid(column=0, row=1, rowspan=3, sticky='ns')
+		window.border_frame_E.grid(column=2, row=1, rowspan=3, sticky='nse')
 		window.border_frame_N.grid(column=1, row=0, sticky='we')
 		window.corner_frame_NE.grid(column=2, row=0)
 		window.corner_frame_NW.grid(column=0, row=0)
-		window.corner_frame_SW.grid(column=0, row=3)
-		window.corner_frame_SE.grid(column=2, row=3)
+		window.corner_frame_SW.grid(column=0, row=4)
+		window.corner_frame_SE.grid(column=2, row=4)
+		window.content.list_control_options.sort_menubutton.grid(column=1, row=2, sticky='n')
+		window.content.list_control_options.filter_menubutton.grid(column=1, row=2, sticky='n')
 	def create_window(window0: tk.Tk, canvas0: tk.Canvas, title: str)->tk.Frame:
-		"""Creates Next acions window"""
+		"""Creates a sub-window"""
 		window = create_basic_widgets(title, canvas0)
+		create_window_content(window, next_actions_list)
 		configure_layout(window)
 		place_widgets(window)
 		return window
