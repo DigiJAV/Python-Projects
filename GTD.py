@@ -179,7 +179,7 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 		window.sub_window_frame.rowconfigure(0, weight=1)
 		window.sub_window_frame.rowconfigure(1, weight=1)
 		window.sub_window_frame.rowconfigure(2, weight=1)
-		window.sub_window_frame.rowconfigure(3, weight=1)
+		window.sub_window_frame.rowconfigure(3, weight=300)
 		window.sub_window_frame.rowconfigure(4, weight=1)
 		window.top_frame.columnconfigure([0,1], weight=1)
 		window.content.menubar.columnconfigure([0,1], weight=1)
