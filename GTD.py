@@ -39,8 +39,8 @@ class Project:
 @dataclass
 class List_Control_Options:
 	def __init__(self, sub_window_frame: tk.Frame):
-		self.sort_menubutton = tk.Menubutton(master=sub_window_frame, text='Sort Options')
-		self.filter_menubutton = tk.Menubutton(master=sub_window_frame, text='Filter Options')
+		self.sort_menubutton = tk.Menubutton(master=sub_window_frame, text='Sort Options', borderwidth=2, bg='grey')
+		self.filter_menubutton = tk.Menubutton(master=sub_window_frame, text='Filter Options', borderwidth=2, bg='grey')
 		self.sort_menu = tk.Menu(master=self.sort_menubutton)
 		self.filter_menu = tk.Menu(master=self.filter_menubutton)
 		self.sort_menubutton['menu'] = self.sort_menu
@@ -173,7 +173,7 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 	def configure_layout(window: Sub_Window):
 		window.sub_window_frame.grid_propagate(0)
 		window.top_frame.grid_propagate(0)
-		window.content.menubar.grid_propagate(0)
+		#window.content.menubar.grid_propagate(0)
 		#Configure columns and rows
 		window.sub_window_frame.columnconfigure([0,1,2], weight=1)
 		window.sub_window_frame.rowconfigure(0, weight=1)
@@ -182,7 +182,8 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 		window.sub_window_frame.rowconfigure(3, weight=300)
 		window.sub_window_frame.rowconfigure(4, weight=1)
 		window.top_frame.columnconfigure([0,1], weight=1)
-		window.content.menubar.columnconfigure([0,1], weight=1)
+		window.content.menubar.columnconfigure(0, weight=200)
+		window.content.menubar.columnconfigure(1, weight=1)
 	def place_widgets(window: Sub_Window):
 		""""""
 		window.top_frame.grid(column=1, row=1, sticky='n')
@@ -200,8 +201,8 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 		window.corner_frame_SW.grid(column=0, row=4)
 		window.corner_frame_SE.grid(column=2, row=4)
 		window.content.menubar.grid(column=1, row=2, sticky='n')
-		window.content.list_control_options.sort_menubutton.grid(column=0, row=0)
-		window.content.list_control_options.filter_menubutton.grid(column=1, row=0)
+		window.content.list_control_options.sort_menubutton.grid(column=0, row=0, sticky='e')
+		window.content.list_control_options.filter_menubutton.grid(column=1, row=0, sticky='e')
 	def create_window(window0: tk.Tk, canvas0: tk.Canvas, title: str)->tk.Frame:
 		"""Creates a sub-window"""
 		window = create_basic_widgets(title, canvas0)
