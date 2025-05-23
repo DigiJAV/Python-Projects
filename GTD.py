@@ -47,7 +47,8 @@ class List_Control_Options:
 		self.filter_menubutton['menu'] = self.filter_menu
 		self.sort_options = ["Alphabetical order", "Attribute", "Deadline"]
 		self.filter_options = ["Key-word", "Attribute", "Deadline"]
-		#List_options available after selecting and right clicking on selected list items. May select multiple at a time. Right clicking generates at drop down menu at location of right click 
+		#List_options available after selecting and right clicking on selected list items. May select multiple at a time. 
+  		#Right clicking generates at drop down menu at location of right click 
 		self.list_options = ["Delete", "Mark as completed"]
 		#Populate sort & filter menus
 		for option in self.sort_options:
@@ -74,6 +75,7 @@ class Sub_Window_Content:
 	menubar: tk.Frame
 	list_control_options: List_Control_Options
 
+@dataclass
 class Sub_Window:
 	def __init__(self, window_title: str, canvas0: tk.Canvas):
 	#Generate widgets
@@ -189,7 +191,7 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 	def create_window_content(window: Sub_Window, list: list):
 		"""Fills subwindow with list items, list options, sort and filter options, scroll bars, calendar, image, etc. Content depends on the sub-windows title.  """
 		listbox = tk.Listbox(master=window.sub_window_frame)
-		menubar = tk.Frame(master=window.sub_window_frame, bg='red', width=window.window_dimensions[0]-4, height=20, relief='raised')
+		menubar = tk.Frame(master=window.sub_window_frame, bg="navy", width=window.window_dimensions[0]-4, height=25, relief='raised')
 		list_control_options = List_Control_Options(menubar)
 		content = Sub_Window_Content(list, listbox, menubar, list_control_options)
 		window.content = content
@@ -211,14 +213,15 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 	def configure_layout(window: Sub_Window):
 		"""Configures layout of widgets within a sub window."""
 		#Default widgets layout done upon creation of object. Additional widgets depending of type of sub-window to be configured separately. 
-		window.content.menubar.columnconfigure(0, weight=200)
+		window.content.menubar.grid_propagate(0)
+		window.content.menubar.columnconfigure(0, weight=1)
 		window.content.menubar.columnconfigure(1, weight=1)
 	def place_widgets(window: Sub_Window):
 		""""""
 		#Default widgets placed upone creation of the sub-window. Additional widgets placed depending on type of sub-window. 
 		window.content.menubar.grid(column=1, row=2, sticky='n')
 		window.content.list_control_options.sort_menubutton.grid(column=0, row=0, sticky='e')
-		window.content.list_control_options.filter_menubutton.grid(column=1, row=0, sticky='e')
+		window.content.list_control_options.filter_menubutton.grid(column=1, row=0, sticky='w')
   
 	def create_window(window0: tk.Tk, canvas0: tk.Canvas, title: str)->tk.Frame:
 		"""Creates a sub-window. Runs other sub-functions depending on the type of subwindow."""
@@ -273,7 +276,7 @@ def event_handling(window: Sub_Window):
 	window.corner_frame_SE.bind("<Motion>", lambda event:resize_corner(event, window))
 def ui_manager():
 	"Manages UI."
-	window0= create_root_window()						#
+	window0= create_root_window()						
 	canvas0= create_root_canvas(window0)
 	sub_windows = create_sub_windows(window0, canvas0)
 	for window in sub_windows:
@@ -333,7 +336,7 @@ def execute_drag(mouse_motion: tk.Event, window: Sub_Window):
 def resize_right(motion: tk.Event, window: Sub_Window):
 	"""Changes the width of the sub_window based on the change in position of the mouse cursor. Assuming the width will increase both to 
 		the left and to the right, the sub-window position will change in response to the change in
-	position of the mouse cursor, so as to make it seem that only the right side of the window is being resized."""
+		position of the mouse cursor, so as to make it seem that only the right side of the window is being resized."""
 	if window.drag_enabled:
 		x1 = window.button1_press_coords[0]
 		x2 = motion.x
@@ -343,42 +346,60 @@ def resize_right(motion: tk.Event, window: Sub_Window):
 		delta_top_frame = window.top_frame.winfo_width() + delta_cursor
 		delta_border_frame_N = window.border_frame_N.winfo_width() + delta_cursor
 		delta_border_frame_S = window.border_frame_S.winfo_width() + delta_cursor
-		if delta_sub_window > 130:													# ???
+		#############
+		#Add code to verify whether the sort and menu buttons are present in the sub-window
+		delta_menubar = window.content.menubar.winfo_width() + delta_cursor
+		##############
+		if delta_sub_window > 130:												# Imposes minimum width to sub-window (measured in pixels)
 			window.sub_window_frame.configure(width = delta_sub_window)
 			window.top_frame.configure(width = delta_top_frame)
 			window.border_frame_N.configure(width = delta_border_frame_N)
 			window.border_frame_S.configure(width = delta_border_frame_S)
+			########
+			window.content.menubar.configure(width = delta_menubar)
 
 def resize_bottom(motion: tk.Event, window: Sub_Window):
 	"""Changes the height of the sub-window based on the change in position of the mouse cursor. Assuming both the top and the 
 	bottom of the sub-window will adjust for the change in height, the position of the sub-window will adjust also, in order to 
 	make it seem that only the buttom of the sub-screen is changing to adjust for the change in height."""
-	#global button1_press_coords
-	#global drag_enabled
-	#frame = motion.widget
-	#sub_window = frame.master
-	#children = sub_window.winfo_children()
-	#border_frame_W = children[3]
-	#border_frame_E = children[4]
 	if window.drag_enabled:
 		y1 = window.button1_press_coords[1]
 		y2 = motion.y
 		delta_cursor = y2 - y1 	#Horizontal change in position of mouse cursor
+		
 		y1 = y2
 		delta_sub_window = window.sub_window_frame.winfo_height() + delta_cursor
 		delta_border_frame_W = window.border_frame_W.winfo_height() + delta_cursor
 		delta_border_frame_E = window.border_frame_E.winfo_height() + delta_cursor
+  
+		##############Add code to verify whether the sort and menu buttons are present in the sub-window
+		
+		#############
+  
 		if delta_sub_window > 31:
 			window.sub_window_frame.configure(height = delta_sub_window)
 			window.border_frame_W.configure(height = delta_border_frame_W)
 			window.border_frame_E.configure(height = delta_border_frame_E)
+   
+		################# Problem with menubar resizing 
+		if window.sub_window_frame.winfo_height() < 56:
+			if delta_cursor < 0:
+				delta_menubar = window.content.menubar.winfo_height() - (56 - window.sub_window_frame.winfo_height())
+				window.content.menubar.configure(height = delta_menubar)	
+			elif delta_cursor > 0:
+				delta_menubar = window.content.menubar.winfo_height() + (window.sub_window_frame.winfo_height() - 31)
+				window.content.menubar.configure(height = delta_menubar)
+		#################
+	print("Delta cursor: ", delta_cursor)
+	print("Menubar height: ", window.content.menubar.winfo_height())
+	print("Sub-window height: ", window.sub_window_frame.winfo_height())
+	print("------------------")
 
 def resize_corner(motion: tk.Event, window: Sub_Window):
 	"""Uses functions resize bottom and resize right at the same time when user clicks and drags from SW corner of window"""
 	if window.drag_enabled:
 		resize_right(motion, window)
 		resize_bottom(motion, window)
-####################################################
 
 #Lists 
 inbox_list = []
