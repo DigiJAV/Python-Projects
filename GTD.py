@@ -219,7 +219,7 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 	def place_widgets(window: Sub_Window):
 		""""""
 		#Default widgets placed upone creation of the sub-window. Additional widgets placed depending on type of sub-window. 
-		window.content.menubar.grid(column=1, row=2, sticky='n')
+		window.content.menubar.grid(column=1, row=2, sticky='new')
 		window.content.list_control_options.sort_menubutton.grid(column=0, row=0, sticky='e')
 		window.content.list_control_options.filter_menubutton.grid(column=1, row=0, sticky='w')
   
@@ -248,11 +248,9 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 
 def event_handling(window: Sub_Window):
 	""""""
-	#drag_enabled = False 
-	#button1_press_coords = (0, 0)
 	#Widget-event-handler binds  
- #Will using lambda functions to call all event handlers, in order to use window as an argument in each of them. This will enable easy access of the window object attributes.
- #New window object attributes will be drag_enabled bool variable, and button1_press_coords tuple. 
+ #Will using lambda functions to call all event handlers, in order to use window as an argument in each of them. This will enable easy access 
+ #of the window object attributes. 
 	window.sub_window_frame.bind("<Button-1>",lambda event: lift_window(event, window))
 	window.top_frame.bind("<Button-1>", lambda event: enable_drag(event, window))
 	window.top_frame.bind("<Button-1>", lambda event: lift_window(event, window), add='+')
@@ -365,8 +363,7 @@ def resize_bottom(motion: tk.Event, window: Sub_Window):
 	if window.drag_enabled:
 		y1 = window.button1_press_coords[1]
 		y2 = motion.y
-		delta_cursor = y2 - y1 	#Horizontal change in position of mouse cursor
-		
+		delta_cursor = y2 - y1 	#Vertical change in position of mouse cursor in the subwindow frame
 		y1 = y2
 		delta_sub_window = window.sub_window_frame.winfo_height() + delta_cursor
 		delta_border_frame_W = window.border_frame_W.winfo_height() + delta_cursor
@@ -379,16 +376,12 @@ def resize_bottom(motion: tk.Event, window: Sub_Window):
 		if delta_sub_window > 31:
 			window.sub_window_frame.configure(height = delta_sub_window)
 			window.border_frame_W.configure(height = delta_border_frame_W)
-			window.border_frame_E.configure(height = delta_border_frame_E)
-   
-		################# Problem with menubar resizing 
+			window.border_frame_E.configure(height = delta_border_frame_E) 
 		if window.sub_window_frame.winfo_height() < 56:
-			if delta_cursor < 0:
-				delta_menubar = window.content.menubar.winfo_height() - (56 - window.sub_window_frame.winfo_height())
-				window.content.menubar.configure(height = delta_menubar)	
-			elif delta_cursor > 0:
-				delta_menubar = window.content.menubar.winfo_height() + (window.sub_window_frame.winfo_height() - 31)
-				window.content.menubar.configure(height = delta_menubar)
+			window.content.menubar.configure(height = 0)
+		elif window.sub_window_frame.winfo_height() > 56:
+			window.content.menubar.configure(height = 25)
+		
 		#################
 	print("Delta cursor: ", delta_cursor)
 	print("Menubar height: ", window.content.menubar.winfo_height())
