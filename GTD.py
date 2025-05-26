@@ -68,22 +68,25 @@ class List_Control_Options:
 			#List menu commands applied only to list items selected. 
 			#Right mouse button click may occur on list widget or on the sub-window frame widget. 
 	
-@dataclass
 class Sub_Window_Content:
-	item_list: list[str]
-	listbox_widget: tk.Listbox
-	menubar: tk.Frame
-	list_control_options: List_Control_Options
+	def _init_(self):
+		self.item_list: list[str]			#List of strings for now
+		self.listbox_widget: tk.Listbox
+		self.list_control_options: List_Control_Options
+		self.calendar: tk.Widget
+		self.image: tk.Image
+ 
 
-@dataclass
+    
 class Sub_Window:
 	def __init__(self, window_title: str, canvas0: tk.Canvas):
 	#Generate widgets
 		self.drag_enabled = False
 		self.button1_press_coords = (0, 0)
+		self.type: int
 		self.title = window_title
 		self.canvas = canvas0
-		self.window_dimensions = [300, 300] 	# Default width & height of sub-windows
+		self.window_dimensions = [350, 300] 	# Default width & height of sub-windows
 		self.sub_window_frame = tk.Frame(master=canvas0, width = self.window_dimensions[0], height = self.window_dimensions[1], background='blue')
 		self.top_frame = tk.Frame(master=self.sub_window_frame, width=self.window_dimensions[0]-4, height=30, bg='black', relief='raised', bd=2)
 		self.title_label = tk.Label(master=self.top_frame, text=self.title, fg='white', bg='black')
@@ -99,7 +102,9 @@ class Sub_Window:
 		self.corner_frame_SW = tk.Frame(master=self.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
 		self.corner_frame_NE = tk.Frame(master=self.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, relief='raised')
 		self.corner_frame_SE = tk.Frame(master=self.sub_window_frame, bg='grey', bd=1, borderwidth=2, height=2, width=2, cursor='bottom_right_corner', relief='raised')
-		self.content = None
+		self.menubar = tk.Frame(master=self.sub_window_frame, bg="navy", width=self.window_dimensions[0]-4, height=25, relief='raised') 
+		self.content = Sub_Window_Content	#This attribute will contain most of the content of the sub-window, be it a list, an image, or a calendar. 
+  											#The content will be determined after the Sub_Window object initialization.
 	#Configure default widgets
 		self.sub_window_frame.grid_propagate(0)
 		self.top_frame.grid_propagate(0)
@@ -111,6 +116,9 @@ class Sub_Window:
 		self.sub_window_frame.rowconfigure(3, weight=300)
 		self.sub_window_frame.rowconfigure(4, weight=1)
 		self.top_frame.columnconfigure([0,1], weight=1)
+		self.menubar.grid_propagate(0)
+		self.menubar.columnconfigure(0, weight=1)
+		self.menubar.columnconfigure(1, weight=1)
 	#Place default widgets
 		self.canvas_window0_ID = canvas0.create_window(50,50, anchor=tk.NW, window=self.sub_window_frame)	#Places the sub-window in the canvas.
 		self.top_frame.grid(column=1, row=1, sticky='n')
@@ -190,20 +198,23 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 	
 	def create_window_content(window: Sub_Window, list: list):
 		"""Fills subwindow with list items, list options, sort and filter options, scroll bars, calendar, image, etc. Content depends on the sub-windows title.  """
-		listbox = tk.Listbox(master=window.sub_window_frame)
-		menubar = tk.Frame(master=window.sub_window_frame, bg="navy", width=window.window_dimensions[0]-4, height=25, relief='raised')
-		list_control_options = List_Control_Options(menubar)
-		content = Sub_Window_Content(list, listbox, menubar, list_control_options)
-		window.content = content
+		#Code to determine whether sub_Window will contain lists, calendar, or image. For this. the Sub_Window class can have an attribute 
+		#will tell which of these options is the case. The attribute will be called type. Three possible definitions for the attribute are integers;
+		#1, 2, and 3, corresponding to List, Calendar, or Image, respectively. 
+		#list_control_options = List_Control_Options(window.menubar)
+		#content = Sub_Window_Content(list, listbox, window.menubar, list_control_options)
+		#window.content = content
 		def add_list(title:str):	
 			"""Adds list that corresponds to the sub_window."""
+			listbox = tk.Listbox(master=window.sub_window_frame)
 			#The list already exists.
 			#The list will be dynamically updated. 
 			#This function takes the already existing list, to an element in 
 		def add_options(title: str):
 			"""Adds sub-window content manipulation options that correspond to the sub-window. Determined via if statements, using the title. These may be:
 			 sort options, filter options, list item options, etc. """
-			
+			def add_list_options():
+				"Adds list control options to the sub-window containing a list."
 		def add_scrollbars():
 			"""Adds vertical and horizontal scrollbars"""
 		def add_calendar():
@@ -213,15 +224,13 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 	def configure_layout(window: Sub_Window):
 		"""Configures layout of widgets within a sub window."""
 		#Default widgets layout done upon creation of object. Additional widgets depending of type of sub-window to be configured separately. 
-		window.content.menubar.grid_propagate(0)
-		window.content.menubar.columnconfigure(0, weight=1)
-		window.content.menubar.columnconfigure(1, weight=1)
+		
 	def place_widgets(window: Sub_Window):
 		""""""
 		#Default widgets placed upone creation of the sub-window. Additional widgets placed depending on type of sub-window. 
 		window.content.menubar.grid(column=1, row=2, sticky='new')
-		window.content.list_control_options.sort_menubutton.grid(column=0, row=0, sticky='e')
-		window.content.list_control_options.filter_menubutton.grid(column=1, row=0, sticky='w')
+		window.content.list_control_options.sort_menubutton.grid(column=0, row=0, sticky='w')
+		window.content.list_control_options.filter_menubutton.grid(column=0, row=0)
   
 	def create_window(window0: tk.Tk, canvas0: tk.Canvas, title: str)->tk.Frame:
 		"""Creates a sub-window. Runs other sub-functions depending on the type of subwindow."""
@@ -272,6 +281,7 @@ def event_handling(window: Sub_Window):
 	window.corner_frame_SE.bind("<Button-1>", lambda event: lift_window(event, window), add='+')
 	window.corner_frame_SE.bind("<ButtonRelease>", lambda event:disable_drag(event, window))
 	window.corner_frame_SE.bind("<Motion>", lambda event:resize_corner(event, window))
+	
 def ui_manager():
 	"Manages UI."
 	window0= create_root_window()						
@@ -383,10 +393,6 @@ def resize_bottom(motion: tk.Event, window: Sub_Window):
 			window.content.menubar.configure(height = 25)
 		
 		#################
-	print("Delta cursor: ", delta_cursor)
-	print("Menubar height: ", window.content.menubar.winfo_height())
-	print("Sub-window height: ", window.sub_window_frame.winfo_height())
-	print("------------------")
 
 def resize_corner(motion: tk.Event, window: Sub_Window):
 	"""Uses functions resize bottom and resize right at the same time when user clicks and drags from SW corner of window"""
