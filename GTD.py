@@ -36,8 +36,8 @@ class Project:
 	review: Date
 	date_of_creation: Date
 	completed: bool
-@dataclass
-class List_Control_Options:
+
+class List_Options:
 	def __init__(self, sub_window_frame: tk.Frame):
 		self.sort_menubutton = tk.Menubutton(master=sub_window_frame, text='Sort Options', borderwidth=2, bg='grey')
 		self.filter_menubutton = tk.Menubutton(master=sub_window_frame, text='Filter Options', borderwidth=2, bg='grey')
@@ -49,7 +49,7 @@ class List_Control_Options:
 		self.filter_options = ["Key-word", "Attribute", "Deadline"]
 		#List_options available after selecting and right clicking on selected list items. May select multiple at a time. 
   		#Right clicking generates at drop down menu at location of right click 
-		self.list_options = ["Delete", "Mark as completed"]
+		self.other_options = ["Delete", "Mark as completed"]
 		#Populate sort & filter menus
 		for option in self.sort_options:
 			self.sort_menu.add_command(label = option, command =  lambda option=option : print(option))
@@ -59,7 +59,7 @@ class List_Control_Options:
 		def generate_menu():
 			"""Event handler. Generates dropdown menu of list options upon mouse right button click. Either the right click must occur directly on a list item, or one or more list items must be
 			selected, in order for right click to generate a menu. Mouse left button click outside the bounds of the menu will close the menu. Mouse left button click on a menu
-			option will execute the command associated with that option, and it will also close or remove the menu."""
+			option will execute the command associated with that option, and it will also close the menu."""
 			#Need to get location of right mouse button click within the sub-window frame. 
 			#Need to generate a menu without it being associated with a menu button. Perhaps the parent of the menu will be the frame. 
 			#Perhaps a separate function should be used to remove the menu. 
@@ -72,7 +72,7 @@ class Sub_Window_Content:
 	def _init_(self):
 		self.item_list: list[str]			#List of strings for now
 		self.listbox_widget: tk.Listbox
-		self.list_control_options: List_Control_Options
+		self.list_options: List_Options
 		self.calendar: tk.Widget
 		self.image: tk.Image
  
@@ -81,6 +81,7 @@ class Sub_Window_Content:
 class Sub_Window:
 	def __init__(self, window_title: str, canvas0: tk.Canvas):
 	#Generate widgets
+		type: str
 		self.drag_enabled = False
 		self.button1_press_coords = (0, 0)
 		self.type: int
@@ -105,7 +106,7 @@ class Sub_Window:
 		self.menubar = tk.Frame(master=self.sub_window_frame, bg="navy", width=self.window_dimensions[0]-4, height=25, relief='raised') 
 		self.content = Sub_Window_Content	#This attribute will contain most of the content of the sub-window, be it a list, an image, or a calendar. 
   											#The content will be determined after the Sub_Window object initialization.
-	#Configure default widgets
+    #Configure default widgets
 		self.sub_window_frame.grid_propagate(0)
 		self.top_frame.grid_propagate(0)
 		#window.content.menubar.grid_propagate(0)
@@ -135,8 +136,27 @@ class Sub_Window:
 		self.corner_frame_NW.grid(column=0, row=0)
 		self.corner_frame_SW.grid(column=0, row=4)
 		self.corner_frame_SE.grid(column=2, row=4)
-	
+		
+		def add_list(window: Sub_Window):	
+			"""Adds list that corresponds to the sub_window."""
+			#The list already exists.
+			#The list will be dynamically updated. 
+			#This function takes the already existing list, to an element in 
+		def add_list_options(window: Sub_Window):
+			"Adds list control options to the sub-window containing a list."
+			window.content.list_options = List_Options(master=window.sub_window_frame)
 
+		def add_calendar():
+			""""""
+		def add_image():
+			""""""
+		def add_scrollbars():
+			"""Adds vertical and horizontal scrollbars. Scrollbars will be present in all sub windows when necessary. Scrollbars will automatically
+   			appear when the content of the sub window exceeds the size of the sub window, such that part of it is obscured. Because scrollbars are 
+      		a property of all sub_windows, it should be placed as an attribute of the Sub_Window class. The function will be called whenever 
+        	scrollbars are necessary. Another function, remove_scrollbars, will remove them when unecessary."""
+		def remove_scrollbars():
+			""""""
 #Data functions
 def add_input():
 	"""Receives input from UI. Creates instance of Inbox. Appends istance to inbox_list."""
@@ -199,27 +219,16 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 	def create_window_content(window: Sub_Window, list: list):
 		"""Fills subwindow with list items, list options, sort and filter options, scroll bars, calendar, image, etc. Content depends on the sub-windows title.  """
 		#Code to determine whether sub_Window will contain lists, calendar, or image. For this. the Sub_Window class can have an attribute 
-		#will tell which of these options is the case. The attribute will be called type. Three possible definitions for the attribute are integers;
-		#1, 2, and 3, corresponding to List, Calendar, or Image, respectively. 
+		#will tell which of these options is the case. The attribute will be called type. Three possible definitions for the attribute are
+		#strings, corresponding to List, Calendar, or Image, respectively. 
 		#list_control_options = List_Control_Options(window.menubar)
 		#content = Sub_Window_Content(list, listbox, window.menubar, list_control_options)
 		#window.content = content
-		def add_list(title:str):	
-			"""Adds list that corresponds to the sub_window."""
-			listbox = tk.Listbox(master=window.sub_window_frame)
-			#The list already exists.
-			#The list will be dynamically updated. 
-			#This function takes the already existing list, to an element in 
-		def add_options(title: str):
-			"""Adds sub-window content manipulation options that correspond to the sub-window. Determined via if statements, using the title. These may be:
-			 sort options, filter options, list item options, etc. """
-			def add_list_options():
-				"Adds list control options to the sub-window containing a list."
-		def add_scrollbars():
-			"""Adds vertical and horizontal scrollbars"""
-		def add_calendar():
-			""""""
-		def add_image():
+		if window.type == "List":
+			window.add_list()
+			window.add_list_options()
+
+			
 			""""""
 	def configure_layout(window: Sub_Window):
 		"""Configures layout of widgets within a sub window."""
@@ -228,7 +237,7 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 	def place_widgets(window: Sub_Window):
 		""""""
 		#Default widgets placed upone creation of the sub-window. Additional widgets placed depending on type of sub-window. 
-		window.content.menubar.grid(column=1, row=2, sticky='new')
+		window.menubar.grid(column=1, row=2, sticky='new')
 		window.content.list_control_options.sort_menubutton.grid(column=0, row=0, sticky='w')
 		window.content.list_control_options.filter_menubutton.grid(column=0, row=0)
   
