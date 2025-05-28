@@ -38,9 +38,9 @@ class Project:
 	completed: bool
 
 class List_Options:
-	def __init__(self, sub_window_frame: tk.Frame):
-		self.sort_menubutton = tk.Menubutton(master=sub_window_frame, text='Sort Options', borderwidth=2, bg='grey')
-		self.filter_menubutton = tk.Menubutton(master=sub_window_frame, text='Filter Options', borderwidth=2, bg='grey')
+	def __init__(self, menubar: tk.Frame):
+		self.sort_menubutton = tk.Menubutton(master=menubar, text='Sort Options', borderwidth=2, bg='grey')
+		self.filter_menubutton = tk.Menubutton(master=menubar, text='Filter Options', borderwidth=2, bg='grey')
 		self.sort_menu = tk.Menu(master=self.sort_menubutton, tearoff=False)
 		self.filter_menu = tk.Menu(master=self.filter_menubutton, tearoff=False)
 		self.sort_menubutton['menu'] = self.sort_menu
@@ -79,9 +79,9 @@ class Sub_Window_Content:
 
     
 class Sub_Window:
-	def __init__(self, window_title: str, canvas0: tk.Canvas):
+	def __init__(self, window_type: str, window_title: str, canvas0: tk.Canvas):
 	#Generate widgets
-		type: str
+		self.type = window_type
 		self.drag_enabled = False
 		self.button1_press_coords = (0, 0)
 		self.type: int
@@ -137,26 +137,26 @@ class Sub_Window:
 		self.corner_frame_SW.grid(column=0, row=4)
 		self.corner_frame_SE.grid(column=2, row=4)
 		
-		def add_list(window: Sub_Window):	
-			"""Adds list that corresponds to the sub_window."""
-			#The list already exists.
-			#The list will be dynamically updated. 
-			#This function takes the already existing list, to an element in 
-		def add_list_options(window: Sub_Window):
-			"Adds list control options to the sub-window containing a list."
-			window.content.list_options = List_Options(master=window.sub_window_frame)
+	def add_list(self):	
+		"""Adds list that corresponds to the sub_window."""
+		#The list already exists.
+		#The list will be dynamically updated. 
+		#This function takes the already existing list, to an element in 
+	def add_list_options(self):
+		"Adds list control options to the sub-window containing a list."
+		self.content.list_options = List_Options(self.menubar)
 
-		def add_calendar():
-			""""""
-		def add_image():
-			""""""
-		def add_scrollbars():
-			"""Adds vertical and horizontal scrollbars. Scrollbars will be present in all sub windows when necessary. Scrollbars will automatically
-   			appear when the content of the sub window exceeds the size of the sub window, such that part of it is obscured. Because scrollbars are 
-      		a property of all sub_windows, it should be placed as an attribute of the Sub_Window class. The function will be called whenever 
-        	scrollbars are necessary. Another function, remove_scrollbars, will remove them when unecessary."""
-		def remove_scrollbars():
-			""""""
+	def add_calendar(self):
+		""""""
+	def add_image(self):
+		""""""
+	def add_scrollbars(self):
+		"""Adds vertical and horizontal scrollbars. Scrollbars will be present in all sub windows when necessary. Scrollbars will automatically
+   		appear when the content of the sub window exceeds the size of the sub window, such that part of it is obscured. Because scrollbars are 
+      	a property of all sub_windows, it should be placed as an attribute of the Sub_Window class. The function will be called whenever 
+        scrollbars are necessary. Another function, remove_scrollbars, will remove them when unecessary."""
+	def remove_scrollbars(self):
+		""""""
 #Data functions
 def add_input():
 	"""Receives input from UI. Creates instance of Inbox. Appends istance to inbox_list."""
@@ -206,9 +206,9 @@ def create_root_canvas(window0):
 
 def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 	"""Creates an empty sub_window."""
-	def create_basic_widgets(title: str, canvas0: tk.Canvas):
+	def create_basic_widgets(title: str, type: str,  canvas0: tk.Canvas):
 		"""Generates the basic widgets that make up a sub-window. These are widgets that will be present in all sub-windows."""
-		window = Sub_Window(title, canvas0)			#The basic widgets of a sub window are already attributes of a sub-window object. 
+		window = Sub_Window(type, title, canvas0)			#The basic widgets of a sub window are already attributes of a sub-window object. 
   													#Therefore, they are automatically generated, configured, and placed, upon creation of the sub-window object. 
 		return window
 	
@@ -238,21 +238,21 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas)->list[tk.Frame]:
 		""""""
 		#Default widgets placed upone creation of the sub-window. Additional widgets placed depending on type of sub-window. 
 		window.menubar.grid(column=1, row=2, sticky='new')
-		window.content.list_control_options.sort_menubutton.grid(column=0, row=0, sticky='w')
-		window.content.list_control_options.filter_menubutton.grid(column=0, row=0)
+		window.content.list_options.sort_menubutton.grid(column=0, row=0, sticky='w')
+		window.content.list_options.filter_menubutton.grid(column=0, row=0)
   
-	def create_window(window0: tk.Tk, canvas0: tk.Canvas, title: str)->tk.Frame:
+	def create_window(window0: tk.Tk, canvas0: tk.Canvas, title: str, type: str)->tk.Frame:
 		"""Creates a sub-window. Runs other sub-functions depending on the type of subwindow."""
-		window = create_basic_widgets(title, canvas0)
+		window = create_basic_widgets(title, type, canvas0)
 		create_window_content(window, next_actions_list)
 		configure_layout(window)
 		place_widgets(window)
 		return window
 	
-	next_actions_window = create_window(window0, canvas0, "Next Actions")
-	upcoming_events_window = create_window(window0, canvas0, "Upcoming Events Window")
-	ticklers_window = create_window(window0, canvas0, "Ticklers")
-	outcomes_window = create_window(window0, canvas0, "Outcomes")
+	next_actions_window = create_window(window0, canvas0, "Next Actions", "List")
+	upcoming_events_window = create_window(window0, canvas0, "Upcoming Events Window", "List")
+	ticklers_window = create_window(window0, canvas0, "Ticklers", "List")
+	outcomes_window = create_window(window0, canvas0, "Outcomes", "List")
 	
 	#Initial x and y positions of the canvas window objects is modified to avoid overlap. (inital position upon creation is (50,50))
 	upcoming_events_window.canvas.coords(upcoming_events_window.canvas_window0_ID, 400,50)	
@@ -365,15 +365,20 @@ def resize_right(motion: tk.Event, window: Sub_Window):
 		delta_border_frame_S = window.border_frame_S.winfo_width() + delta_cursor
 		#############
 		#Add code to verify whether the sort and menu buttons are present in the sub-window
-		delta_menubar = window.content.menubar.winfo_width() + delta_cursor
+		delta_menubar = window.menubar.winfo_width() + delta_cursor
 		##############
 		if delta_sub_window > 130:												# Imposes minimum width to sub-window (measured in pixels)
 			window.sub_window_frame.configure(width = delta_sub_window)
 			window.top_frame.configure(width = delta_top_frame)
 			window.border_frame_N.configure(width = delta_border_frame_N)
 			window.border_frame_S.configure(width = delta_border_frame_S)
-			########
-			window.content.menubar.configure(width = delta_menubar)
+			window.menubar.configure(width = delta_menubar)
+		if window.sub_window_frame.winfo_width() < 205:
+			window.menubar.grid_remove()
+		elif window.sub_window_frame.winfo_width() > 205:
+			window.menubar.grid()
+   
+	#print("Width: ", window.sub_window_frame.winfo_width())
 
 def resize_bottom(motion: tk.Event, window: Sub_Window):
 	"""Changes the height of the sub-window based on the change in position of the mouse cursor. Assuming both the top and the 
@@ -397,9 +402,9 @@ def resize_bottom(motion: tk.Event, window: Sub_Window):
 			window.border_frame_W.configure(height = delta_border_frame_W)
 			window.border_frame_E.configure(height = delta_border_frame_E) 
 		if window.sub_window_frame.winfo_height() < 56:
-			window.content.menubar.configure(height = 0)
+			window.menubar.configure(height = 0)
 		elif window.sub_window_frame.winfo_height() > 56:
-			window.content.menubar.configure(height = 25)
+			window.menubar.configure(height = 25)
 		
 		#################
 
