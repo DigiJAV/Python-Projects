@@ -114,9 +114,10 @@ class Sub_Window:
             width=self.window_default_width,
             height=self.window_default_height,
             background='blue')
+        
         self.top_frame = tk.Frame(
             master=self.sub_window_frame,
-            width=self.window_default_width - 4,
+            width=self.sub_window_frame.winfo_width() - 4,
             height=30,
             bg='black',
             relief='raised',
@@ -146,25 +147,25 @@ class Sub_Window:
             master=self.sub_window_frame,
             bg='grey',
             height=2,
-            width=self.window_default_width - 4,
+            width=self.sub_window_frame.winfo_width() - 4,
             cursor='bottom_side',
             relief='raised')
         self.border_frame_N = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
             height=2,
-            width=self.window_default_width - 4,
+            width=self.sub_window_frame.winfo_width() - 4,
             relief='raised')
         self.border_frame_W = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            height=self.window_default_height - 4,
+            height=self.sub_window_frame.winfo_height() - 4,
             width=2,
             relief='raised')
         self.border_frame_E = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            height=self.window_default_height - 4,
+            height=self.sub_window_frame.winfo_height() - 4,
             width=2,
             cursor='right_side',
             relief='raised')
@@ -204,7 +205,7 @@ class Sub_Window:
         self.menubar = tk.Frame(
             master=self.sub_window_frame,
             bg="navy",
-            width=self.window_default_width - 4,
+            width=self.sub_window_frame.winfo_width() - 4,
             height=25,
             relief='raised')
         # This attribute will contain most of the content of the sub-window, be
@@ -214,7 +215,7 @@ class Sub_Window:
     # Configure default widgets
         self.sub_window_frame.grid_propagate(0)
         self.top_frame.grid_propagate(0)
-        # window.content.menubar.grid_propagate(0)
+        self.menubar.grid_propagate(0)
         self.sub_window_frame.columnconfigure([0, 1, 2], weight=1)
         self.sub_window_frame.rowconfigure(0, weight=1)
         self.sub_window_frame.rowconfigure(1, weight=1)
@@ -222,7 +223,6 @@ class Sub_Window:
         self.sub_window_frame.rowconfigure(3, weight=300)
         self.sub_window_frame.rowconfigure(4, weight=1)
         self.top_frame.columnconfigure([0, 1], weight=1)
-        self.menubar.grid_propagate(0)
         self.menubar.columnconfigure(0, weight=1)
         self.menubar.columnconfigure(1, weight=1)
     # Place default widgets
@@ -398,7 +398,7 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
     outcomes_window = create_window(window0, canvas0, "Outcomes", "List")
 
     # Initial x and y positions of the canvas window objects is modified to
-    # avoid overlap. (inital position upon creation is (50,50))
+    # avoid overlap. (Modified from the inital position upon creation, which is (50,50))
     upcoming_events_window.canvas.coords(
         upcoming_events_window.canvas_window0_ID, 400, 50)
     ticklers_window.canvas.coords(ticklers_window.canvas_window0_ID, 750, 50)
@@ -610,31 +610,31 @@ def resize_right(motion: tk.Event, window: Sub_Window):
         delta_cursor = x2 - x1  # Horizontal change in position of mouse cursor
         x1 = x2
         delta_sub_window = window.sub_window_frame.winfo_width() + delta_cursor
-        delta_top_frame = window.top_frame.winfo_width() + delta_cursor
-        delta_border_frame_N = window.border_frame_N.winfo_width() + delta_cursor
-        delta_border_frame_S = window.border_frame_S.winfo_width() + delta_cursor
+        #delta_top_frame = window.top_frame.winfo_width() + delta_cursor
+        #delta_border_frame_N = window.border_frame_N.winfo_width() + delta_cursor
+        #delta_border_frame_S = window.border_frame_S.winfo_width() + delta_cursor
         #############
         # Add code to verify whether the sort and menu buttons are present in
         # the sub-window
-        delta_menubar = window.menubar.winfo_width() + delta_cursor
+        #delta_menubar = window.menubar.winfo_width() + delta_cursor
         ##############
         # Imposes minimum width to sub-window (measured in pixels)
         if delta_sub_window > 130:
             window.sub_window_frame.configure(width=delta_sub_window)
-            window.top_frame.configure(width=delta_top_frame)
-            window.border_frame_N.configure(width=delta_border_frame_N)
-            window.border_frame_S.configure(width=delta_border_frame_S)
+            #window.top_frame.configure(width=delta_top_frame)
+            #window.border_frame_N.configure(width=delta_border_frame_N)
+            #window.border_frame_S.configure(width=delta_border_frame_S)
         if delta_sub_window < 205:
             window.menubar.grid_remove()
         elif delta_sub_window > 205:
-            if window.menubar.winfo_manager() == "" and window.menubar.winfo_height() > 1:
+            if window.menubar.winfo_manager() == "" and window.sub_window_frame.winfo_height() > 56:
                 window.menubar.grid()
-            window.menubar.configure(width=delta_menubar-4)
+            #window.menubar.configure(width=delta_menubar-4)
 
-    print("BFE width: ", window.border_frame_E.winfo_width())
-    print("CFSW width: ", window.corner_frame_SW.winfo_width())
-    print("Window width: ", window.sub_window_frame.winfo_width())
-    print("Menubar width: ", window.menubar.winfo_width())
+    #print("BFE width: ", window.border_frame_E.winfo_width())
+    #print("CFSW width: ", window.corner_frame_SW.winfo_width())
+    #print("Window width: ", window.sub_window_frame.winfo_width())
+    #print("Menubar width: ", window.menubar.winfo_width())
 
 def resize_bottom(motion: tk.Event, window: Sub_Window):
     """Changes the height of the sub-window based on the change in position of the mouse cursor. Assuming both the top and the
@@ -647,8 +647,8 @@ def resize_bottom(motion: tk.Event, window: Sub_Window):
         delta_cursor = y2 - y1
         y1 = y2
         delta_sub_window = window.sub_window_frame.winfo_height() + delta_cursor
-        delta_border_frame_W = window.border_frame_W.winfo_height() + delta_cursor
-        delta_border_frame_E = window.border_frame_E.winfo_height() + delta_cursor
+        #delta_border_frame_W = window.border_frame_W.winfo_height() + delta_cursor
+        #delta_border_frame_E = window.border_frame_E.winfo_height() + delta_cursor
 
         # Add code to verify whether the sort and menu buttons are present in
         # the sub-window
@@ -657,17 +657,20 @@ def resize_bottom(motion: tk.Event, window: Sub_Window):
 
         if delta_sub_window > 31:   #Imposes minimum width to the sub_window, so that the top frame remains visible. 
             window.sub_window_frame.configure(height=delta_sub_window)
-            window.border_frame_W.configure(height=delta_border_frame_W)
-            window.border_frame_E.configure(height=delta_border_frame_E)
+            #window.border_frame_W.configure(height=window.sub_window_frame.winfo_height() - 4)
+            #window.border_frame_E.configure(height=window.sub_window_frame.winfo_height() - 4)
         if window.sub_window_frame.winfo_height() < 56: #Removes menubar once a minimum window height is reached, to enable uninterrupted resizing. 
-            window.menubar.configure(height=0)
+            #window.menubar.configure(height=0)
+            window.menubar.grid_remove()
         elif window.sub_window_frame.winfo_height() > 56:
-            if window.menubar.winfo_manager() == "" and window.sub_window_frame.winfo_width > 205:
+            if window.menubar.winfo_manager() == "" and window.sub_window_frame.winfo_width() > 205:
                 window.menubar.grid()
-            window.menubar.configure(height=25)
+            #window.menubar.configure(height=25)
             
     print("Window height: ", window.sub_window_frame.winfo_height())
     print("Menubar height: ", window.menubar.winfo_height())
+    print("Border frame east height: ", window.border_frame_E.winfo_height())
+    print("Border frame west height: ", window.border_frame_W.winfo_height())
         #################
 
 def resize_corner(motion: tk.Event, window: Sub_Window):
