@@ -99,7 +99,8 @@ class Sub_Window:
             self,
             window_type: str,
             window_title: str,
-            canvas0: tk.Canvas):
+            canvas0: tk.Canvas,
+            root: tk.Tk):
         # Generate widgets
         self.type = window_type
         self.drag_enabled = False
@@ -107,17 +108,16 @@ class Sub_Window:
         self.type: int
         self.title = window_title
         self.canvas = canvas0
-        self.window_default_width = 350
-        self.window_default_height = 300
+        self.window_width_a = 350     #Default width: 350 pixels
+        self.window_height_a = 300    #Default height: 300 pixels
         self.sub_window_frame = tk.Frame(
             master=canvas0,
-            width=self.window_default_width,
-            height=self.window_default_height,
+            width=self.window_width,
+            height=self.window_height,
             background='blue')
-        
         self.top_frame = tk.Frame(
             master=self.sub_window_frame,
-            width=self.sub_window_frame.winfo_width() - 4,
+            width=self.window_width - 4,
             height=30,
             bg='black',
             relief='raised',
@@ -147,25 +147,25 @@ class Sub_Window:
             master=self.sub_window_frame,
             bg='grey',
             height=2,
-            width=self.sub_window_frame.winfo_width() - 4,
+            width=self.window_width - 4,
             cursor='bottom_side',
             relief='raised')
         self.border_frame_N = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
             height=2,
-            width=self.sub_window_frame.winfo_width() - 4,
+            width=self.window_width - 4,
             relief='raised')
         self.border_frame_W = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            height=self.sub_window_frame.winfo_height() - 4,
+            height=self.window_height - 4,
             width=2,
             relief='raised')
         self.border_frame_E = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            height=self.sub_window_frame.winfo_height() - 4,
+            height=self.window_height - 4,
             width=2,
             cursor='right_side',
             relief='raised')
@@ -205,7 +205,7 @@ class Sub_Window:
         self.menubar = tk.Frame(
             master=self.sub_window_frame,
             bg="navy",
-            width=self.sub_window_frame.winfo_width() - 4,
+            width=self.window_width - 4,
             height=25,
             relief='raised')
         # This attribute will contain most of the content of the sub-window, be
@@ -227,6 +227,7 @@ class Sub_Window:
         self.menubar.columnconfigure(1, weight=1)
     # Place default widgets
         # Places the sub-window in the canvas.
+        self.sub_window_frame.grid()
         self.canvas_window0_ID = canvas0.create_window(
             50, 50, anchor=tk.NW, window=self.sub_window_frame)
         self.top_frame.grid(column=1, row=1, sticky='n')
@@ -244,7 +245,12 @@ class Sub_Window:
         self.corner_frame_SW.grid(column=0, row=4)
         self.corner_frame_SE.grid(column=2, row=4)
         self.menubar.grid(column=1, row=2, sticky='new')
-
+    @property
+    def window_width(self):
+        return self.window_width_a
+    @property
+    def window_height(self):
+        return self.window_height_a
     def add_list(self):
         """Adds list that corresponds to the sub_window."""
         # The list already exists.
@@ -269,9 +275,8 @@ scrollbars are necessary. Another function, remove_scrollbars, will remove them 
 
     def remove_scrollbars(self):
         """"""
+        
 # Data functions
-
-
 def add_input():
     """Receives input from UI. Creates instance of Inbox. Appends istance to inbox_list."""
 
@@ -311,8 +316,6 @@ def load_data():
     """Loads data in files."""
 
 # UI Functions
-
-
 def create_root_window():
     window0 = tk.Tk()
     screen_width = window0.winfo_screenwidth()
@@ -341,7 +344,8 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
         window = Sub_Window(
             type,
             title,
-            canvas0)  # The basic widgets of a sub window are already attributes of a sub-window object.
+            canvas0,
+            window0)  # The basic widgets of a sub window are already attributes of a sub-window object.
         # Therefore, they are automatically generated, configured, and placed,
         # upon creation of the sub-window object.
         return window
@@ -609,7 +613,7 @@ def resize_right(motion: tk.Event, window: Sub_Window):
         x2 = motion.x
         delta_cursor = x2 - x1  # Horizontal change in position of mouse cursor
         x1 = x2
-        delta_sub_window = window.sub_window_frame.winfo_width() + delta_cursor
+        delta_window = window.window_width_a + delta_cursor
         #delta_top_frame = window.top_frame.winfo_width() + delta_cursor
         #delta_border_frame_N = window.border_frame_N.winfo_width() + delta_cursor
         #delta_border_frame_S = window.border_frame_S.winfo_width() + delta_cursor
@@ -619,21 +623,21 @@ def resize_right(motion: tk.Event, window: Sub_Window):
         #delta_menubar = window.menubar.winfo_width() + delta_cursor
         ##############
         # Imposes minimum width to sub-window (measured in pixels)
-        if delta_sub_window > 130:
-            window.sub_window_frame.configure(width=delta_sub_window)
+        if delta_window > 130:
+            window.window_width_a = delta_window
             #window.top_frame.configure(width=delta_top_frame)
             #window.border_frame_N.configure(width=delta_border_frame_N)
             #window.border_frame_S.configure(width=delta_border_frame_S)
-        if delta_sub_window < 205:
+        if delta_window < 205:
             window.menubar.grid_remove()
-        elif delta_sub_window > 205:
-            if window.menubar.winfo_manager() == "" and window.sub_window_frame.winfo_height() > 56:
+        elif delta_window > 205:
+            if window.menubar.winfo_manager() == "" and window.window_height_a > 56:
                 window.menubar.grid()
             #window.menubar.configure(width=delta_menubar-4)
 
     #print("BFE width: ", window.border_frame_E.winfo_width())
     #print("CFSW width: ", window.corner_frame_SW.winfo_width())
-    #print("Window width: ", window.sub_window_frame.winfo_width())
+    #print("Window width: ", window.window_width)
     #print("Menubar width: ", window.menubar.winfo_width())
 
 def resize_bottom(motion: tk.Event, window: Sub_Window):
@@ -646,7 +650,7 @@ def resize_bottom(motion: tk.Event, window: Sub_Window):
         # Vertical change in position of mouse cursor in the subwindow frame
         delta_cursor = y2 - y1
         y1 = y2
-        delta_sub_window = window.sub_window_frame.winfo_height() + delta_cursor
+        delta_window = window.window_height_a + delta_cursor
         #delta_border_frame_W = window.border_frame_W.winfo_height() + delta_cursor
         #delta_border_frame_E = window.border_frame_E.winfo_height() + delta_cursor
 
@@ -655,19 +659,19 @@ def resize_bottom(motion: tk.Event, window: Sub_Window):
 
         #############
 
-        if delta_sub_window > 31:   #Imposes minimum width to the sub_window, so that the top frame remains visible. 
-            window.sub_window_frame.configure(height=delta_sub_window)
-            #window.border_frame_W.configure(height=window.sub_window_frame.winfo_height() - 4)
-            #window.border_frame_E.configure(height=window.sub_window_frame.winfo_height() - 4)
-        if window.sub_window_frame.winfo_height() < 56: #Removes menubar once a minimum window height is reached, to enable uninterrupted resizing. 
+        if delta_window > 31:   #Imposes minimum width to the sub_window, so that the top frame remains visible. 
+            window.window_height_a = delta_window
+            #window.border_frame_W.configure(height=window.window_height - 4)
+            #window.border_frame_E.configure(height=window.window_height - 4)
+        if window.window_height_a < 56: #Removes menubar once a minimum window height is reached, to enable uninterrupted resizing. 
             #window.menubar.configure(height=0)
             window.menubar.grid_remove()
-        elif window.sub_window_frame.winfo_height() > 56:
-            if window.menubar.winfo_manager() == "" and window.sub_window_frame.winfo_width() > 205:
+        elif window.window_height_a > 56:
+            if window.menubar.winfo_manager() == "" and window.window_width_a > 205:
                 window.menubar.grid()
             #window.menubar.configure(height=25)
             
-    print("Window height: ", window.sub_window_frame.winfo_height())
+    print("Window height: ", window.window_height)
     print("Menubar height: ", window.menubar.winfo_height())
     print("Border frame east height: ", window.border_frame_E.winfo_height())
     print("Border frame west height: ", window.border_frame_W.winfo_height())
