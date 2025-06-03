@@ -376,8 +376,10 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
         if window.type == "List":
             window.add_list()
             window.add_list_options()
-
-            """"""
+        elif window.type == "Calendar":
+            """Add calendar"""
+        elif window.type == "Image":
+            """Add Image"""
     def configure_layout(window: Sub_Window):
         """Configures layout of widgets within a sub window."""
         # Default widgets layout done upon creation of object. Additional
@@ -410,19 +412,26 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
         window0, canvas0, "Upcoming Events Window", "List")
     ticklers_window = create_window(window0, canvas0, "Ticklers", "List")
     outcomes_window = create_window(window0, canvas0, "Outcomes", "List")
-
+    waiting_for_window = create_window(window0, canvas0, "Waiting For", "List")
+    calendar_window = create_window(window0, canvas0, "Calendar", "Calendar")
+    image_window = create_window(window0, canvas0, "Image", "Image")
     # Initial x and y positions of the canvas window objects is modified to
     # avoid overlap. (Modified from the inital position upon creation, which is (50,50))
     upcoming_events_window.canvas.coords(
         upcoming_events_window.canvas_window0_ID, 400, 50)
     ticklers_window.canvas.coords(ticklers_window.canvas_window0_ID, 750, 50)
     outcomes_window.canvas.coords(outcomes_window.canvas_window0_ID, 1100, 50)
-
+    waiting_for_window.canvas.coords(waiting_for_window.canvas_window0_ID, 50, 400)
+    calendar_window.canvas.coords(calendar_window.canvas_window0_ID, 400, 400)
+    image_window.canvas.coords(image_window.canvas_window0_ID, 750, 400)
     windows = [
         next_actions_window,
         upcoming_events_window,
         ticklers_window,
-        outcomes_window]
+        outcomes_window,
+        waiting_for_window,
+        calendar_window,
+        image_window]
     return windows
 
 
