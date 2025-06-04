@@ -50,9 +50,9 @@ class Project:
 class List_Options:
     def __init__(self, menubar: tk.Frame):
         self.sort_menubutton = tk.Menubutton(
-            master=menubar, text='Sort Options', borderwidth=2, bg='grey')
+            master=menubar, text='Sort Options', borderwidth=2, bg='grey', relief="raised")
         self.filter_menubutton = tk.Menubutton(
-            master=menubar, text='Filter Options', borderwidth=2, bg='grey')
+            master=menubar, text='Filter Options', borderwidth=2, bg='grey', relief="raised")
         self.sort_menu = tk.Menu(master=self.sort_menubutton, tearoff=False)
         self.filter_menu = tk.Menu(
             master=self.filter_menubutton, tearoff=False)
@@ -108,8 +108,8 @@ class Sub_Window:
         self.type: int
         self.title = window_title
         self.canvas = canvas0
-        self.window_width_a = 350     #Default width: 350 pixels
-        self.window_height_a = 300    #Default height: 300 pixels
+        self.window_width = 350     #Default width: 350 pixels
+        self.window_height = 300    #Default height: 300 pixels
         self.sub_window_frame = tk.Frame(
             master=canvas0,
             width=self.window_width,
@@ -245,14 +245,9 @@ class Sub_Window:
         self.corner_frame_SW.grid(column=0, row=4)
         self.corner_frame_SE.grid(column=2, row=4)
         self.menubar.grid(column=1, row=2, sticky='new')
-    @property
-    def window_width(self):
-        return self.window_width_a
-    @property
-    def window_height(self):
-        return self.window_height_a
+    #Sub-window methods    
     def update_size(self):
-    # Update internal widget sizes
+        """Update internal widget sizes"""
         self.sub_window_frame.config(width=self.window_width, height=self.window_height)
         self.top_frame.config(width=self.window_width - 4)
         self.border_frame_N.config(width=self.window_width - 4)
@@ -263,9 +258,13 @@ class Sub_Window:
 
     def add_list(self):
         """Adds list that corresponds to the sub_window."""
-        # The list already exists.
-        # The list will be dynamically updated.
-        # This function takes the already existing list, to an element in
+        self.content.listbox_widget = tk.Listbox(master=self.sub_window_frame,  bg='blue', relief="raised", highlightbackground="blue")
+       
+        #Add sample list
+        for number in range(1,100,1):
+            self.content.listbox_widget.insert(number, f"Item {number}")
+        
+        self.content.listbox_widget.grid(column=1, row=3, sticky='nwes')
 
     def add_list_options(self):
         "Adds list control options to the sub-window containing a list."
@@ -280,9 +279,9 @@ class Sub_Window:
     def add_scrollbars(self):
         """Adds vertical and horizontal scrollbars. Scrollbars will be present in all sub windows when necessary. Scrollbars will automatically
         appear when the content of the sub window exceeds the size of the sub window, such that part of it is obscured. Because scrollbars are
-a property of all sub_windows, it should be placed as an attribute of the Sub_Window class. The function will be called whenever
-scrollbars are necessary. Another function, remove_scrollbars, will remove them when unecessary."""
-
+        a property of all sub_windows, it should be placed as an attribute of the Sub_Window class. The function will be called whenever
+        scrollbars are necessary. Another function, remove_scrollbars, will remove them when unecessary."""
+        
     def remove_scrollbars(self):
         """"""
         
@@ -376,6 +375,7 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
         if window.type == "List":
             window.add_list()
             window.add_list_options()
+            window.add_scrollbars()
         elif window.type == "Calendar":
             """Add calendar"""
         elif window.type == "Image":
@@ -643,7 +643,7 @@ def resize_right(motion: tk.Event, window: Sub_Window):
         ##############
         # Imposes minimum width to sub-window (measured in pixels)
         if delta_window > 130:
-            window.window_width_a = delta_window
+            window.window_width = delta_window
             window.update_size()
             #window.top_frame.configure(width=delta_top_frame)
             #window.border_frame_N.configure(width=delta_border_frame_N)
@@ -681,7 +681,7 @@ def resize_bottom(motion: tk.Event, window: Sub_Window):
         #############
 
         if delta_window > 31:   #Imposes minimum width to the sub_window, so that the top frame remains visible. 
-            window.window_height_a = delta_window
+            window.window_height = delta_window
             window.update_size()
             #window.border_frame_W.configure(height=window.window_height - 4)
             #window.border_frame_E.configure(height=window.window_height - 4)
