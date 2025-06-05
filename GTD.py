@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from tkinter import ttk
+from tkcalendar import Calendar
 import tkinter as tk
 import math
 
@@ -258,12 +259,9 @@ class Sub_Window:
 
     def add_list(self):
         """Adds list that corresponds to the sub_window."""
-        self.content.listbox_widget = tk.Listbox(master=self.sub_window_frame,  bg='blue', relief="raised", highlightbackground="blue")
-       
-        #Add sample list
-        for number in range(1,100,1):
+        self.content.listbox_widget = tk.Listbox(master=self.sub_window_frame,  bg='blue', relief="raised", highlightbackground="blue", activestyle='dotbox')
+        for number in range(1,100,1):   #Add sample list
             self.content.listbox_widget.insert(number, f"Item {number}")
-        
         self.content.listbox_widget.grid(column=1, row=3, sticky='nwes')
 
     def add_list_options(self):
@@ -271,11 +269,15 @@ class Sub_Window:
         self.content.list_options = List_Options(self.menubar)
 
     def add_calendar(self):
-        """"""
+        """Adds a calendar to the sub-window."""
+        calendar = Calendar(master=self.sub_window_frame)
+        calendar.grid(column=1, row=3, sticky='nwes')
 
     def add_image(self):
-        """"""
-
+        """Adds an image to the sub-window."""
+        sample_image = tk.PhotoImage(master=self.sub_window_frame, file="C:/Users/User/Documents/Programming/Git repository 1/Sample image futuristic.png")
+        label = tk.Label(master=self.sub_window_frame, image=sample_image)
+        label.grid(column=1, row=3, sticky='nsew')
     def add_scrollbars(self):
         """Adds vertical and horizontal scrollbars. Scrollbars will be present in all sub windows when necessary. Scrollbars will automatically
         appear when the content of the sub window exceeds the size of the sub window, such that part of it is obscured. Because scrollbars are
@@ -378,8 +380,10 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
             window.add_scrollbars()
         elif window.type == "Calendar":
             """Add calendar"""
+            window.add_calendar()
         elif window.type == "Image":
             """Add Image"""
+            window.add_image()
     def configure_layout(window: Sub_Window):
         """Configures layout of widgets within a sub window."""
         # Default widgets layout done upon creation of object. Additional
@@ -487,63 +491,64 @@ def event_handling(window: Sub_Window):
         lambda event: execute_drag(
             event,
             window))
-    window.border_frame_E.bind(
-        "<Button-1>",
-        lambda event: enable_drag(
-            event,
-            window))
-    window.border_frame_E.bind(
-        "<Button-1>",
-        lambda event: lift_window(
-            event,
-            window),
-        add='+')
-    window.border_frame_E.bind(
-        "<ButtonRelease>",
-        lambda event: disable_drag(
-            event,
-            window))
-    window.border_frame_E.bind(
-        "<Motion>", lambda event: resize_right(
-            event, window))
-    window.border_frame_S.bind(
-        "<Button-1>",
-        lambda event: enable_drag(
-            event,
-            window))
-    window.border_frame_S.bind(
-        "<Button-1>",
-        lambda event: lift_window(
-            event,
-            window),
-        add='+')
-    window.border_frame_S.bind(
-        "<ButtonRelease>",
-        lambda event: disable_drag(
-            event,
-            window))
-    window.border_frame_S.bind(
-        "<Motion>", lambda event: resize_bottom(
-            event, window))
-    window.corner_frame_SE.bind(
-        "<Button-1>",
-        lambda event: enable_drag(
-            event,
-            window))
-    window.corner_frame_SE.bind(
-        "<Button-1>",
-        lambda event: lift_window(
-            event,
-            window),
-        add='+')
-    window.corner_frame_SE.bind(
-        "<ButtonRelease>",
-        lambda event: disable_drag(
-            event,
-            window))
-    window.corner_frame_SE.bind(
-        "<Motion>", lambda event: resize_corner(
-            event, window))
+    if window.type != "Calendar":
+        window.border_frame_E.bind(
+            "<Button-1>",
+            lambda event: enable_drag(
+                event,
+                window))
+        window.border_frame_E.bind(
+            "<Button-1>",
+            lambda event: lift_window(
+                event,
+                window),
+            add='+')
+        window.border_frame_E.bind(
+            "<ButtonRelease>",
+            lambda event: disable_drag(
+                event,
+                window))
+        window.border_frame_E.bind(
+            "<Motion>", lambda event: resize_right(
+                event, window))
+        window.border_frame_S.bind(
+            "<Button-1>",
+            lambda event: enable_drag(
+                event,
+                window))
+        window.border_frame_S.bind(
+            "<Button-1>",
+            lambda event: lift_window(
+                event,
+                window),
+            add='+')
+        window.border_frame_S.bind(
+            "<ButtonRelease>",
+            lambda event: disable_drag(
+                event,
+                window))
+        window.border_frame_S.bind(
+            "<Motion>", lambda event: resize_bottom(
+                event, window))
+        window.corner_frame_SE.bind(
+            "<Button-1>",
+            lambda event: enable_drag(
+                event,
+                window))
+        window.corner_frame_SE.bind(
+            "<Button-1>",
+            lambda event: lift_window(
+                event,
+                window),
+            add='+')
+        window.corner_frame_SE.bind(
+            "<ButtonRelease>",
+            lambda event: disable_drag(
+                event,
+                window))
+        window.corner_frame_SE.bind(
+            "<Motion>", lambda event: resize_corner(
+                event, window))
 
 
 def ui_manager():
