@@ -297,7 +297,7 @@ pygame.init()
 pygame.font.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_LENGTH))
 
-script_dir = os.path.dirname(os.path.abspath(__file__))   # Get the directory where the script is located
+script_dir = os.path.dirname(os.path.abspath(__file__))                 # Get the directory where the script is located
 os.chdir(script_dir)                                                    # Set this directory as the current working directory
                                        
 #Loading of Images 
