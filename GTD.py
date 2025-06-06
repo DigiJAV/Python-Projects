@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from tkinter import ttk
 from tkcalendar import Calendar
+from PIL import Image, ImageTk
 import tkinter as tk
 import math
 
@@ -249,17 +250,29 @@ class Sub_Window:
     #Sub-window methods    
     def update_size(self):
         """Update internal widget sizes"""
-        self.sub_window_frame.config(width=self.window_width, height=self.window_height)
+        self.sub_window_frame.config(
+            width=self.window_width, 
+            height=self.window_height)
         self.top_frame.config(width=self.window_width - 4)
         self.border_frame_N.config(width=self.window_width - 4)
         self.border_frame_S.config(width=self.window_width - 4)
         self.border_frame_E.config(height=self.window_height - 4)
         self.border_frame_W.config(height=self.window_height - 4)
         self.menubar.config(width=self.window_width - 4)
+        self.content.image.config(
+            width=self.window_width - 10, 
+            height=self.window_height - 10)
+        self.content.image = self.content.image.resize((
+            self.window_width-10,
+            self.window_height-10))
 
     def add_list(self):
         """Adds list that corresponds to the sub_window."""
-        self.content.listbox_widget = tk.Listbox(master=self.sub_window_frame,  bg='blue', relief="raised", highlightbackground="blue", activestyle='dotbox')
+        self.content.listbox_widget = tk.Listbox(
+            master=self.sub_window_frame,  
+            bg='blue', relief="raised", 
+            highlightbackground="blue", 
+            activestyle='dotbox')
         for number in range(1,100,1):   #Add sample list
             self.content.listbox_widget.insert(number, f"Item {number}")
         self.content.listbox_widget.grid(column=1, row=3, sticky='nwes')
@@ -274,10 +287,17 @@ class Sub_Window:
         calendar.grid(column=1, row=3, sticky='nwes')
 
     def add_image(self):
-        """Adds an image to the sub-window."""
-        sample_image = tk.PhotoImage(master=self.sub_window_frame, file="C:/Users/User/Documents/Programming/Git repository 1/Sample image futuristic.png")
-        label = tk.Label(master=self.sub_window_frame, image=sample_image)
-        label.grid(column=1, row=3, sticky='nsew')
+        """Adds an image to the sub-window. 
+        Will have a file parameter that will be user provided, either directly or accessed dynamically."""
+        sample_image = Image.open('"C:/Users/User/Documents/Programming/Git repository 1/Sample image futuristic.png"')
+        resized_sample_image = sample_image.resize(
+            (self.window_width-10, 
+             self.window_height-10))
+        label = tk.Label(master=self.sub_window_frame, 
+                         image=resized_sample_image)
+        label.grid_propagate(0)
+        label.grid(column=1, row=3)
+        self.content.image = resized_sample_image
     def add_scrollbars(self):
         """Adds vertical and horizontal scrollbars. Scrollbars will be present in all sub windows when necessary. Scrollbars will automatically
         appear when the content of the sub window exceeds the size of the sub window, such that part of it is obscured. Because scrollbars are
@@ -293,10 +313,11 @@ def add_input():
 
 
 def process_inbox():
-    """Receives input from UI. Creates instance of Actionable or Non_Actionable. Appends instance to a list. Calls the following functions:
+    """Receives input from UI. Creates instance of Actionable or Non_Actionable. 
+    Appends instance to a list. Calls the following functions:
     create_actionable
     create_non_actionable
-            create_project  """
+    create_project  """
 
 
 def create_actionable():
