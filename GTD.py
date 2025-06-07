@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from tkinter import ttk
 from tkcalendar import Calendar
 from PIL import Image, ImageTk
+import PIL
 import tkinter as tk
 import math
 
@@ -88,7 +89,7 @@ class List_Options:
 
 
 class Sub_Window_Content:
-    def _init_(self):
+    def __init__(self):
         self.item_list: list[str]  # List of strings for now
         self.listbox_widget: tk.Listbox
         self.list_options: List_Options
@@ -259,12 +260,6 @@ class Sub_Window:
         self.border_frame_E.config(height=self.window_height - 4)
         self.border_frame_W.config(height=self.window_height - 4)
         self.menubar.config(width=self.window_width - 4)
-        self.content.image.config(
-            width=self.window_width - 10, 
-            height=self.window_height - 10)
-        self.content.image = self.content.image.resize((
-            self.window_width-10,
-            self.window_height-10))
 
     def add_list(self):
         """Adds list that corresponds to the sub_window."""
@@ -289,15 +284,22 @@ class Sub_Window:
     def add_image(self):
         """Adds an image to the sub-window. 
         Will have a file parameter that will be user provided, either directly or accessed dynamically."""
-        sample_image = Image.open('"C:/Users/User/Documents/Programming/Git repository 1/Sample image futuristic.png"')
-        resized_sample_image = sample_image.resize(
-            (self.window_width-10, 
-             self.window_height-10))
-        label = tk.Label(master=self.sub_window_frame, 
-                         image=resized_sample_image)
+        sample_image = Image.open("C:/Users/User/Documents/Programming/Git repository 1/Sample image futuristic.png")
+        sample_photoimage = PIL.ImageTk.PhotoImage(
+            image=sample_image, 
+            master=self.sub_window_frame,
+            width=100,
+            height=100)
+        label = tk.Label(
+            master=self.sub_window_frame, 
+            image=sample_photoimage,
+            width=100,
+            height=100)
         label.grid_propagate(0)
         label.grid(column=1, row=3)
-        self.content.image = resized_sample_image
+        self.content.image = sample_photoimage
+
+        
     def add_scrollbars(self):
         """Adds vertical and horizontal scrollbars. Scrollbars will be present in all sub windows when necessary. Scrollbars will automatically
         appear when the content of the sub window exceeds the size of the sub window, such that part of it is obscured. Because scrollbars are
