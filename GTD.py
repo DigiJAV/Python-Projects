@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from tkinter import ttk
+import PIL.Image
 from tkcalendar import Calendar
 from PIL import Image, ImageTk
 import PIL
@@ -94,8 +95,9 @@ class Sub_Window_Content:
         self.listbox_widget: tk.Listbox
         self.list_options: List_Options
         self.calendar: tk.Widget
-        self.image: tk.Image
-
+        self.pil_image: PIL.Image
+        self.photoimage: tk.PhotoImage
+        self.label: tk.Label
 
 class Sub_Window:
     def __init__(
@@ -251,6 +253,15 @@ class Sub_Window:
     #Sub-window methods    
     def update_size(self):
         """Update internal widget sizes"""
+        def update_image_size():
+            """Updates size of the image in an image sub-window"""
+            #Resize the pil image
+            self.content.pil_image = self.content.pil_image.resize((self.window_width - 20, self.window_height - 20))
+            #Update tk photoimage with resized pil image
+            self.content.photoimage = ImageTk.PhotoImage(image=self.content.pil_image)
+            #Update label with updated photoiamge
+            self.content.label.configure(image=self.content.photoimage)
+        
         self.sub_window_frame.config(
             width=self.window_width, 
             height=self.window_height)
@@ -260,7 +271,8 @@ class Sub_Window:
         self.border_frame_E.config(height=self.window_height - 4)
         self.border_frame_W.config(height=self.window_height - 4)
         self.menubar.config(width=self.window_width - 4)
-
+        update_image_size()
+        
     def add_list(self):
         """Adds list that corresponds to the sub_window."""
         self.content.listbox_widget = tk.Listbox(
@@ -282,22 +294,20 @@ class Sub_Window:
         calendar.grid(column=1, row=3, sticky='nwes')
 
     def add_image(self):
-        """Adds an image to the sub-window. 
-        Will have a file parameter that will be user provided, either directly or accessed dynamically."""
+        """Adds an image to the sub-window. Will have a file parameter that will be user provided, either directly or accessed dynamically."""
         sample_image = Image.open("C:/Users/User/Documents/Programming/Git repository 1/Sample image futuristic.png")
-        sample_photoimage = PIL.ImageTk.PhotoImage(
-            image=sample_image, 
-            master=self.sub_window_frame,
-            width=100,
-            height=100)
+        resized_sample_image = sample_image.resize((self.window_width - 20, self.window_height - 20))
+        sample_photoimage = ImageTk.PhotoImage(
+            image=resized_sample_image, 
+            )
         label = tk.Label(
             master=self.sub_window_frame, 
-            image=sample_photoimage,
-            width=100,
-            height=100)
-        label.grid_propagate(0)
+            image=sample_photoimage)
         label.grid(column=1, row=3)
-        self.content.image = sample_photoimage
+        self.content.pil_image = sample_image
+        self.content.photoimage = sample_photoimage
+        self.content.label = label
+        
 
         
     def add_scrollbars(self):
