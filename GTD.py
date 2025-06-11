@@ -190,6 +190,14 @@ class Sub_Window:
         self.corner_frame_SW.grid(column=0, row=4)
         self.corner_frame_SE.grid(column=2, row=4)
     #Sub-window methods 
+    def update_size(self):
+        """Update internal widget sizes"""
+        self.update_sub_window_size()
+        if self.type == "List":
+            self.content.list_options.update_menubar_width()
+        elif self.type == "Image":
+            self.content.update_image_size()
+            
     def update_sub_window_size(self):
         """Updates the size of the widgets attributes within the Sub-Window class."""
         self.sub_window_frame.config(
@@ -200,24 +208,6 @@ class Sub_Window:
         self.border_frame_S.config(width=self.window_width - 4)
         self.border_frame_E.config(height=self.window_height - 4)
         self.border_frame_W.config(height=self.window_height - 4)
-       
-    def add_list_options(self):
-        "Adds list control options to the sub-window containing a list."
-        self.content.list_options = List_Options(self)
-
-    def add_calendar(self):
-        """Adds a calendar to the sub-window."""
-        calendar = Calendar(master=self.sub_window_frame)
-        calendar.grid(column=1, row=3, sticky='nwes')
-        
-    def add_scrollbars(self):
-        """Adds vertical and horizontal scrollbars. Scrollbars will be present in all sub windows when necessary. Scrollbars will automatically
-        appear when the content of the sub window exceeds the size of the sub window, such that part of it is obscured. Because scrollbars are
-        a property of all sub_windows, it should be placed as an attribute of the Sub_Window class. The function will be called whenever
-        scrollbars are necessary. Another function, remove_scrollbars, will remove them when unecessary."""
-        
-    def remove_scrollbars(self):
-        """"""
 
 class List_Options:
     def __init__(self, sub_window: Sub_Window):
@@ -252,7 +242,7 @@ class List_Options:
         self.menubar.grid_propagate(0)
         self.menubar.columnconfigure(0, weight=1)
         self.menubar.columnconfigure(1, weight=1)
-        self.menubar.grid(column=1, row=2, sticky='new')
+        
         # Populate sort & filter menus
         for option in self.sort_options:
             self.sort_menu.add_command(
@@ -261,11 +251,9 @@ class List_Options:
             self.filter_menu.add_command(
                 label=option, command=lambda option=option: print(option))  
    
-    def update_menubar_size(self, sub_window: Sub_Window):
+    def update_menubar_width(self, sub_window: Sub_Window):
+        """Updates the menubar width based on the window_width attribute of the parent Sub_Window instance."""
         self.menubar.config(width=sub_window.window_width - 4)
-    
-    def place_widgets():
-        """Grids List_Options class widgets."""
         
     def remove_widgets():
         """Removes List_Options class widgets."""
@@ -292,11 +280,22 @@ class Sub_Window_Content:
         self.pil_image: PIL.Image
         self.photoimage: tk.PhotoImage
         self.label: tk.Label 
-         
-    def update_image_size(self):
+    
+    def add_image(self, sub_window: Sub_Window):
+        """Adds image to Sub_Window_Content, with label widget as parent. Creates the label widget also."""       
+        self.pil_image = Image.open("C:/Users/User/Documents/Programming/Git repository 1/Sample image futuristic.png") 
+        resized_pil_image = self.pil_image.Image.resize((sub_window.window_width - 10, sub_window.window_height - 10))
+        self.photoimage = ImageTk.PhotoImage(image=resized_pil_image)
+        
+    def place_image(self, sub_window: Sub_Window):
+        """Creates the label widget on which the image will be displayed. Grids the label widget on the sub_window_frame."""
+        self.label = tk.Label(master=sub_window.sub_window_frame, image=self.photoimage)
+        self.label.grid(column=1, row=2)
+        
+    def update_image_size(self, sub_window: Sub_Window):
         """Updates size of the image in an image sub-window"""
         #Resize the pil image
-        self.pil_image = self.pil_image.resize((self.window_width - 20, self.window_height - 20))
+        self.pil_image = self.pil_image.Image.resize((sub_window.window_width - 20, sub_window.window_height - 20))
         #Update tk photoimage with resized pil image
         self.photoimage = ImageTk.PhotoImage(image=self.pil_image)
         #Update label with updated photoiamge
@@ -312,7 +311,37 @@ class Sub_Window_Content:
             activestyle='dotbox')
         for number in range(1,100,1):   #Add sample list
             self.listbox.insert(number, f"Item {number}")
+        
+    def place_list(self):
+        """Places list in the sub_window."""
         self.listbox.grid(column=1, row=3, sticky='nwes')
+        
+    def add_list_options(self):
+        "Adds list control options to the sub-window containing a list."
+        self.list_options = List_Options(self)
+    
+    def place_list_options(self):
+        """Grids widgets of the List_Options class."""
+        self.list_options.menubar.grid(column=1, row=2, sticky='new')
+        self.list_options.sort_menubutton.grid(column=0, row=0, sticky='w')
+        self.list_options.filter_menubutton.grid(column=0, row=0)
+
+    def add_calendar(self, sub_window: Sub_Window):
+        """Adds a calendar to Sub_Window_Content class."""
+        self.calendar = Calendar(master=sub_window.sub_window_frame)
+        
+    def place_calendar(self):
+        """Places calendar in the sub_window."""
+        self.calendar.grid(column=1, row=3, sticky='nwes')
+        
+    def add_scrollbars(self):
+        """Adds vertical and horizontal scrollbars. Scrollbars will be present in all sub windows when necessary. Scrollbars will automatically
+        appear when the content of the sub window exceeds the size of the sub window, such that part of it is obscured. Because scrollbars are
+        a property of all sub_windows, it should be placed as an attribute of the Sub_Window class. The function will be called whenever
+        scrollbars are necessary. Another function, remove_scrollbars, will remove them when unecessary."""
+        
+    def remove_scrollbars(self):
+        """"""
  
 # Data functions
 def add_input():
@@ -379,21 +408,21 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
     """Creates an empty sub_window."""
     def create_basic_widgets(title: str, type: str, canvas0: tk.Canvas):
         """Generates the basic widgets that make up a sub-window. These are widgets that will be present in all sub-windows."""
-        window = Sub_Window(
+        sub_window = Sub_Window(
             type,
             title,
             canvas0,
             window0)  # The basic widgets of a sub window are already attributes of a sub-window object.
         # Therefore, they are automatically generated, configured, and placed,
         # upon creation of the sub-window object.
-        return window
+        return sub_window
 
     # There will be multiple functions that create window content. There will be code that uses the title of the sub-window to determine which function to use.
     # create_window_content is the function that will house the sub functions and the code that will determine which of these sub-functions is used.
     # Since all the sub-window types to be used in the program are known, the
     # sub-functions and their triggers will be hardcoded.
 
-    def create_window_content(window: Sub_Window, list: list):
+    def create_window_content(sub_window: Sub_Window, list: list):
         """Fills subwindow with list items, list options, sort and filter options, scroll bars, calendar, image, etc. Content depends on the sub-windows title.  """
         # Code to determine whether sub_Window will contain lists, calendar, or image. For this. the Sub_Window class can have an attribute
         # will tell which of these options is the case. The attribute will be called type. Three possible definitions for the attribute are
@@ -401,41 +430,40 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
         # list_control_options = List_Control_Options(window.menubar)
         # content = Sub_Window_Content(list, listbox, window.menubar, list_control_options)
         # window.content = content
-        if window.type == "List":
-            window.content.add_list()
-            window.add_list_options()
-            window.add_scrollbars()
-        elif window.type == "Calendar":
+        if sub_window.type == "List":
+            sub_window.content.add_list(sub_window)
+            sub_window.content.add_list_options()
+            sub_window.content.place_list()
+            sub_window.content.place_list_options()
+        elif sub_window.type == "Calendar":
             """Add calendar"""
-            window.add_calendar()
-        elif window.type == "Image":
+            sub_window.content.add_calendar(sub_window)
+            sub_window.content.place_calendar()
+        elif sub_window.type == "Image":
             """Add Image"""
-            window.add_image()
-    def configure_layout(window: Sub_Window):
-        """Configures layout of widgets within a sub window."""
+            sub_window.content.add_image()
+            sub_window.content.place_image()
+            
+    #def configure_layout(sub_window: Sub_Window):
+        #"""Configures layout of widgets within a sub window."""
         # Default widgets layout done upon creation of object. Additional
         # widgets depending of type of sub-window to be configured separately.
 
-    def place_widgets(window: Sub_Window):
-        """"""
+    #def place_window_content(sub_window: Sub_Window):
+      #""""""
         # Default widgets placed upone creation of the sub-window. Additional
         # widgets placed depending on type of sub-window.
 
-        window.content.list_options.sort_menubutton.grid(
-            column=0, row=0, sticky='w')
-        window.content.list_options.filter_menubutton.grid(column=0, row=0)
-
+    
     def create_window(
             window0: tk.Tk,
             canvas0: tk.Canvas,
             title: str,
             type: str) -> tk.Frame:
         """Creates a sub-window. Runs other sub-functions depending on the type of subwindow."""
-        window = create_basic_widgets(title, type, canvas0)
-        create_window_content(window, next_actions_list)
-        configure_layout(window)
-        place_widgets(window)
-        return window
+        sub_window = create_basic_widgets(title, type, canvas0)
+        create_window_content(sub_window, next_actions_list)
+        return sub_window
 
     next_actions_window = create_window(
         window0, canvas0, "Next Actions", "List")
@@ -455,7 +483,7 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
     waiting_for_window.canvas.coords(waiting_for_window.canvas_window0_ID, 50, 400)
     calendar_window.canvas.coords(calendar_window.canvas_window0_ID, 400, 400)
     image_window.canvas.coords(image_window.canvas_window0_ID, 750, 400)
-    windows = [
+    sub_windows = [
         next_actions_window,
         upcoming_events_window,
         ticklers_window,
@@ -463,119 +491,119 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
         waiting_for_window,
         calendar_window,
         image_window]
-    return windows
+    return sub_windows
 
 
-def event_handling(window: Sub_Window):
+def event_handling(sub_window: Sub_Window):
     """"""
     # Widget-event-handler binds
  # Will using lambda functions to call all event handlers, in order to use window as an argument in each of them. This will enable easy access
  # of the window object attributes.
-    window.sub_window_frame.bind(
+    sub_window.sub_window_frame.bind(
         "<Button-1>",
         lambda event: lift_window(
             event,
-            window))
-    window.top_frame.bind(
+            sub_window))
+    sub_window.top_frame.bind(
         "<Button-1>",
         lambda event: enable_drag(
             event,
-            window))
-    window.top_frame.bind(
+            sub_window))
+    sub_window.top_frame.bind(
         "<Button-1>",
         lambda event: lift_window(
             event,
-            window),
+            sub_window),
         add='+')
-    window.top_frame.bind(
+    sub_window.top_frame.bind(
         "<ButtonRelease>",
         lambda event: disable_drag(
             event,
-            window))
-    window.top_frame.bind(
+            sub_window))
+    sub_window.top_frame.bind(
         "<Motion>",
         lambda event: execute_drag(
             event,
-            window))
-    window.title_label.bind(
+            sub_window))
+    sub_window.title_label.bind(
         "<Button-1>",
         lambda event: enable_drag(
             event,
-            window))
-    window.title_label.bind(
+            sub_window))
+    sub_window.title_label.bind(
         "<Button-1>",
         lambda event: lift_window(
             event,
-            window),
+            sub_window),
         add='+')
-    window.title_label.bind(
+    sub_window.title_label.bind(
         "<ButtonRelease>",
         lambda event: disable_drag(
             event,
-            window))
-    window.title_label.bind(
+            sub_window))
+    sub_window.title_label.bind(
         "<Motion>",
         lambda event: execute_drag(
             event,
-            window))
-    if window.type != "Calendar":
-        window.border_frame_E.bind(
+            sub_window))
+    if sub_window.type != "Calendar":
+        sub_window.border_frame_E.bind(
             "<Button-1>",
             lambda event: enable_drag(
                 event,
-                window))
-        window.border_frame_E.bind(
+                sub_window))
+        sub_window.border_frame_E.bind(
             "<Button-1>",
             lambda event: lift_window(
                 event,
-                window),
+                sub_window),
             add='+')
-        window.border_frame_E.bind(
+        sub_window.border_frame_E.bind(
             "<ButtonRelease>",
             lambda event: disable_drag(
                 event,
-                window))
-        window.border_frame_E.bind(
+                sub_window))
+        sub_window.border_frame_E.bind(
             "<Motion>", lambda event: resize_right(
-                event, window))
-        window.border_frame_S.bind(
+                event, sub_window))
+        sub_window.border_frame_S.bind(
             "<Button-1>",
             lambda event: enable_drag(
                 event,
-                window))
-        window.border_frame_S.bind(
+                sub_window))
+        sub_window.border_frame_S.bind(
             "<Button-1>",
             lambda event: lift_window(
                 event,
-                window),
+                sub_window),
             add='+')
-        window.border_frame_S.bind(
+        sub_window.border_frame_S.bind(
             "<ButtonRelease>",
             lambda event: disable_drag(
                 event,
-                window))
-        window.border_frame_S.bind(
+                sub_window))
+        sub_window.border_frame_S.bind(
             "<Motion>", lambda event: resize_bottom(
-                event, window))
-        window.corner_frame_SE.bind(
+                event, sub_window))
+        sub_window.corner_frame_SE.bind(
             "<Button-1>",
             lambda event: enable_drag(
                 event,
-                window))
-        window.corner_frame_SE.bind(
+                sub_window))
+        sub_window.corner_frame_SE.bind(
             "<Button-1>",
             lambda event: lift_window(
                 event,
-                window),
+                sub_window),
             add='+')
-        window.corner_frame_SE.bind(
+        sub_window.corner_frame_SE.bind(
             "<ButtonRelease>",
             lambda event: disable_drag(
                 event,
-                window))
-        window.corner_frame_SE.bind(
+                sub_window))
+        sub_window.corner_frame_SE.bind(
             "<Motion>", lambda event: resize_corner(
-                event, window))
+                event, sub_window))
 
 
 def ui_manager():
@@ -583,8 +611,8 @@ def ui_manager():
     window0 = create_root_window()
     canvas0 = create_root_canvas(window0)
     sub_windows = create_sub_windows(window0, canvas0)
-    for window in sub_windows:
-        event_handling(window)
+    for sub_window in sub_windows:
+        event_handling(sub_window)
     window0.mainloop()
 
 
@@ -612,16 +640,6 @@ def add_checkboxes():
     """"""
 
 ### Event Handlers ##################################
-def update_size(sub_window: Sub_Window):
-    """Update internal widget sizes"""
-    sub_window.update_sub_window_size()
-    if sub_window.type == "List":
-        sub_window.content.list_options.update_menubar_size()
-    elif sub_window.type == "Image":
-        sub_window.content.update_image_size()
-        
-    
-
 def lift_window(button1_press: tk.Event, sub_window: Sub_Window):
     """Upon a sub-window being clicked with left mouse button at any point within it, the event handler lifts the clicked sub-window to top of stack."""
     ID = sub_window.canvas_window0_ID
