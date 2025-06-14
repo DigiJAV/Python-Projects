@@ -280,16 +280,17 @@ class Sub_Window_Content:
         self.list: list[str]  # List of strings for now
         self.listbox: tk.Listbox
         self.list_options: List_Options
-        self.calendar: tk.Widget
-        self.pil_image: PIL.Image
+        self.calendar: Calendar
+        self.original_pil_image: PIL.Image
+        self.resized_pil_image: PIL.Image
         self.photoimage: tk.PhotoImage
         self.label: tk.Label 
     
     def add_image(self, sub_window: Sub_Window):
         """Adds image to Sub_Window_Content, with label widget as parent. Creates the label widget also."""       
-        sub_window.content.pil_image = Image.open("C:/Users/User/Documents/Programming/Git repository 1/Sample image futuristic.png") 
-        resized_pil_image = sub_window.content.pil_image.resize((sub_window.window_width - 40, sub_window.window_height - 40))
-        sub_window.content.photoimage = ImageTk.PhotoImage(image=resized_pil_image)
+        self.original_pil_image = Image.open("C:/Users/User/Documents/Programming/Git repository 1/Sample images/Screenshot 2025-06-08 143629.png") 
+        self.resized_pil_image = self.original_pil_image.resize((sub_window.window_width - 40, sub_window.window_height - 40), Image.LANCZOS)
+        self.photoimage = ImageTk.PhotoImage(image=self.resized_pil_image)
         
     def place_image(self, sub_window: Sub_Window):
         """Creates the label widget on which the image will be displayed. Grids the label widget on the sub_window_frame."""
@@ -299,9 +300,12 @@ class Sub_Window_Content:
     def update_image_size(self, sub_window: Sub_Window):
         """Updates size of the image in an image sub-window"""
         #Resize the pil image
-        sub_window.content.pil_image = sub_window.content.pil_image.resize((sub_window.window_width - 40, sub_window.window_height - 40))
+        sub_window.content.resized_pil_image = sub_window.content.original_pil_image.resize(
+            (sub_window.window_width - 40, 
+             sub_window.window_height - 40), 
+            Image.LANCZOS)
         #Update tk photoimage with resized pil image
-        sub_window.content.photoimage = ImageTk.PhotoImage(image=sub_window.content.pil_image)
+        sub_window.content.photoimage = ImageTk.PhotoImage(image=sub_window.content.resized_pil_image)
         #Update label with updated photoiamge
         sub_window.content.label.configure(image=sub_window.content.photoimage)
         
@@ -507,15 +511,13 @@ def event_handling(sub_window: Sub_Window):
             sub_window))
     sub_window.top_frame.bind(
         "<Button-1>",
-        lambda event: enable_drag(
-            event,
-            sub_window))
-    sub_window.top_frame.bind(
-        "<Button-1>",
-        lambda event: lift_window(
-            event,
-            sub_window),
-        add='+')
+        lambda event: (
+            enable_drag(
+                event, 
+                sub_window), 
+            lift_window(
+                event, 
+                sub_window)))
     sub_window.top_frame.bind(
         "<ButtonRelease>",
         lambda event: disable_drag(
@@ -528,15 +530,12 @@ def event_handling(sub_window: Sub_Window):
             sub_window))
     sub_window.title_label.bind(
         "<Button-1>",
-        lambda event: enable_drag(
+        lambda event: (enable_drag(
             event,
-            sub_window))
-    sub_window.title_label.bind(
-        "<Button-1>",
-        lambda event: lift_window(
-            event,
-            sub_window),
-        add='+')
+            sub_window), 
+                       lift_window(
+            event, 
+            sub_window)))
     sub_window.title_label.bind(
         "<ButtonRelease>",
         lambda event: disable_drag(
@@ -550,34 +549,31 @@ def event_handling(sub_window: Sub_Window):
     if sub_window.type != "Calendar":
         sub_window.border_frame_E.bind(
             "<Button-1>",
-            lambda event: enable_drag(
-                event,
-                sub_window))
-        sub_window.border_frame_E.bind(
-            "<Button-1>",
-            lambda event: lift_window(
-                event,
-                sub_window),
-            add='+')
+            lambda event: (
+                enable_drag(
+                    event, 
+                    sub_window), 
+                lift_window(
+                    event, 
+                    sub_window)))
         sub_window.border_frame_E.bind(
             "<ButtonRelease>",
             lambda event: disable_drag(
                 event,
                 sub_window))
         sub_window.border_frame_E.bind(
-            "<Motion>", lambda event: resize_right(
+            "<Motion>", 
+            lambda event: resize_right(
                 event, sub_window))
         sub_window.border_frame_S.bind(
             "<Button-1>",
-            lambda event: enable_drag(
-                event,
-                sub_window))
-        sub_window.border_frame_S.bind(
-            "<Button-1>",
-            lambda event: lift_window(
-                event,
-                sub_window),
-            add='+')
+            lambda event: (
+                enable_drag(
+                    event, 
+                    sub_window), 
+                lift_window(
+                    event, 
+                    sub_window)))
         sub_window.border_frame_S.bind(
             "<ButtonRelease>",
             lambda event: disable_drag(
@@ -588,15 +584,13 @@ def event_handling(sub_window: Sub_Window):
                 event, sub_window))
         sub_window.corner_frame_SE.bind(
             "<Button-1>",
-            lambda event: enable_drag(
-                event,
-                sub_window))
-        sub_window.corner_frame_SE.bind(
-            "<Button-1>",
-            lambda event: lift_window(
-                event,
-                sub_window),
-            add='+')
+            lambda event: (
+                enable_drag(
+                    event,
+                    sub_window), 
+                lift_window(
+                    event, 
+                    sub_window)))
         sub_window.corner_frame_SE.bind(
             "<ButtonRelease>",
             lambda event: disable_drag(
@@ -605,7 +599,23 @@ def event_handling(sub_window: Sub_Window):
         sub_window.corner_frame_SE.bind(
             "<Motion>", lambda event: resize_corner(
                 event, sub_window))
-
+        
+    if sub_window.type == "List":    
+        sub_window_content_widgets = [
+            sub_window.content.listbox,
+            sub_window.content.list_options.menubar,
+            sub_window.content.list_options.filter_menubutton,
+            sub_window.content.list_options.sort_menubutton
+            ]
+        for widget in sub_window_content_widgets:
+            widget.bind("Button-1", lambda event: lift_window(event, sub_window))
+    
+    elif sub_window.type == "Image": 
+        sub_window.content.label.bind("Button-1", lambda event: lift_window(event, sub_window))
+    
+    elif sub_window.type == "Calendar":
+        sub_window.content.calendar.bind("Button-1", lambda event: lift_window(event, sub_window))
+        
 def ui_manager():
     "Manages UI."
     window0 = create_root_window()
