@@ -213,68 +213,6 @@ class Sub_Window:
         """Creates instance of class Sub_Window_Content, saves it in the content attribute."""
         self.content = Sub_Window_Content()
         
-class List_Options:
-    def __init__(self, sub_window: Sub_Window):
-        self.menubar = tk.Frame(
-            master=sub_window.sub_window_frame,
-            bg="navy",
-            width=sub_window.window_width - 4,
-            height=25,
-            relief='raised')
-        self.sort_menubutton = tk.Menubutton(
-            master=self.menubar, 
-            text='Sort Options', 
-            borderwidth=2, 
-            bg='grey', 
-            relief="raised")
-        self.filter_menubutton = tk.Menubutton(
-            master=self.menubar, 
-            text='Filter Options', 
-            borderwidth=2, 
-            bg='grey', 
-            relief="raised")
-        self.sort_menu = tk.Menu(master=self.sort_menubutton, tearoff=False)
-        self.filter_menu = tk.Menu(
-            master=self.filter_menubutton, tearoff=False)
-        self.sort_menubutton['menu'] = self.sort_menu
-        self.filter_menubutton['menu'] = self.filter_menu
-        self.sort_options = ["Alphabetical order", "Attribute", "Deadline"]
-        self.filter_options = ["Key-word", "Attribute", "Deadline"]
-        # List_options available after selecting and right clicking on selected list items. May select multiple at a time.
-        # Right clicking generates at drop down menu at location of right click
-        self.other_options = ["Delete", "Mark as completed"]
-        self.menubar.grid_propagate(0)
-        self.menubar.columnconfigure(0, weight=1)
-        self.menubar.columnconfigure(1, weight=1)
-        
-        # Populate sort & filter menus
-        for option in self.sort_options:
-            self.sort_menu.add_command(
-                label=option, command=lambda option=option: print(option))
-        for option in self.filter_options:
-            self.filter_menu.add_command(
-                label=option, command=lambda option=option: print(option))  
-   
-    def update_menubar_width(self, sub_window: Sub_Window):
-        """Updates the menubar width based on the window_width attribute of the parent Sub_Window instance."""
-        sub_window.content.list_options.menubar.config(width=sub_window.window_width - 4)
-        
-    def remove_widgets(self):
-        """Removes List_Options class widgets."""
-
-    def generate_menu(self):
-        """Event handler. Generates dropdown menu of list options upon mouse right button click. Either the right click must occur directly on a list item, or one or more list items must be
-        selected, in order for right click to generate a menu. Mouse left button click outside the bounds of the menu will close the menu. Mouse left button click on a menu
-        option will execute the command associated with that option, and it will also close the menu."""
-        # Need to get location of right mouse button click within the sub-window frame.
-        # Need to generate a menu without it being associated with a menu button. Perhaps the parent of the menu will be the frame.
-        # Perhaps a separate function should be used to remove the menu.
-        # Checks if any menu items selected
-        # Checks if right mouse button click occurred on a menu item list. Or right mouse button click selects and opens list menu for selection.
-        # List menu commands applied only to list items selected.
-        # Right mouse button click may occur on list widget or on the
-        # sub-window frame widget.
-
 class Sub_Window_Content:
     def __init__(self):
         self.list: list[str]  # List of strings for now
@@ -349,7 +287,69 @@ class Sub_Window_Content:
         scrollbars are necessary. Another function, remove_scrollbars, will remove them when unecessary."""
         
     def remove_scrollbars(self):
-        """"""
+        """"""       
+        
+class List_Options:
+    def __init__(self, sub_window: Sub_Window):
+        self.menubar = tk.Frame(
+            master=sub_window.sub_window_frame,
+            bg="navy",
+            width=sub_window.window_width - 4,
+            height=25,
+            relief='raised')
+        self.sort_menubutton = tk.Menubutton(
+            master=self.menubar, 
+            text='Sort Options', 
+            borderwidth=2, 
+            bg='grey', 
+            relief="raised")
+        self.filter_menubutton = tk.Menubutton(
+            master=self.menubar, 
+            text='Filter Options', 
+            borderwidth=2, 
+            bg='grey', 
+            relief="raised")
+        self.sort_menu = tk.Menu(master=self.sort_menubutton, tearoff=False)
+        self.filter_menu = tk.Menu(
+            master=self.filter_menubutton, tearoff=False)
+        self.sort_menubutton['menu'] = self.sort_menu
+        self.filter_menubutton['menu'] = self.filter_menu
+        self.sort_options = ["Alphabetical order", "Attribute", "Deadline"]
+        self.filter_options = ["Key-word", "Attribute", "Deadline"]
+        # List_options available after selecting and right clicking on selected list items. May select multiple at a time.
+        # Right clicking generates at drop down menu at location of right click
+        self.other_options = ["Delete", "Mark as completed"]
+        self.menubar.grid_propagate(0)
+        self.menubar.columnconfigure(0, weight=1)
+        self.menubar.columnconfigure(1, weight=1)
+        
+        # Populate sort & filter menus
+        for option in self.sort_options:
+            self.sort_menu.add_command(
+                label=option, command=lambda option=option: print(option))
+        for option in self.filter_options:
+            self.filter_menu.add_command(
+                label=option, command=lambda option=option: print(option))  
+   
+    def update_menubar_width(self, sub_window: Sub_Window):
+        """Updates the menubar width based on the window_width attribute of the parent Sub_Window instance."""
+        sub_window.content.list_options.menubar.config(width=sub_window.window_width - 4)
+        
+    def remove_widgets(self):
+        """Removes List_Options class widgets."""
+
+    def generate_menu(self):
+        """Event handler. Generates dropdown menu of list options upon mouse right button click. Either the right click must occur directly on a list item, or one or more list items must be
+        selected, in order for right click to generate a menu. Mouse left button click outside the bounds of the menu will close the menu. Mouse left button click on a menu
+        option will execute the command associated with that option, and it will also close the menu."""
+        # Need to get location of right mouse button click within the sub-window frame.
+        # Need to generate a menu without it being associated with a menu button. Perhaps the parent of the menu will be the frame.
+        # Perhaps a separate function should be used to remove the menu.
+        # Checks if any menu items selected
+        # Checks if right mouse button click occurred on a menu item list. Or right mouse button click selects and opens list menu for selection.
+        # List menu commands applied only to list items selected.
+        # Right mouse button click may occur on list widget or on the
+        # sub-window frame widget.
  
 # Data functions
 def add_input():
@@ -600,7 +600,7 @@ def event_handling(sub_window: Sub_Window):
             "<Motion>", lambda event: resize_corner(
                 event, sub_window))
         
-    if sub_window.type == "List":    
+    if sub_window.type == "List":  
         sub_window_content_widgets = [
             sub_window.content.listbox,
             sub_window.content.list_options.menubar,
@@ -608,13 +608,14 @@ def event_handling(sub_window: Sub_Window):
             sub_window.content.list_options.sort_menubutton
             ]
         for widget in sub_window_content_widgets:
-            widget.bind("Button-1", lambda event: lift_window(event, sub_window))
+            widget.bind("<Button-1>", lambda event: lift_window(event, sub_window))
     
     elif sub_window.type == "Image": 
-        sub_window.content.label.bind("Button-1", lambda event: lift_window(event, sub_window))
+        sub_window.content.label.bind("<Button-1>", lambda event: lift_window(event, sub_window))
     
     elif sub_window.type == "Calendar":
-        sub_window.content.calendar.bind("Button-1", lambda event: lift_window(event, sub_window))
+        sub_window.content.calendar.bind("<<CalendarSelected>>", lambda event: lift_window(event, sub_window))
+        sub_window.content.calendar.bind("<<CalendarMonthChanged>>", lambda event: lift_window(event, sub_window))
         
 def ui_manager():
     "Manages UI."
@@ -646,10 +647,10 @@ def add_checkboxes():
 ### Event Handlers ##################################
 def lift_window(button1_press: tk.Event, sub_window: Sub_Window):
     """Upon a sub-window being clicked with left mouse button at any point within it, the event handler lifts the clicked sub-window to top of stack."""
-    ID = sub_window.canvas_window0_ID
-    canvas = sub_window.canvas
+    #ID = sub_window.canvas_window0_ID
+    #canvas = sub_window.canvas
     sub_window.sub_window_frame.lift(aboveThis=None)
-    canvas.tag_raise(ID)
+    #canvas.tag_raise(ID)
 
 def enable_drag(button1_press: tk.Event, sub_window: Sub_Window):
     """"Returns True when mouse button 1 is pressed in binded widget. """
@@ -709,9 +710,6 @@ def resize_right(motion: tk.Event, sub_window: Sub_Window):
             elif delta_window > 205:
                 if sub_window.content.list_options.menubar.winfo_manager() == "" and sub_window.window_height > 56:
                     sub_window.content.list_options.menubar.grid()
-
-    print("Window width: ", sub_window.window_width)
-    print("Subw window frame width: ", sub_window.sub_window_frame.winfo_height())
 
 def resize_bottom(motion: tk.Event, sub_window: Sub_Window):
     """Changes the height of the sub-window based on the change in position of the mouse cursor. Assuming both the top and the
