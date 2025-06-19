@@ -115,31 +115,28 @@ class Sub_Window:
         self.border_frame_W_1 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            height=30,
             width=2,
             relief='raised')
         self.border_frame_W_2 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            height=25,
             width=2,
             relief='raised')
         self.border_frame_W_3 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
             width=2,
+            height=self.window_height - 59,
             relief='raised')
         self.border_frame_E_1 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            height=30,
             width=2,
             cursor='right_side',
             relief='raised')
         self.border_frame_E_2 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            height=25,
             width=2,
             cursor='right_side',
             relief='raised')
@@ -147,6 +144,7 @@ class Sub_Window:
             master=self.sub_window_frame,
             bg='grey',
             width=2,
+            height=self.window_height - 59,
             cursor='right_side',
             relief='raised')
         self.corner_frame_NW = tk.Frame(
@@ -187,19 +185,13 @@ class Sub_Window:
     # Configure default widgets
         self.sub_window_frame.grid_propagate(0)
         self.top_frame.grid_propagate(0)
-        self.border_frame_E_1.grid_propagate(0)
-        self.border_frame_E_2.grid_propagate(0)
-        self.border_frame_N.grid_propagate(0)
-        self.border_frame_S.grid_propagate(0)
-        self.border_frame_W_1.grid_propagate(0)
-        self.border_frame_W_2.grid_propagate(0)
         #self.sub_window_frame.columnconfigure([0, 1, 2], weight=1)
         #self.sub_window_frame.rowconfigure(0, weight=1)
         #self.sub_window_frame.rowconfigure(1, weight=1)
         #self.sub_window_frame.rowconfigure(2, weight=1)
         #self.sub_window_frame.rowconfigure(3, weight=300)
         #self.sub_window_frame.rowconfigure(4, weight=1)
-        #self.top_frame.columnconfigure([0, 1], weight=1)
+        self.top_frame.columnconfigure([0, 1], weight=1)
     # Place default widgets
         # Places the sub-window in the canvas.
         self.sub_window_frame.grid()
@@ -212,12 +204,12 @@ class Sub_Window:
         self.close_button.grid(column=3, row=0)
         self.title_label.grid(column=0, row=0, sticky='w')
         self.border_frame_S.grid(column=1, row=4)
-        self.border_frame_W_1.grid(column=0, row=1)   #rowspan=3 removed
-        self.border_frame_W_2.grid(column=0, row=2)
-        self.border_frame_W_3.grid(column=0, row=3, sticky='NS')
-        self.border_frame_E_1.grid(column=2, row=1)   #rowspan=3 removed
-        self.border_frame_E_2.grid(column=2, row=2)
-        self.border_frame_E_3.grid(column=2, row=3, sticky='NS')
+        self.border_frame_W_1.grid(column=0, row=1, sticky='NS')   #rowspan=3 removed
+        self.border_frame_W_2.grid(column=0, row=2, sticky='NS')
+        self.border_frame_W_3.grid(column=0, row=3)
+        self.border_frame_E_1.grid(column=2, row=1, sticky='NS')   #rowspan=3 removed
+        self.border_frame_E_2.grid(column=2, row=2, sticky='NS')
+        self.border_frame_E_3.grid(column=2, row=3)
         self.border_frame_N.grid(column=1, row=0)
         self.corner_frame_NE.grid(column=2, row=0)
         self.corner_frame_NW.grid(column=0, row=0)
@@ -228,7 +220,7 @@ class Sub_Window:
         """Update internal widget sizes"""
         self.update_sub_window_size()
         if self.type == "List":
-            self.content.list_options.update_menubar_width(self)
+            self.content.update_menubar_width(self)
         elif self.type == "Image":
             self.content.update_image_size(self)
             
@@ -240,8 +232,8 @@ class Sub_Window:
         self.top_frame.config(width=self.window_width - 4)
         self.border_frame_N.config(width=self.window_width - 4)
         self.border_frame_S.config(width=self.window_width - 4)
-        self.border_frame_E_1.config(height=self.window_height - 4)
-        self.border_frame_W_1.config(height=self.window_height - 4)
+        self.border_frame_E_3.config(height=self.window_height - 59)
+        self.border_frame_W_3.config(height=self.window_height - 59)
         #if self.border_frame_S.winfo_height() < 2:
             #height_update = self.border_frame_S.winfo_height() + 1
             #self.border_frame_S.config(height=height_update)
@@ -260,6 +252,7 @@ class Sub_Window_Content:
         self.resized_pil_image: PIL.Image
         self.photoimage: tk.PhotoImage
         self.label: tk.Label 
+        self.menubar: tk.Frame
     
     def add_image(self, sub_window: Sub_Window):
         """Adds image to Sub_Window_Content, with label widget as parent. Creates the label widget also."""       
@@ -269,52 +262,66 @@ class Sub_Window_Content:
         
     def place_image(self, sub_window: Sub_Window):
         """Creates the label widget on which the image will be displayed. Grids the label widget on the sub_window_frame."""
-        sub_window.content.label = tk.Label(master=sub_window.sub_window_frame, image=sub_window.content.photoimage)
-        sub_window.content.label.grid(column=1, row=2)
+        self.label = tk.Label(master=sub_window.sub_window_frame, image=self.photoimage)
+        self.label.grid(column=1, row=2)
         
     def update_image_size(self, sub_window: Sub_Window):
         """Updates size of the image in an image sub-window"""
         #Resize the pil image
-        sub_window.content.resized_pil_image = sub_window.content.original_pil_image.resize(
+        self.resized_pil_image = sub_window.content.original_pil_image.resize(
             (sub_window.window_width - 40, 
              sub_window.window_height - 40), 
             Image.LANCZOS)
         #Update tk photoimage with resized pil image
-        sub_window.content.photoimage = ImageTk.PhotoImage(image=sub_window.content.resized_pil_image)
+        self.photoimage = ImageTk.PhotoImage(image=self.resized_pil_image)
         #Update label with updated photoiamge
-        sub_window.content.label.configure(image=sub_window.content.photoimage)
+        self.label.configure(image=self.photoimage)
         
     def add_list(self, sub_window: Sub_Window):
         """Adds list that corresponds to the parent Sub_Window of the Sub_Window_Content instance."""
-        sub_window.content.listbox = tk.Listbox(
+        self.listbox = tk.Listbox(
             master=sub_window.sub_window_frame, 
-            height=50,
-            width=50,
             bg='blue', 
             relief="raised", 
             highlightbackground="blue", 
             activestyle='dotbox')
         for number in range(1,100,1):   #Add sample list
-            sub_window.content.listbox.insert(number, f"Item {number}")
+            self.listbox.insert(number, f"Item {number}")
         
     def place_list(self):
         """Places list in the sub_window."""
-        self.listbox.grid_propagate(0)
-        self.listbox.grid(column=1, row=3)
+        self.listbox.grid(column=1, row=3, sticky='NSEW')
         
     def add_list_options(self, sub_window: Sub_Window):
         "Adds list control options to the sub-window containing a list."
         self.list_options = List_Options(sub_window)
+        
+    def add_menubar(self, sub_window: Sub_Window):
+        "Adds a menubar; frame in column 1 row 2 used for placing sub-window content ui options."
+        self.menubar = tk.Frame(
+            master=sub_window.sub_window_frame,
+            bg="navy",
+            width=sub_window.window_width - 4,
+            height=25,
+            relief='raised')
+        self.menubar.grid_propagate(0)
     
+    def place_menubar(self):  
+        """Grids menubar in the sub_window_frame."""  
+        self.menubar.grid(column=1, row=2, sticky='N')
+        
+    def update_menubar_width(self, sub_window: Sub_Window):
+        """Updates the menubar width based on the window_width attribute of the parent Sub_Window instance."""
+        sub_window.content.menubar.config(width=sub_window.window_width - 4)
+        
     def place_list_options(self):
         """Grids widgets of the List_Options class."""
-        self.list_options.menubar.grid(column=1, row=2, sticky='N')
         self.list_options.sort_menubutton.grid(column=0, row=0, sticky='W')
         self.list_options.filter_menubutton.grid(column=1, row=0)
 
     def add_calendar(self, sub_window: Sub_Window):
         """Adds a calendar to Sub_Window_Content class."""
-        sub_window.content.calendar = Calendar(master=sub_window.sub_window_frame)
+        self.calendar = Calendar(master=sub_window.sub_window_frame)
         
     def place_calendar(self):
         """Places calendar in the sub_window."""
@@ -331,20 +338,14 @@ class Sub_Window_Content:
         
 class List_Options:
     def __init__(self, sub_window: Sub_Window):
-        self.menubar = tk.Frame(
-            master=sub_window.sub_window_frame,
-            bg="navy",
-            width=sub_window.window_width - 4,
-            height=25,
-            relief='raised')
         self.sort_menubutton = tk.Menubutton(
-            master=self.menubar, 
+            master=sub_window.content.menubar, 
             text='Sort Options', 
             borderwidth=2, 
             bg='grey', 
             relief="raised")
         self.filter_menubutton = tk.Menubutton(
-            master=self.menubar, 
+            master=sub_window.content.menubar, 
             text='Filter Options', 
             borderwidth=2, 
             bg='grey', 
@@ -359,7 +360,7 @@ class List_Options:
         # List_options available after selecting and right clicking on selected list items. May select multiple at a time.
         # Right clicking generates at drop down menu at location of right click
         self.other_options = ["Delete", "Mark as completed"]
-        self.menubar.grid_propagate(0)
+        
         #self.menubar.columnconfigure(0, weight=1)
         #self.menubar.columnconfigure(1, weight=1)
         
@@ -370,10 +371,6 @@ class List_Options:
         for option in self.filter_options:
             self.filter_menu.add_command(
                 label=option, command=lambda option=option: print(option))  
-   
-    def update_menubar_width(self, sub_window: Sub_Window):
-        """Updates the menubar width based on the window_width attribute of the parent Sub_Window instance."""
-        sub_window.content.list_options.menubar.config(width=sub_window.window_width - 4)
         
     def remove_widgets(self):
         """Removes List_Options class widgets."""
@@ -478,12 +475,16 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
         # window.content = content
         sub_window.add_sub_window_content()
         if sub_window.type == "List":
+            sub_window.content.add_menubar(sub_window)
             sub_window.content.add_list_options(sub_window)
             sub_window.content.add_list(sub_window)
+            sub_window.content.place_menubar()
             sub_window.content.place_list()
             sub_window.content.place_list_options()
         elif sub_window.type == "Calendar":
             """Add calendar"""
+            sub_window.content.add_menubar(sub_window)
+            sub_window.content.place_menubar()
             sub_window.content.add_calendar(sub_window)
             sub_window.content.place_calendar()
         elif sub_window.type == "Image":
@@ -587,24 +588,29 @@ def event_handling(sub_window: Sub_Window):
             event,
             sub_window))
     if sub_window.type != "Calendar":
-        sub_window.border_frame_E_1.bind(
-            "<Button-1>",
-            lambda event: (
-                enable_drag(
-                    event, 
-                    sub_window), 
-                lift_window(
-                    event, 
-                    sub_window)))
-        sub_window.border_frame_E_1.bind(
-            "<ButtonRelease>",
-            lambda event: disable_drag(
-                event,
-                sub_window))
-        sub_window.border_frame_E_1.bind(
+        east_border_frames = [
+            sub_window.border_frame_E_1, 
+            sub_window.border_frame_E_2, 
+            sub_window.border_frame_E_3]
+        for frame in east_border_frames:
+            frame.bind(
+                "<Button-1>",
+                lambda event: (
+                    enable_drag(
+                        event, 
+                        sub_window), 
+                    lift_window(
+                        event, 
+                        sub_window)))
+            frame.bind(
             "<Motion>", 
-            lambda event: resize_right(
-                event, sub_window))
+                lambda event: resize_right(
+                    event, sub_window))
+            frame.bind(
+                "<ButtonRelease>",
+                lambda event: disable_drag(
+                    event,
+                    sub_window))
         sub_window.border_frame_S.bind(
             "<Button-1>",
             lambda event: (
@@ -643,7 +649,7 @@ def event_handling(sub_window: Sub_Window):
     if sub_window.type == "List":  
         sub_window_content_widgets = [
             sub_window.content.listbox,
-            sub_window.content.list_options.menubar,
+            sub_window.content.menubar,
             sub_window.content.list_options.filter_menubutton,
             sub_window.content.list_options.sort_menubutton
             ]
@@ -743,13 +749,13 @@ def resize_right(motion: tk.Event, sub_window: Sub_Window):
             sub_window.window_width = delta_window
             sub_window.update_size()
     
-        if sub_window.type == "List":
+        if sub_window.type == "List" or sub_window.type == "Calendar":
             # Show or hide the menubar based on width
             if delta_window < 205:
-                sub_window.content.list_options.menubar.grid_remove()
+                sub_window.content.menubar.grid_remove()
             elif delta_window > 205:
-                if sub_window.content.list_options.menubar.winfo_manager() == "" and sub_window.window_height > 56:
-                    sub_window.content.list_options.menubar.grid()
+                if sub_window.content.menubar.winfo_manager() == "" and sub_window.window_height > 56:
+                    sub_window.content.menubar.grid()
         
     print("Border frame E width: ", sub_window.border_frame_E_1.winfo_width())
     #print("window width: ", sub_window.window_width)
@@ -774,12 +780,12 @@ def resize_bottom(motion: tk.Event, sub_window: Sub_Window):
             sub_window.window_height = delta_window
             sub_window.update_size()
         #Removes menubar once a minimum window height is reached, to enable uninterrupted resizing.
-        if sub_window.type == "List":
+        if sub_window.type == "List" or sub_window.type == "Calendar":
             if sub_window.window_height < 56:  
-                sub_window.content.list_options.menubar.grid_remove()
+                sub_window.content.menubar.grid_remove()
             elif sub_window.window_height > 56:
-                if sub_window.content.list_options.menubar.winfo_manager() == "" and sub_window.window_width > 205:
-                    sub_window.content.list_options.menubar.grid()
+                if sub_window.content.menubar.winfo_manager() == "" and sub_window.window_width > 205:
+                    sub_window.content.menubar.grid()
             
     print("Border frame S height: ", sub_window.border_frame_S.winfo_height())
 
