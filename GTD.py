@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from tkinter import ttk
-import PIL.Image
 from tkcalendar import Calendar
 from PIL import Image, ImageTk
 import PIL
@@ -182,8 +181,9 @@ class Sub_Window:
         #This attribute will contain most of the content of the sub-window, beit a list, an image, or a calendar.
         self.content: Sub_Window_Content
     # Configure default widgets
-        self.sub_window_frame.grid_propagate(0)
+        #self.sub_window_frame.grid_propagate(0)
         self.top_frame.grid_propagate(0)
+        #self.border_frame_S.grid_propagate(0)
         #self.sub_window_frame.columnconfigure([0, 1, 2], weight=1)
         #self.sub_window_frame.rowconfigure(0, weight=1)
         #self.sub_window_frame.rowconfigure(1, weight=1)
@@ -192,8 +192,7 @@ class Sub_Window:
         #self.sub_window_frame.rowconfigure(4, weight=1)
         self.top_frame.columnconfigure([0, 1], weight=1)
     # Place default widgets
-        # Places the sub-window in the canvas.
-        self.sub_window_frame.grid()
+        self.sub_window_frame.grid()    # Places the sub-window in the canvas.
         self.canvas_window0_ID = canvas0.create_window(
             50, 50, anchor=tk.NW, window=self.sub_window_frame)
         self.top_frame.grid(column=1, row=1, sticky='n')
@@ -203,10 +202,10 @@ class Sub_Window:
         self.close_button.grid(column=3, row=0)
         self.title_label.grid(column=0, row=0, sticky='w')
         self.border_frame_S.grid(column=1, row=4)
-        self.border_frame_W_1.grid(column=0, row=1, sticky='NS')   #rowspan=3 removed
+        self.border_frame_W_1.grid(column=0, row=1, sticky='NS')   
         self.border_frame_W_2.grid(column=0, row=2, sticky='NS')
         self.border_frame_W_3.grid(column=0, row=3)
-        self.border_frame_E_1.grid(column=2, row=1, sticky='NS')   #rowspan=3 removed
+        self.border_frame_E_1.grid(column=2, row=1, sticky='NS')   
         self.border_frame_E_2.grid(column=2, row=2, sticky='NS')
         self.border_frame_E_3.grid(column=2, row=3)
         self.border_frame_N.grid(column=1, row=0)
@@ -297,9 +296,6 @@ class Sub_Window_Content:
         """Places list in the sub_window."""
         self.listbox.grid(column=1, row=3, sticky='nswe')
         
-    def update_listbox_height(self, sub_window: Sub_Window):
-        """Updates the height of the listbox."""
-        
     def add_list_options(self, sub_window: Sub_Window):
         "Adds list control options to the sub-window containing a list."
         self.list_options = List_Options(sub_window)
@@ -317,9 +313,12 @@ class Sub_Window_Content:
     def place_menubar(self, sub_window: Sub_Window):  
         """Grids menubar in the sub_window_frame. If the border frames associated with the menubar are not gridded, grids them as well."""  
         self.menubar.grid(column=1, row=2, sticky='N')
-        if sub_window.border_frame_W_2.winfo_manager == "":
+        if sub_window.border_frame_W_2.winfo_manager() == "":
             sub_window.border_frame_W_2.grid()
             sub_window.border_frame_E_2.grid()
+            #The following adjusts the heights of border frames W3 and E3
+            sub_window.border_frame_E_3.config(height=sub_window.border_frame_E_3.winfo_height() - 25)
+            sub_window.border_frame_W_3.config(height=sub_window.border_frame_E_3.winfo_height() - 25)
             
     def update_menubar_width(self, sub_window: Sub_Window):
         """Updates the menubar width based on the window_width attribute of the parent Sub_Window instance."""
@@ -330,9 +329,9 @@ class Sub_Window_Content:
         self.menubar.grid_remove()
         sub_window.border_frame_E_2.grid_remove()
         sub_window.border_frame_W_2.grid_remove()
-        
-    def adjust_border_frames(self):
-        """Adjusts size E & W 3rd border frames by 25 pixels."""
+        #The following adjusts the heights of border frames W3 and E3
+        sub_window.border_frame_E_3.config(height=sub_window.border_frame_E_3.winfo_height() + 25)
+        sub_window.border_frame_W_3.config(height=sub_window.border_frame_E_3.winfo_height() + 25)
         
     def place_list_options(self):
         """Grids widgets of the List_Options class."""
@@ -460,7 +459,7 @@ def create_root_canvas(window0):
     screen_width = window0.winfo_screenwidth()
     screen_height = window0.winfo_screenheight()
     canvas = tk.Canvas(
-        window0,
+        master=window0,
         width=screen_width,
         height=screen_height,
         bg='black')
@@ -781,7 +780,7 @@ def resize_right(motion: tk.Event, sub_window: Sub_Window):
         
     #print("Border frame E width: ", sub_window.border_frame_E_1.winfo_width())
     #print("window width: ", sub_window.window_width)
-
+    
 def resize_bottom(motion: tk.Event, sub_window: Sub_Window):
     """Changes the height of the sub-window based on the change in position of the mouse cursor. Assuming both the top and the
     bottom of the sub-window will adjust for the change in height, the position of the sub-window will adjust also, in order to
@@ -813,16 +812,16 @@ def resize_bottom(motion: tk.Event, sub_window: Sub_Window):
             sub_window.content.listbox.grid_remove()
         if sub_window.type == 'List' and sub_window.content.listbox.winfo_manager() == "" and sub_window.window_height > 80:
             sub_window.content.listbox.grid()
-            
+               
     print("Window height: ", sub_window.window_height)
+    print("Border frame S height: ", sub_window.border_frame_S.winfo_height())
     #print("Border frame S height: ", sub_window.border_frame_S.winfo_height())
 
 def resize_corner(motion: tk.Event, sub_window: Sub_Window):
-    """Uses functions resize bottom and resize right at the same time when user clicks and drags from SW corner of window"""
+    """Uses functions resize bottom and resize right at the same time when user clicks and drags on SW corner frame."""
     if sub_window.drag_enabled:
         resize_right(motion, sub_window)
         resize_bottom(motion, sub_window)
-
 
 # Lists
 inbox_list = []
