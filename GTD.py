@@ -6,12 +6,17 @@ import PIL
 import tkinter as tk
 import math
 
+DEFAULT_WINDOW_WIDTH = 350
+DEFAULT_WINDOW_HEIGHT = 300
+BORDER_WIDTH = 2
+TOP_FRAME_HEIGHT = 30
+TOP_FRAME_BORDER_WIDTH = 2
+MENUBAR_HEIGHT = 25
 
 @dataclass
 class Inbox:
     text_input: str
     # file_input: ?
-
 
 @dataclass
 class Date:
@@ -19,7 +24,6 @@ class Date:
     month: int
     day: int
     time: int
-
 
 @dataclass
 class Actionable:
@@ -62,126 +66,138 @@ class Sub_Window:
         self.type: int
         self.title = window_title
         self.canvas = canvas0
-        self.window_width = 350     #Default width: 350 pixels
-        self.window_height = 300    #Default height: 300 pixels
+        self.window_width = DEFAULT_WINDOW_WIDTH     #Default width: 350 pixels
+        self.window_height = DEFAULT_WINDOW_HEIGHT    #Default height: 300 pixels
         self.sub_window_frame = tk.Frame(
             master=canvas0,
             width=self.window_width,
             height=self.window_height,
-            background='blue')
+            background='blue'
+            )
         self.top_frame = tk.Frame(
             master=self.sub_window_frame,
-            width=self.window_width - 4,
-            height=30,
+            width=self.window_width - (2 * BORDER_WIDTH),
+            height=TOP_FRAME_HEIGHT,
             bg='black',
-            relief='raised',
-            bd=2)
+            )
         self.title_label = tk.Label(
             master=self.top_frame,
             text=self.title,
             fg='white',
-            bg='black')
+            bg='black'
+            )
         self.window_options_frame = tk.Frame(master=self.top_frame, bg='black')
         self.minimize_button = tk.Button(
             master=self.window_options_frame,
             fg='white',
             bg='black',
-            text='\u2013')
+            text='\u2013'
+            )
         self.full_screen_button = tk.Button(
             master=self.window_options_frame,
             fg='white',
             bg='black',
-            text='\u29E0')
+            text='\u29E0'
+            )
         self.close_button = tk.Button(
             master=self.window_options_frame,
             fg='white',
             bg='black',
-            text='X')
+            text='X'
+            )
         self.border_frame_S = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
             height=2,
-            width=self.window_width - 4,
+            width=self.window_width - (2 * BORDER_WIDTH),
             cursor='bottom_side',
-            relief='raised')
+            bd=0
+            )
         self.border_frame_N = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            height=2,
-            width=self.window_width - 4,
-            relief='raised')
+            height=BORDER_WIDTH,
+            width=self.window_width - (2 * BORDER_WIDTH),
+            bd=0
+            )
         self.border_frame_W_1 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            width=2,
-            relief='raised')
+            width=BORDER_WIDTH,
+            height=TOP_FRAME_HEIGHT,
+            bd=0
+            )
         self.border_frame_W_2 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            width=2,
-            relief='raised')
+            width=BORDER_WIDTH,
+            height=MENUBAR_HEIGHT,
+            bd=0
+            )
         self.border_frame_W_3 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            width=2,
-            height=self.window_height - 59,
-            relief='raised')
+            width=BORDER_WIDTH,
+            height=self.window_height - MENUBAR_HEIGHT - TOP_FRAME_HEIGHT - (2 * BORDER_WIDTH),
+            bd=0
+            )
         self.border_frame_E_1 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            width=2,
+            width=BORDER_WIDTH,
+            height=TOP_FRAME_HEIGHT,
             cursor='right_side',
-            relief='raised')
+            bd=0
+            )
         self.border_frame_E_2 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            width=2,
+            width=BORDER_WIDTH,
+            height=TOP_FRAME_HEIGHT,
             cursor='right_side',
-            relief='raised')
+            bd=0
+            )
         self.border_frame_E_3 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            width=2,
-            height=self.window_height - 59,
+            width=BORDER_WIDTH,
+            height=self.window_height - TOP_FRAME_HEIGHT - MENUBAR_HEIGHT - (2 * BORDER_WIDTH),
             cursor='right_side',
-            relief='raised')
+            bd=0
+            )
         self.corner_frame_NW = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            bd=1,
-            borderwidth=2,
-            height=2,
-            width=2,
-            relief='raised')
+            bd=0,
+            height=BORDER_WIDTH,
+            width=BORDER_WIDTH
+            )
         self.corner_frame_SW = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            bd=1,
-            borderwidth=2,
-            height=2,
-            width=2,
-            relief='raised')
+            bd=0,
+            height=BORDER_WIDTH,
+            width=BORDER_WIDTH
+            )
         self.corner_frame_NE = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            bd=1,
-            borderwidth=2,
-            height=2,
-            width=2,
-            relief='raised')
+            bd=0,
+            height=BORDER_WIDTH,
+            width=BORDER_WIDTH
+            )
         self.corner_frame_SE = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            bd=1,
-            borderwidth=2,
-            height=2,
-            width=2,
-            cursor='bottom_right_corner',
-            relief='raised')     
+            bd=0,
+            height=BORDER_WIDTH,
+            width=BORDER_WIDTH,
+            cursor='bottom_right_corner'
+            )     
         #This attribute will contain most of the content of the sub-window, beit a list, an image, or a calendar.
         self.content: Sub_Window_Content
     # Configure default widgets
-        #self.sub_window_frame.grid_propagate(0)
+        self.sub_window_frame.grid_propagate(0)
         self.top_frame.grid_propagate(0)
         #self.border_frame_S.grid_propagate(0)
         #self.sub_window_frame.columnconfigure([0, 1, 2], weight=1)
@@ -202,11 +218,11 @@ class Sub_Window:
         self.close_button.grid(column=3, row=0)
         self.title_label.grid(column=0, row=0, sticky='w')
         self.border_frame_S.grid(column=1, row=4)
-        self.border_frame_W_1.grid(column=0, row=1, sticky='NS')   
-        self.border_frame_W_2.grid(column=0, row=2, sticky='NS')
+        self.border_frame_W_1.grid(column=0, row=1)   
+        self.border_frame_W_2.grid(column=0, row=2)
         self.border_frame_W_3.grid(column=0, row=3)
-        self.border_frame_E_1.grid(column=2, row=1, sticky='NS')   
-        self.border_frame_E_2.grid(column=2, row=2, sticky='NS')
+        self.border_frame_E_1.grid(column=2, row=1)   
+        self.border_frame_E_2.grid(column=2, row=2)
         self.border_frame_E_3.grid(column=2, row=3)
         self.border_frame_N.grid(column=1, row=0)
         self.corner_frame_NE.grid(column=2, row=0)
@@ -230,7 +246,8 @@ class Sub_Window:
         self.top_frame.config(width=self.window_width - 4)
         self.border_frame_N.config(width=self.window_width - 4)
         self.border_frame_S.config(width=self.window_width - 4)
-        if self.content.menubar.winfo_manager() == "":
+        
+        if self.type == "List" and self.content.menubar.winfo_manager() == "":
             self.border_frame_E_3.config(height=self.window_height - 59 + self.content.menubar.winfo_height())
             self.border_frame_W_3.config(height=self.window_height - 59 + self.content.menubar.winfo_height())
         else:
@@ -259,7 +276,10 @@ class Sub_Window_Content:
     def add_image(self, sub_window: Sub_Window):
         """Adds image to Sub_Window_Content, with label widget as parent. Creates the label widget also."""       
         self.original_pil_image = Image.open("C:/Users/User/Documents/Programming/Git repository 1/Sample images/Screenshot 2025-06-08 143629.png") 
-        self.resized_pil_image = self.original_pil_image.resize((sub_window.window_width - 40, sub_window.window_height - 40), Image.LANCZOS)
+        self.resized_pil_image = self.original_pil_image.resize(
+            (sub_window.window_width - 40, 
+             sub_window.window_height - 40), 
+            Image.LANCZOS)
         self.photoimage = ImageTk.PhotoImage(image=self.resized_pil_image)
         
     def place_image(self, sub_window: Sub_Window):
@@ -306,8 +326,7 @@ class Sub_Window_Content:
             master=sub_window.sub_window_frame,
             bg="navy",
             width=sub_window.window_width - 4,
-            height=25,
-            relief='raised')
+            height=25)
         self.menubar.grid_propagate(0)
     
     def place_menubar(self, sub_window: Sub_Window):  
@@ -797,7 +816,7 @@ def resize_bottom(motion: tk.Event, sub_window: Sub_Window):
         # the sub-window
 
         #Imposes minimum width to the sub_window, so that the top frame remains visible.
-        if delta_window > 31:    
+        if delta_window > 35:    
             sub_window.window_height = delta_window
             sub_window.update_size()
         #Removes menubar once a minimum window height is reached, to enable uninterrupted resizing.
