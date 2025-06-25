@@ -79,6 +79,8 @@ class Sub_Window:
             width=self.window_width - (2 * BORDER_WIDTH),
             height=TOP_FRAME_HEIGHT,
             bg='black',
+            relief='raised',
+            bd=TOP_FRAME_BORDER_WIDTH
             )
         self.title_label = tk.Label(
             master=self.top_frame,
@@ -108,7 +110,7 @@ class Sub_Window:
         self.border_frame_S = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
-            height=2,
+            height=BORDER_WIDTH,
             width=self.window_width - (2 * BORDER_WIDTH),
             cursor='bottom_side',
             bd=0
@@ -127,18 +129,11 @@ class Sub_Window:
             height=TOP_FRAME_HEIGHT,
             bd=0
             )
-        self.border_frame_W_2 = tk.Frame(
+        self.border_frame_W2 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
             width=BORDER_WIDTH,
-            height=MENUBAR_HEIGHT,
-            bd=0
-            )
-        self.border_frame_W_3 = tk.Frame(
-            master=self.sub_window_frame,
-            bg='grey',
-            width=BORDER_WIDTH,
-            height=self.window_height - MENUBAR_HEIGHT - TOP_FRAME_HEIGHT - (2 * BORDER_WIDTH),
+            height=self.window_height - TOP_FRAME_HEIGHT - MENUBAR_HEIGHT - (2 * BORDER_WIDTH),
             bd=0
             )
         self.border_frame_E_1 = tk.Frame(
@@ -149,15 +144,7 @@ class Sub_Window:
             cursor='right_side',
             bd=0
             )
-        self.border_frame_E_2 = tk.Frame(
-            master=self.sub_window_frame,
-            bg='grey',
-            width=BORDER_WIDTH,
-            height=TOP_FRAME_HEIGHT,
-            cursor='right_side',
-            bd=0
-            )
-        self.border_frame_E_3 = tk.Frame(
+        self.border_frame_E2 = tk.Frame(
             master=self.sub_window_frame,
             bg='grey',
             width=BORDER_WIDTH,
@@ -219,11 +206,9 @@ class Sub_Window:
         self.title_label.grid(column=0, row=0, sticky='w')
         self.border_frame_S.grid(column=1, row=4)
         self.border_frame_W_1.grid(column=0, row=1)   
-        self.border_frame_W_2.grid(column=0, row=2)
-        self.border_frame_W_3.grid(column=0, row=3)
+        self.border_frame_W2.grid(column=0, row=3)
         self.border_frame_E_1.grid(column=2, row=1)   
-        self.border_frame_E_2.grid(column=2, row=2)
-        self.border_frame_E_3.grid(column=2, row=3)
+        self.border_frame_E2.grid(column=2, row=3)
         self.border_frame_N.grid(column=1, row=0)
         self.corner_frame_NE.grid(column=2, row=0)
         self.corner_frame_NW.grid(column=0, row=0)
@@ -243,19 +228,18 @@ class Sub_Window:
         self.sub_window_frame.config(
             width=self.window_width, 
             height=self.window_height)
-        self.top_frame.config(width=self.window_width - 4)
-        self.border_frame_N.config(width=self.window_width - 4)
-        self.border_frame_S.config(width=self.window_width - 4)
+        self.top_frame.config(width=self.window_width - (2 * BORDER_WIDTH))
+        self.border_frame_N.config(width=self.window_width - (2 * BORDER_WIDTH))
+        self.border_frame_S.config(width=self.window_width - (2 * BORDER_WIDTH))
         
-        if self.type == "List" and self.content.menubar.winfo_manager() == "":
-            self.border_frame_E_3.config(height=self.window_height - 59 + self.content.menubar.winfo_height())
-            self.border_frame_W_3.config(height=self.window_height - 59 + self.content.menubar.winfo_height())
+        if self.content.menubar.winfo_manager():
+            #Border frame 2 height values if menubar present
+            self.border_frame_E2.config(height=self.window_height - TOP_FRAME_HEIGHT - MENUBAR_HEIGHT - (2 * BORDER_WIDTH))
+            self.border_frame_W2.config(height=self.window_height - TOP_FRAME_HEIGHT - MENUBAR_HEIGHT - (2 * BORDER_WIDTH))
         else:
-            self.border_frame_E_3.config(height=self.window_height - 59)
-            self.border_frame_W_3.config(height=self.window_height - 59)
-        #if self.border_frame_S.winfo_height() < 2:
-            #height_update = self.border_frame_S.winfo_height() + 1
-            #self.border_frame_S.config(height=height_update)
+            #Border frame 2 height values if menubar absent
+            self.border_frame_E2.config(height=self.window_height - TOP_FRAME_HEIGHT - (2 * BORDER_WIDTH))
+            self.border_frame_W2.config(height=self.window_height - TOP_FRAME_HEIGHT - (2 * BORDER_WIDTH))
         
     def add_sub_window_content(self):
         """Creates instance of class Sub_Window_Content, saves it in the content attribute."""
@@ -272,6 +256,8 @@ class Sub_Window_Content:
         self.photoimage: tk.PhotoImage
         self.label: tk.Label 
         self.menubar: tk.Frame
+        self.menubar_border_E: tk.Frame
+        self.menubar_border_W: tk.Frame
     
     def add_image(self, sub_window: Sub_Window):
         """Adds image to Sub_Window_Content, with label widget as parent. Creates the label widget also."""       
@@ -327,30 +313,44 @@ class Sub_Window_Content:
             bg="navy",
             width=sub_window.window_width - 4,
             height=25)
+        self.menubar_border_W = tk.Frame(
+            master=sub_window.sub_window_frame,
+            bg='grey',
+            width=BORDER_WIDTH,
+            height=MENUBAR_HEIGHT,
+            bd=0
+            )
+        self.menubar_border_E = tk.Frame(
+            master=sub_window.sub_window_frame,
+            bg='grey',
+            width=BORDER_WIDTH,
+            height=MENUBAR_HEIGHT,
+            cursor='right_side',
+            bd=0
+            )
         self.menubar.grid_propagate(0)
     
     def place_menubar(self, sub_window: Sub_Window):  
         """Grids menubar in the sub_window_frame. If the border frames associated with the menubar are not gridded, grids them as well."""  
         self.menubar.grid(column=1, row=2, sticky='N')
-        if sub_window.border_frame_W_2.winfo_manager() == "":
-            sub_window.border_frame_W_2.grid()
-            sub_window.border_frame_E_2.grid()
-            #The following adjusts the heights of border frames W3 and E3
-            sub_window.border_frame_E_3.config(height=sub_window.border_frame_E_3.winfo_height() - 25)
-            sub_window.border_frame_W_3.config(height=sub_window.border_frame_E_3.winfo_height() - 25)
+        self.menubar_border_E.grid(column=2, row=2)
+        self.menubar_border_W.grid(column=0, row=2)
+        #if sub_window.border_frame_W_2.winfo_manager() == "":
+            #sub_window.border_frame_W_2.grid()
+            #sub_window.border_frame_E_2.grid()
+            ##The following adjusts the heights of border frames W3 and E3
+            #sub_window.border_frame_E2.config(height=sub_window.border_frame_E2.winfo_height() - 25)
+            #sub_window.border_frame_W2.config(height=sub_window.border_frame_E2.winfo_height() - 25)
             
     def update_menubar_width(self, sub_window: Sub_Window):
         """Updates the menubar width based on the window_width attribute of the parent Sub_Window instance."""
-        sub_window.content.menubar.config(width=sub_window.window_width - 4)
+        sub_window.content.menubar.config(width=sub_window.window_width - (2 * BORDER_WIDTH))
     
     def remove_menubar(self, sub_window: Sub_Window):
         """Ungrids the menubar along with the borderframes associated with it."""  
         self.menubar.grid_remove()
-        sub_window.border_frame_E_2.grid_remove()
-        sub_window.border_frame_W_2.grid_remove()
-        #The following adjusts the heights of border frames W3 and E3
-        sub_window.border_frame_E_3.config(height=sub_window.border_frame_E_3.winfo_height() + 25)
-        sub_window.border_frame_W_3.config(height=sub_window.border_frame_E_3.winfo_height() + 25)
+        self.menubar_border_E.grid_remove()
+        self.menubar_border_W.grid_remove()
         
     def place_list_options(self):
         """Grids widgets of the List_Options class."""
@@ -529,6 +529,8 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
             """Add Image"""
             sub_window.content.add_image(sub_window)
             sub_window.content.place_image(sub_window)
+            sub_window.content.add_menubar(sub_window)
+            sub_window.content.place_menubar(sub_window)
             
     #def configure_layout(sub_window: Sub_Window):
         #"""Configures layout of widgets within a sub window."""
@@ -628,8 +630,8 @@ def event_handling(sub_window: Sub_Window):
     if sub_window.type != "Calendar":
         east_border_frames = [
             sub_window.border_frame_E_1, 
-            sub_window.border_frame_E_2, 
-            sub_window.border_frame_E_3]
+            sub_window.content.menubar_border_E, 
+            sub_window.border_frame_E2]
         for frame in east_border_frames:
             frame.bind(
                 "<Button-1>",
