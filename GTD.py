@@ -222,6 +222,7 @@ class Sub_Window:
             self.content.update_menubar_width(self)
         elif self.type == "Image":
             self.content.update_image_size(self)
+            self.content.update_menubar_width(self)
             
     def update_sub_window_size(self):
         """Updates the size of the widgets attributes within the Sub-Window class."""
@@ -233,11 +234,11 @@ class Sub_Window:
         self.border_frame_S.config(width=self.window_width - (2 * BORDER_WIDTH))
         
         if self.content.menubar.winfo_manager():
-            #Border frame 2 height values if menubar present
+            #Border_frame_2 height values if menubar present
             self.border_frame_E2.config(height=self.window_height - TOP_FRAME_HEIGHT - MENUBAR_HEIGHT - (2 * BORDER_WIDTH))
             self.border_frame_W2.config(height=self.window_height - TOP_FRAME_HEIGHT - MENUBAR_HEIGHT - (2 * BORDER_WIDTH))
         else:
-            #Border frame 2 height values if menubar absent
+            #Border_frame_2 height values if menubar absent
             self.border_frame_E2.config(height=self.window_height - TOP_FRAME_HEIGHT - (2 * BORDER_WIDTH))
             self.border_frame_W2.config(height=self.window_height - TOP_FRAME_HEIGHT - (2 * BORDER_WIDTH))
         
@@ -263,27 +264,31 @@ class Sub_Window_Content:
         """Adds image to Sub_Window_Content, with label widget as parent. Creates the label widget also."""       
         self.original_pil_image = Image.open("C:/Users/User/Documents/Programming/Git repository 1/Sample images/Screenshot 2025-06-08 143629.png") 
         self.resized_pil_image = self.original_pil_image.resize(
-            (sub_window.window_width - 40, 
-             sub_window.window_height - 40), 
+            (sub_window.window_width - (4 * BORDER_WIDTH), 
+             sub_window.window_height - TOP_FRAME_HEIGHT - MENUBAR_HEIGHT - (4 * BORDER_WIDTH)), 
             Image.LANCZOS)
         self.photoimage = ImageTk.PhotoImage(image=self.resized_pil_image)
-        
-    def place_image(self, sub_window: Sub_Window):
-        """Creates the label widget on which the image will be displayed. Grids the label widget on the sub_window_frame."""
         self.label = tk.Label(master=sub_window.sub_window_frame, image=self.photoimage)
-        self.label.grid(column=1, row=2)
+        
+    def place_image(self):
+        """Creates the label widget on which the image will be displayed. Grids the label widget on the sub_window_frame."""
+        self.label.grid(column=1, row=3)
         
     def update_image_size(self, sub_window: Sub_Window):
         """Updates size of the image in an image sub-window"""
         #Resize the pil image
         self.resized_pil_image = sub_window.content.original_pil_image.resize(
-            (sub_window.window_width - 40, 
-             sub_window.window_height - 40), 
+            (sub_window.window_width - (4 * BORDER_WIDTH), 
+             sub_window.window_height - TOP_FRAME_HEIGHT - MENUBAR_HEIGHT - (4 * BORDER_WIDTH)), 
             Image.LANCZOS)
         #Update tk photoimage with resized pil image
         self.photoimage = ImageTk.PhotoImage(image=self.resized_pil_image)
         #Update label with updated photoiamge
         self.label.configure(image=self.photoimage)
+        
+    def remove_image(self):
+        """Removes image by ungridding the label widget."""
+        self.label.grid_remove()
         
     def add_list(self, sub_window: Sub_Window):
         """Adds list that corresponds to the parent Sub_Window of the Sub_Window_Content instance."""
@@ -335,12 +340,7 @@ class Sub_Window_Content:
         self.menubar.grid(column=1, row=2, sticky='N')
         self.menubar_border_E.grid(column=2, row=2)
         self.menubar_border_W.grid(column=0, row=2)
-        #if sub_window.border_frame_W_2.winfo_manager() == "":
-            #sub_window.border_frame_W_2.grid()
-            #sub_window.border_frame_E_2.grid()
-            ##The following adjusts the heights of border frames W3 and E3
-            #sub_window.border_frame_E2.config(height=sub_window.border_frame_E2.winfo_height() - 25)
-            #sub_window.border_frame_W2.config(height=sub_window.border_frame_E2.winfo_height() - 25)
+        sub_window.update_sub_window_size()
             
     def update_menubar_width(self, sub_window: Sub_Window):
         """Updates the menubar width based on the window_width attribute of the parent Sub_Window instance."""
@@ -351,6 +351,7 @@ class Sub_Window_Content:
         self.menubar.grid_remove()
         self.menubar_border_E.grid_remove()
         self.menubar_border_W.grid_remove()
+        sub_window.update_sub_window_size()
         
     def place_list_options(self):
         """Grids widgets of the List_Options class."""
@@ -528,7 +529,7 @@ def create_sub_windows(window0: tk.Tk, canvas0: tk.Canvas) -> list[tk.Frame]:
         elif sub_window.type == "Image":
             """Add Image"""
             sub_window.content.add_image(sub_window)
-            sub_window.content.place_image(sub_window)
+            sub_window.content.place_image()
             sub_window.content.add_menubar(sub_window)
             sub_window.content.place_menubar(sub_window)
             
@@ -818,21 +819,28 @@ def resize_bottom(motion: tk.Event, sub_window: Sub_Window):
         # the sub-window
 
         #Imposes minimum width to the sub_window, so that the top frame remains visible.
-        if delta_window > 35:    
+        if delta_window > 34:    
             sub_window.window_height = delta_window
             sub_window.update_size()
         #Removes menubar once a minimum window height is reached, to enable uninterrupted resizing.
-        if sub_window.type == "List":
+        if sub_window.type == "List" or sub_window.type == "Image":
             if sub_window.window_height < 60 and sub_window.content.menubar.winfo_manager() != "":  
                 sub_window.content.remove_menubar(sub_window)
 
-            elif sub_window.window_height > 60 and sub_window.content.menubar.winfo_manager() == "" and sub_window.window_width > 205:
+            elif sub_window.window_height > 60 and sub_window.content.menubar.winfo_manager() == "":
                 sub_window.content.place_menubar(sub_window)
     
-        if sub_window.type == 'List' and sub_window.content.listbox.winfo_manager() != "" and sub_window.window_height < 81:
-            sub_window.content.listbox.grid_remove()
-        if sub_window.type == 'List' and sub_window.content.listbox.winfo_manager() == "" and sub_window.window_height > 80:
-            sub_window.content.listbox.grid()
+        if sub_window.type == 'List':
+            if sub_window.content.listbox.winfo_manager() != "" and sub_window.window_height < 80:
+                sub_window.content.listbox.grid_remove()
+            elif sub_window.type == 'List' and sub_window.content.listbox.winfo_manager() == "" and sub_window.window_height > 80:
+                sub_window.content.listbox.grid()
+                
+        if sub_window.type == "Image":
+            if sub_window.content.label.winfo_manager() != "" and sub_window.window_height < 65:
+                sub_window.content.remove_image()
+            elif sub_window.content.label.winfo_manager() == "" and sub_window.window_height > 65:
+                sub_window.content.place_image(sub_window)
                
     print("Window height: ", sub_window.window_height)
     print("Border frame S height: ", sub_window.border_frame_S.winfo_height())
