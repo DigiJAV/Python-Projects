@@ -5,6 +5,7 @@ from PIL import Image, ImageTk
 import PIL
 import tkinter as tk
 import math
+import time
 
 DEFAULT_WINDOW_WIDTH = 350
 DEFAULT_WINDOW_HEIGHT = 300
@@ -644,7 +645,7 @@ def event_handling(sub_window: Sub_Window):
                         event, 
                         sub_window)))
             frame.bind(
-            "<Motion>", 
+                "<Motion>", 
                 lambda event: resize_right(
                     event, sub_window))
             frame.bind(
@@ -734,10 +735,7 @@ def add_checkboxes():
 ### Event Handlers ##################################
 def lift_window(button1_press: tk.Event, sub_window: Sub_Window):
     """Upon a sub-window being clicked with left mouse button at any point within it, the event handler lifts the clicked sub-window to top of stack."""
-    #ID = sub_window.canvas_window0_ID
-    #canvas = sub_window.canvas
     sub_window.sub_window_frame.lift(aboveThis=None)
-    #canvas.tag_raise(ID)
 
 def enable_drag(button1_press: tk.Event, sub_window: Sub_Window):
     """"Returns True when mouse button 1 is pressed in binded widget. """
@@ -750,6 +748,7 @@ def disable_drag(button1_release: tk.Event, sub_window: Sub_Window):
 
 def execute_drag(mouse_motion: tk.Event, sub_window: Sub_Window):
     """Called when motion detected in binded frame, and drag_status == True."""
+    start = time.time()
     # Initial position values of mouse pointer (relative widget (upper left
     # coner of the widget))
     x1, y1 = sub_window.button1_press_coords[0], sub_window.button1_press_coords[1]
@@ -768,11 +767,16 @@ def execute_drag(mouse_motion: tk.Event, sub_window: Sub_Window):
         # Update the position of the canvas window object using change in x and change in y of mouse pointer.
         # canvas, canvas_window_object_ID = get_canvas_window_obj_ID()
         sub_window.canvas.move(sub_window.canvas_window0_ID, delta_x, delta_y)
-
+        end = time.time()
+        execute_time = end - start
+        if execute_time > 0.004:
+            print(f"execute_drag took {execute_time} seconds.")
+        
 def resize_right(motion: tk.Event, sub_window: Sub_Window):
     """Changes the width of the sub_window based on the change in position of the mouse cursor. Assuming the width will increase both to
             the left and to the right, the sub-window position will change in response to the change in
             position of the mouse cursor, so as to make it seem that only the right side of the window is being resized."""
+    start = time.time()
     if sub_window.drag_enabled:
         # Get initial and current mouse x-coordinates
         x1 = sub_window.button1_press_coords[0]
@@ -789,24 +793,16 @@ def resize_right(motion: tk.Event, sub_window: Sub_Window):
         if delta_window > 130:  
             sub_window.window_width = delta_window
             sub_window.update_size()
-
-        #if sub_window.type == "List" or sub_window.type == "Calendar":
-            # Show or hide the menubar based on width
-            #if delta_window < 169:
-                #sub_window.content.list_options.filter_menubutton.grid_remove()
-                #sub_window.content.list_options.sort_menubutton.grid_remove()
-            #elif delta_window > 169:
-                #if sub_window.content.list_options.filter_menubutton.winfo_manager() == "" and sub_window.content.list_options.sort_menubutton.winfo_manager() == "" and sub_window.window_height > 56:
-                    #sub_window.content.list_options.filter_menubutton.grid()
-                    #sub_window.content.list_options.sort_menubutton.grid()
-        
-    #print("Border frame E width: ", sub_window.border_frame_E_1.winfo_width())
-    #print("window width: ", sub_window.window_width)
+    end = time.time()
+    execute_time = end - start
+    if execute_time > 0.004:   
+        print(f"resize_right took {execute_time} seconds.")
     
 def resize_bottom(motion: tk.Event, sub_window: Sub_Window):
     """Changes the height of the sub-window based on the change in position of the mouse cursor. Assuming both the top and the
     bottom of the sub-window will adjust for the change in height, the position of the sub-window will adjust also, in order to
     make it seem that only the buttom of the sub-screen is changing to adjust for the change in height."""
+    start = time.time()
     if sub_window.drag_enabled:
         y1 = sub_window.button1_press_coords[1]
         y2 = motion.y
@@ -814,9 +810,6 @@ def resize_bottom(motion: tk.Event, sub_window: Sub_Window):
         delta_cursor = y2 - y1
         y1 = y2
         delta_window = sub_window.window_height + delta_cursor
-
-        # Add code to verify whether the sort and menu buttons are present in
-        # the sub-window
 
         #Imposes minimum width to the sub_window, so that the top frame remains visible.
         if delta_window > 34:    
@@ -840,18 +833,23 @@ def resize_bottom(motion: tk.Event, sub_window: Sub_Window):
             if sub_window.content.label.winfo_manager() != "" and sub_window.window_height < 65:
                 sub_window.content.remove_image()
             elif sub_window.content.label.winfo_manager() == "" and sub_window.window_height > 65:
-                sub_window.content.place_image(sub_window)
-               
-    print("Window height: ", sub_window.window_height)
-    print("Border frame S height: ", sub_window.border_frame_S.winfo_height())
+                sub_window.content.place_image()
+    end = time.time()
+    execute_time = end - start
+    if execute_time > 0.004:
+        print(f"resize_bottom took {execute_time} seconds.")           
+    #print("Window height: ", sub_window.window_height)
+    #print("Border frame S height: ", sub_window.border_frame_S.winfo_height())
     #print("Border frame S height: ", sub_window.border_frame_S.winfo_height())
 
 def resize_corner(motion: tk.Event, sub_window: Sub_Window):
     """Uses functions resize bottom and resize right at the same time when user clicks and drags on SW corner frame."""
+    start = time.time()
     if sub_window.drag_enabled:
         resize_right(motion, sub_window)
         resize_bottom(motion, sub_window)
-
+    end = time.time()
+    print(f"resize_corner took {end - start} seconds.")
 # Lists
 inbox_list = []
 next_actions_list = []
